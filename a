@@ -1,0 +1,49 @@
+[33mcommit f45b00c91943fd18db9e1bccd04b9f51117b2076[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m
+Author: exploreforce <f.thoeni@gmail.com>
+Date:   Sat Aug 23 14:23:23 2025 +0200
+
+    feat: Implement chat session history and hide tool calls; fix: Update review approval metadata; docs: Update documentation.md for recent changes
+
+ backend/.env.example                               |   5 [32m+[m[31m-[m
+ backend/database/whatsapp_bot_dev.sqlite3          | Bin [31m114688[m -> [32m212992[m bytes
+ backend/src/models/database.ts                     |  51 [32m+[m[31m-[m
+ backend/src/routes/bot.ts                          | 401 [32m+++++++++++++[m[31m-[m
+ backend/src/services/aiService.ts                  | 139 [32m++++[m[31m-[m
+ backend/src/services/translationService.ts         |  28 [32m+[m
+ backend/src/services/whatsappService.ts            |  37 [32m+[m[31m-[m
+ backend/src/utils/calendarUtils.ts                 |   2 [32m+[m[31m-[m
+ backend/src/utils/index.ts                         |   5 [32m+[m[31m-[m
+ documentation.md                                   | 128 [32m++++[m[31m-[m
+ frontend/src/app/auth/login/page.tsx               |  56 [32m++[m
+ frontend/src/app/auth/signup/page.tsx              |  77 [32m+++[m
+ frontend/src/app/calendar-new/page.tsx             |  20 [32m+[m[31m-[m
+ frontend/src/app/calendar/page.tsx                 |  26 [31m-[m
+ frontend/src/app/chat-review/[chatId]/page.tsx     | 336 [32m++++++++++++[m
+ frontend/src/app/chat-review/page.tsx              | 152 [32m++++++[m
+ frontend/src/app/chats/page.tsx                    | 245 [32m+++++++++[m
+ frontend/src/app/config/page.tsx                   |  19 [32m+[m[31m-[m
+ frontend/src/app/globals.css                       | 379 [32m+++++++[m[31m------[m
+ frontend/src/app/layout.tsx                        |  15 [32m+[m[31m-[m
+ frontend/src/app/mobile/page.tsx                   |  28 [32m+[m[31m-[m
+ frontend/src/app/page.tsx                          | 349 [32m++++++[m[31m------[m
+ frontend/src/app/test-chat/page.tsx                |  38 [32m+[m[31m-[m
+ frontend/src/components/BotConfigForm.tsx          |  56 [32m+[m[31m-[m
+ frontend/src/components/Calendar.tsx               | 411 [31m---------------[m
+ frontend/src/components/HeaderAuth.tsx             |  49 [32m++[m
+ frontend/src/components/calendar/CalendarLocal.tsx | 342 [31m------------[m
+ frontend/src/components/calendar/CalendarNew.tsx   | 287 [31m----------[m
+ frontend/src/components/calendar/CalendarPro.tsx   | 585 [32m+++++++++++++++++[m[31m----[m
+ frontend/src/components/calendar/CalendarView.tsx  | 463 [31m----------------[m
+ frontend/src/components/chat/MessageBubble.tsx     |  10 [32m+[m[31m-[m
+ frontend/src/components/chat/TestChat.tsx          | 249 [32m+++++++[m[31m--[m
+ frontend/src/components/ui/Button.tsx              |   8 [32m+[m[31m-[m
+ frontend/src/components/ui/Card.tsx                |   6 [32m+[m[31m-[m
+ frontend/src/components/ui/Input.tsx               |   8 [32m+[m[31m-[m
+ frontend/src/components/ui/Select.tsx              |   4 [32m+[m[31m-[m
+ frontend/src/components/ui/Switch.tsx              |   2 [32m+[m[31m-[m
+ frontend/src/components/ui/Textarea.tsx            |   2 [32m+[m[31m-[m
+ frontend/src/types/index.ts                        |   4 [32m+[m
+ frontend/src/utils/api.ts                          |  43 [32m+[m[31m-[m
+ frontend/src/utils/auth.ts                         |  23 [32m+[m
+ frontend/tailwind.config.js                        |  94 [32m+++[m[31m-[m
+ 42 files changed, 2991 insertions(+), 2191 deletions(-)

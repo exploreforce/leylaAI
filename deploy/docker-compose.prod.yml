@@ -1,0 +1,68 @@
+version: '3.9'
+
+networks:
+  web:
+    driver: bridge
+
+volumes:
+  backend-data:
+  caddy-data:
+  caddy-config:
+
+services:
+  reverse-proxy:
+    image: caddy:2.7-alpine
+    container_name: whatsappbot-proxy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      - DOMAIN=${DOMAIN}
+      - ACME_EMAIL=${ACME_EMAIL}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    networks:
+      - web
+
+  backend:
+    build:
+      context: ..
+      dockerfile: backend/Dockerfile
+    container_name: whatsappbot-backend
+    restart: unless-stopped
+    env_file:
+      - ./backend.env
+    environment:
+      # Ensure CORS/socket allow the public frontend
+      - FRONTEND_URL=${PUBLIC_ORIGIN}
+      - PORT=5000
+      - NODE_ENV=production
+    volumes:
+      - backend-data:/app/database
+    expose:
+      - "5000"
+    networks:
+      - web
+
+  frontend:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+        NEXT_PUBLIC_SOCKET_URL: ${NEXT_PUBLIC_SOCKET_URL}
+    container_name: whatsappbot-frontend
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+    expose:
+      - "3000"
+    depends_on:
+      - backend
+    networks:
+      - web
+
+

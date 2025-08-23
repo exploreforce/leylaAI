@@ -1,0 +1,841 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Dark Theme Variables for Red-Light District */
+  --foreground-rgb: 212, 212, 212; /* dark-100 */
+  --background-start-rgb: 10, 10, 11; /* dark-900 */
+  --background-end-rgb: 26, 26, 27; /* dark-800 */
+  --background-secondary-rgb: 38, 38, 38; /* dark-700 */
+  --background-card-rgb: 51, 51, 51; /* dark-600 */
+  
+  /* Leyla AI brand colors based on logo gradient (#c00e9d to #2929a6) */
+  --elysPink-primary-rgb: 192, 14, 157; /* elysPink-600 */
+  --elysPink-secondary-rgb: 165, 13, 133; /* elysPink-700 */
+  
+  /* Leyla AI violet gradient colors */
+  --elysViolet-primary-rgb: 139, 92, 246; /* elysViolet-500 */
+  --elysViolet-secondary-rgb: 124, 58, 237; /* elysViolet-600 */
+  
+  /* Leyla AI blue colors */
+  --elysBlue-primary-rgb: 41, 41, 166; /* elysBlue-800 */
+  --elysBlue-secondary-rgb: 67, 56, 202; /* elysBlue-700 */
+  
+  /* Text colors */
+  --text-primary-rgb: 245, 245, 245; /* dark-50 */
+  --text-secondary-rgb: 163, 163, 163; /* dark-200 */
+  --text-muted-rgb: 115, 115, 115; /* dark-300 */
+}
+
+/* Force dark theme always */
+html {
+  color-scheme: dark;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: linear-gradient(
+      135deg,
+      rgb(var(--background-start-rgb)) 0%,
+      rgb(var(--background-end-rgb)) 100%
+    );
+  min-height: 100vh;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Dark theme form styling */
+input, select, textarea, button[type="button"], button[type="submit"] {
+  color: rgb(var(--text-primary-rgb)) !important;
+  background-color: rgb(var(--background-card-rgb)) !important;
+  border-color: rgb(var(--background-secondary-rgb)) !important;
+  border-radius: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: 2px solid rgb(var(--elysPink-primary-rgb)) !important;
+  outline-offset: 2px;
+  border-color: rgb(var(--elysPink-primary-rgb)) !important;
+}
+
+input:hover, select:hover, textarea:hover {
+  border-color: rgb(var(--elysPink-secondary-rgb)) !important;
+}
+
+label {
+  color: rgb(var(--text-secondary-rgb)) !important;
+  font-weight: 500;
+}
+
+/* Enhanced select styling for dark theme */
+select, option {
+  color: rgb(var(--text-primary-rgb)) !important;
+  background-color: rgb(var(--background-card-rgb)) !important;
+}
+
+option:checked {
+  background-color: rgb(var(--elysPink-primary-rgb)) !important;
+}
+
+/* Button styling */
+button {
+  transition: all 0.3s ease;
+  border-radius: 0.5rem;
+}
+
+/* Primary buttons */
+.btn-primary, button[type="submit"] {
+  background: linear-gradient(135deg, rgb(var(--rouge-primary-rgb)) 0%, rgb(var(--rouge-secondary-rgb)) 100%) !important;
+  color: white !important;
+  border: none !important;
+  font-weight: 600;
+}
+
+.btn-primary:hover, button[type="submit"]:hover {
+  background: linear-gradient(135deg, rgb(var(--rouge-secondary-rgb)) 0%, rgb(var(--luxe-primary-rgb)) 100%) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 25px rgba(239, 68, 68, 0.3);
+}
+
+/* Secondary buttons */
+.btn-secondary {
+  background-color: transparent !important;
+  color: rgb(var(--text-primary-rgb)) !important;
+  border: 2px solid rgb(var(--background-secondary-rgb)) !important;
+}
+
+.btn-secondary:hover {
+  border-color: rgb(var(--elysViolet-primary-rgb)) !important;
+  color: rgb(var(--elysViolet-primary-rgb)) !important;
+}
+
+/* 🌃 Dark Theme Calendar Fixes for Red-Light District */
+.rbc-calendar {
+  color: rgb(var(--text-primary-rgb)) !important;
+  background-color: rgb(var(--background-card-rgb)) !important;
+  border-radius: 1rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.rbc-toolbar {
+  color: rgb(var(--text-primary-rgb)) !important;
+  background-color: rgb(var(--background-secondary-rgb)) !important;
+  padding: 1rem;
+  border-radius: 0.75rem 0.75rem 0 0;
+  border-bottom: 2px solid rgb(var(--rouge-primary-rgb));
+}
+
+.rbc-toolbar button {
+  color: rgb(var(--text-secondary-rgb)) !important;
+  background-color: rgb(var(--background-card-rgb)) !important;
+  border: 1px solid rgb(var(--background-secondary-rgb)) !important;
+  border-radius: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.rbc-toolbar button:hover {
+  background-color: rgb(var(--rouge-primary-rgb)) !important;
+  color: white !important;
+  border-color: rgb(var(--rouge-secondary-rgb)) !important;
+  transform: translateY(-1px);
+}
+
+.rbc-toolbar button.rbc-active {
+  background: linear-gradient(135deg, rgb(var(--rouge-primary-rgb)), rgb(var(--luxe-primary-rgb))) !important;
+  color: white !important;
+  border-color: rgb(var(--rouge-secondary-rgb)) !important;
+}
+
+.rbc-header {
+  color: rgb(var(--gold-primary-rgb)) !important;
+  background-color: rgb(var(--background-secondary-rgb)) !important;
+  font-weight: 600;
+  border-bottom: 1px solid rgb(var(--rouge-primary-rgb));
+}
+
+.rbc-date-cell {
+  color: rgb(var(--text-secondary-rgb)) !important;
+  background-color: rgb(var(--background-card-rgb)) !important;
+}
+
+.rbc-day-bg:hover {
+  background-color: rgba(var(--rouge-primary-rgb), 0.1) !important;
+}
+
+.rbc-today {
+  background: linear-gradient(135deg, rgba(var(--rouge-primary-rgb), 0.2), rgba(var(--luxe-primary-rgb), 0.1)) !important;
+  border: 2px solid rgb(var(--rouge-primary-rgb)) !important;
+}
+
+.rbc-off-range-bg {
+  background-color: rgb(var(--background-start-rgb)) !important;
+  opacity: 0.5;
+}
+
+.rbc-time-column .rbc-timeslot-group {
+  border-bottom: 1px solid rgb(var(--background-secondary-rgb));
+}
+
+.rbc-time-gutter .rbc-time-slot {
+  color: rgb(var(--text-muted-rgb)) !important;
+  background-color: rgb(var(--background-secondary-rgb)) !important;
+  font-size: 12px;
+  border-right: 2px solid rgb(var(--rouge-primary-rgb));
+}
+
+.rbc-time-header-gutter {
+  background-color: rgb(var(--background-secondary-rgb)) !important;
+}
+
+.rbc-time-content {
+  border-left: 1px solid rgb(var(--background-secondary-rgb));
+  background-color: rgb(var(--background-card-rgb)) !important;
+}
+
+.rbc-current-time-indicator {
+  background: linear-gradient(90deg, rgb(var(--rouge-primary-rgb)), rgb(var(--luxe-primary-rgb))) !important;
+  height: 3px;
+  box-shadow: 0 0 8px rgb(var(--rouge-primary-rgb));
+}
+
+.rbc-time-header .rbc-header {
+  border-bottom: 1px solid rgb(var(--background-secondary-rgb));
+  color: rgb(var(--gold-primary-rgb)) !important;
+  background-color: rgb(var(--background-secondary-rgb)) !important;
+  font-weight: 600;
+}
+
+.rbc-month-view .rbc-date-cell {
+  font-weight: 500;
+  color: rgb(var(--text-secondary-rgb)) !important;
+  background-color: rgb(var(--background-card-rgb)) !important;
+}
+
+.rbc-month-view .rbc-date-cell > a {
+  color: rgb(var(--gold-primary-rgb)) !important;
+  font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+.rbc-month-view .rbc-date-cell > a:hover {
+  color: rgb(var(--rouge-primary-rgb)) !important;
+}
+
+.rbc-month-view .rbc-off-range {
+  color: rgb(var(--text-muted-rgb)) !important;
+  opacity: 0.5;
+}
+
+.rbc-agenda-view .rbc-agenda-date-cell,
+.rbc-agenda-view .rbc-agenda-time-cell {
+  color: rgb(var(--text-primary-rgb)) !important;
+  background-color: rgb(var(--background-secondary-rgb)) !important;
+}
+
+.rbc-agenda-view .rbc-agenda-event-cell {
+  color: rgb(var(--text-primary-rgb)) !important;
+  background-color: rgb(var(--background-card-rgb)) !important;
+}
+
+/* Stelle sicher, dass alle Textelemente im Kalender sichtbar sind */
+.rbc-calendar * {
+  color: inherit;
+}
+
+.rbc-label {
+  color: #6b7280 !important;
+}
+
+/* Weitere wichtige Kalender-Fixes */
+.rbc-show-more {
+  color: #2563eb !important; /* Blau für "Mehr anzeigen" Links */
+  font-weight: 500;
+}
+
+.rbc-event {
+  font-size: 12px !important;
+}
+
+.rbc-event-label {
+  color: white !important;
+}
+
+.rbc-selected {
+  background: linear-gradient(135deg, rgb(var(--rouge-primary-rgb)), rgb(var(--luxe-primary-rgb))) !important;
+  color: white !important;
+}
+
+.rbc-today .rbc-date-cell {
+  color: rgb(var(--gold-primary-rgb)) !important;
+  font-weight: 700;
+  text-shadow: 0 0 8px rgb(var(--gold-primary-rgb));
+}
+
+.rbc-slot-selection {
+  background: linear-gradient(135deg, rgba(var(--rouge-primary-rgb), 0.3), rgba(var(--luxe-primary-rgb), 0.2)) !important;
+  border: 2px dashed rgb(var(--rouge-primary-rgb));
+}
+
+/* Enhanced Navigation Buttons */
+.rbc-btn-group button {
+  background-color: rgb(var(--background-card-rgb)) !important;
+  border: 1px solid rgb(var(--background-secondary-rgb)) !important;
+  color: rgb(var(--text-secondary-rgb)) !important;
+  transition: all 0.3s ease;
+}
+
+.rbc-btn-group button:hover {
+  background-color: rgb(var(--rouge-primary-rgb)) !important;
+  color: white !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.rbc-btn-group button.rbc-active {
+  background: linear-gradient(135deg, rgb(var(--rouge-primary-rgb)), rgb(var(--luxe-primary-rgb))) !important;
+  color: white !important;
+  border-color: rgb(var(--rouge-secondary-rgb)) !important;
+}
+
+/* Enhanced Toolbar styling */
+.rbc-toolbar span {
+  color: rgb(var(--text-primary-rgb)) !important;
+  font-weight: 600;
+  font-size: 18px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* 🎨 Luxurious Dark Theme Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgb(var(--background-secondary-rgb));
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, rgb(var(--rouge-primary-rgb)), rgb(var(--luxe-primary-rgb)));
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, rgb(var(--rouge-secondary-rgb)), rgb(var(--gold-primary-rgb)));
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.5);
+}
+
+/* DayPilot Lite Mobile Optimizations */
+.daypilot-calendar-container {
+  /* Ensure proper mobile rendering */
+  width: 100% !important;
+  overflow-x: auto;
+}
+
+/* DayPilot Month View Mobile */
+.daypilot_month_main {
+  font-size: 14px !important;
+}
+
+.daypilot_month_dayheader {
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  color: rgb(var(--gold-primary-rgb)) !important;
+  background: linear-gradient(135deg, rgb(var(--background-secondary-rgb)), rgba(var(--rouge-primary-rgb), 0.1)) !important;
+}
+
+.daypilot_month_cell {
+  border-color: #e5e7eb !important;
+}
+
+.daypilot_month_cell_business {
+  background-color: #ffffff !important;
+}
+
+.daypilot_month_cell_other {
+  background-color: #f9fafb !important;
+}
+
+/* DayPilot Events Mobile */
+.daypilot_event_inner {
+  font-size: 12px !important;
+  padding: 2px 4px !important;
+  border-radius: 4px !important;
+  color: white !important;
+  font-weight: 500 !important;
+}
+
+/* Touch-friendly event sizing */
+@media (max-width: 640px) {
+  .daypilot_event_inner {
+    font-size: 10px !important;
+    padding: 1px 2px !important;
+  }
+  
+  .daypilot_month_main {
+    font-size: 12px !important;
+  }
+  
+  .daypilot_month_dayheader {
+    font-size: 10px !important;
+    padding: 4px 2px !important;
+  }
+  
+  .daypilot_month_cell {
+    min-height: 60px !important;
+  }
+}
+
+/* DayPilot Week/Day View Mobile */
+.daypilot_scheduler_main {
+  font-size: 12px !important;
+}
+
+.daypilot_scheduler_timeheader {
+  font-size: 11px !important;
+  color: #6b7280 !important;
+}
+
+.daypilot_scheduler_cell {
+  border-color: #e5e7eb !important;
+}
+
+.daypilot_scheduler_cell_business {
+  background-color: #ffffff !important;
+}
+
+/* Mobile-responsive navigation buttons */
+@media (max-width: 640px) {
+  .daypilot-calendar-container {
+    overflow-x: scroll;
+  }
+}
+
+/* DayPilot Context Menu Mobile */
+.daypilot_menu {
+  font-size: 14px !important;
+  border-radius: 8px !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15) !important;
+}
+
+.daypilot_menu_item {
+  padding: 12px 16px !important;
+  color: #374151 !important;
+}
+
+.daypilot_menu_item:hover {
+  background-color: #f3f4f6 !important;
+}
+
+/* 🎯 SIMPLIFIED DAYPILOT INTEGRATION - Now using proper theme system */
+/* Most styling is now handled by /themes/calendar_rouge_district.css */
+
+/* Core DayPilot Calendar Elements - Basic Fallbacks */
+.daypilot_calendar_main,
+.daypilot_calendar,
+.daypilot_month_main,
+.daypilot_month {
+  font-family: inherit;
+}
+
+/* ✅ THEME SYSTEM ACTIVE - CSS overrides minimized */
+/* Main styling now handled by /themes/calendar_rouge_district.css */
+
+/* Essential overrides only for integration */
+
+/* Only essential fallbacks - Theme handles the rest */
+
+/* Enhanced Appointment Event Styling */
+.appointment-event {
+  padding: 2px 4px;
+  font-size: 11px;
+  line-height: 1.2;
+  height: 100%;
+  overflow: hidden;
+}
+
+.appointment-title {
+  font-weight: 600;
+  margin-bottom: 1px;
+  color: #ffffff !important;
+}
+
+.appointment-service {
+  color: rgba(255, 255, 255, 0.9) !important;
+  font-size: 10px;
+  margin-bottom: 1px;
+}
+
+.appointment-time {
+  color: rgba(255, 255, 255, 0.8) !important;
+  font-size: 9px;
+}
+
+/* DayPilot Navigator Enhancements */
+.daypilot_navigator_main {
+  font-size: 12px !important;
+  border-radius: 8px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+}
+
+.daypilot_navigator_dayheader {
+  font-weight: 600 !important;
+  color: #374151 !important;
+  background-color: #f9fafb !important;
+  font-size: 11px !important;
+}
+
+.daypilot_navigator_day {
+  border-color: #e5e7eb !important;
+  transition: background-color 0.2s ease !important;
+}
+
+.daypilot_navigator_day:hover {
+  background-color: #f3f4f6 !important;
+}
+
+.daypilot_navigator_selected {
+  background-color: #3b82f6 !important;
+  color: white !important;
+  font-weight: 600 !important;
+}
+
+.daypilot_navigator_today {
+  background-color: #dbeafe !important;
+  color: #1d4ed8 !important;
+  font-weight: 600 !important;
+}
+
+/* DayPilot Modal Enhancements */
+.daypilot_modal_inner {
+  border-radius: 12px !important;
+  box-shadow: 0 20px 25px rgba(0, 0, 0, 0.15) !important;
+}
+
+.daypilot_modal_top {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  color: white !important;
+  border-radius: 12px 12px 0 0 !important;
+  padding: 20px !important;
+}
+
+.daypilot_modal_content {
+  padding: 24px !important;
+}
+
+/* Enhanced Event Areas */
+.daypilot_event_inner {
+  border-radius: 6px !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+  transition: all 0.2s ease !important;
+}
+
+.daypilot_event_inner:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Scheduler View Enhancements */
+.daypilot_scheduler_main {
+  border-radius: 8px !important;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05) !important;
+}
+
+.daypilot_scheduler_rowheader {
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%) !important;
+  border-color: #e5e7eb !important;
+  font-weight: 600 !important;
+  color: #374151 !important;
+}
+
+.daypilot_scheduler_cell_business {
+  background-color: #ffffff !important;
+}
+
+.daypilot_scheduler_cell:hover {
+  background-color: #f8fafc !important;
+}
+
+/* Mobile Enhancements */
+@media (max-width: 768px) {
+  .appointment-event {
+    font-size: 9px;
+    padding: 1px 2px;
+  }
+  
+  .appointment-title {
+    font-size: 9px;
+  }
+  
+  .appointment-service,
+  .appointment-time {
+    display: none; /* Hide details on mobile */
+  }
+  
+  .daypilot_navigator_main {
+    font-size: 10px !important;
+  }
+  
+  .daypilot_modal_inner {
+    margin: 10px !important;
+    border-radius: 8px !important;
+  }
+}
+
+/* 🚀 ADDITIONAL DAYPILOT ELEMENTS VISIBILITY */
+
+/* Scheduler View Elements */
+.daypilot_scheduler_main,
+.daypilot_scheduler {
+  color: #1f2937 !important;
+  background-color: #ffffff !important;
+}
+
+.daypilot_scheduler_rowheader,
+.daypilot_scheduler_rowheader_inner {
+  color: #1f2937 !important;
+  background-color: #f9fafb !important;
+  font-weight: 600 !important;
+  border-color: #e5e7eb !important;
+}
+
+.daypilot_scheduler_cell {
+  color: #1f2937 !important;
+  background-color: #ffffff !important;
+  border-color: #e5e7eb !important;
+}
+
+.daypilot_scheduler_timeheader {
+  color: #4b5563 !important;
+  background-color: #f9fafb !important;
+  border-color: #e5e7eb !important;
+}
+
+/* Events in all views */
+.daypilot_event,
+.daypilot_event_inner {
+  color: #ffffff !important;
+  border-radius: 4px !important;
+}
+
+/* Ensure all text elements are visible */
+.daypilot_calendar div,
+.daypilot_month div,
+.daypilot_scheduler div,
+.daypilot_navigator div {
+  color: inherit !important;
+}
+
+/* Force visibility on problematic elements */
+.daypilot_calendar *,
+.daypilot_month *,
+.daypilot_scheduler *,
+.daypilot_navigator * {
+  color: inherit !important;
+}
+
+/* 🚀 CLEAN THEME SYSTEM - Aggressive overrides removed */
+/* Now using professional DayPilot theme: calendar_rouge_district */
+
+/* 🎨 ENHANCED EVENT ANIMATIONS & EFFECTS */
+
+/* Shine animation for premium events */
+@keyframes shine {
+  0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+  50% { transform: translateX(0%) translateY(0%) rotate(45deg); }
+  100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+}
+
+/* Emergency pulse animation */
+@keyframes emergency-pulse {
+  0% { 
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+    transform: scale(1.02);
+  }
+  100% { 
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+    transform: scale(1);
+  }
+}
+
+/* Hover effects for events */
+@keyframes event-hover {
+  0% { transform: translateY(0) scale(1); }
+  100% { transform: translateY(-2px) scale(1.02); }
+}
+
+/* Event Classes */
+.event-emergency-pulse {
+  animation: emergency-pulse 2s infinite !important;
+}
+
+.appointment-event-pro {
+  transition: all 0.3s ease !important;
+  cursor: pointer !important;
+}
+
+.appointment-event-pro:hover {
+  animation: event-hover 0.3s ease forwards !important;
+  z-index: 10 !important;
+}
+
+/* Priority-based event enhancements */
+.event-priority-long {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15) !important;
+  border-width: 3px !important;
+}
+
+.event-priority-medium {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12) !important;
+  border-width: 2px !important;
+}
+
+.event-priority-short {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+  border-width: 1px !important;
+}
+
+/* 💎 Red-Light District Event Colors - Professional & Luxurious */
+.event-confirmed {
+  background: linear-gradient(135deg, rgb(var(--gold-primary-rgb)) 0%, rgb(var(--gold-secondary-rgb)) 100%) !important;
+  border-color: rgb(var(--gold-primary-rgb)) !important;
+  box-shadow: 0 4px 15px rgba(251, 191, 36, 0.4);
+}
+
+.event-pending {
+  background: linear-gradient(135deg, rgb(var(--rouge-primary-rgb)) 0%, rgb(var(--rouge-secondary-rgb)) 100%) !important;
+  border-color: rgb(var(--rouge-primary-rgb)) !important;
+  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+}
+
+.event-cancelled {
+  background: linear-gradient(135deg, #525252 0%, #404040 100%) !important;
+  border-color: #525252 !important;
+  opacity: 0.7;
+  text-decoration: line-through;
+}
+
+.event-completed {
+  background: linear-gradient(135deg, rgb(var(--luxe-primary-rgb)) 0%, rgb(var(--luxe-secondary-rgb)) 100%) !important;
+  border-color: rgb(var(--luxe-primary-rgb)) !important;
+  box-shadow: 0 4px 15px rgba(192, 38, 211, 0.4);
+}
+
+/* Service-specific styling */
+.service-consultation {
+  border-left: 4px solid #3b82f6 !important;
+}
+
+.service-emergency {
+  border-left: 4px solid #ef4444 !important;
+  animation: emergency-pulse 2s infinite !important;
+}
+
+.service-checkup {
+  border-left: 4px solid #10b981 !important;
+}
+
+.service-therapy {
+  border-left: 4px solid #8b5cf6 !important;
+}
+
+/* Mobile optimizations for events */
+@media (max-width: 768px) {
+  .appointment-event-pro {
+    font-size: 10px !important;
+    padding: 4px !important;
+  }
+  
+  .appointment-event-pro:hover {
+    animation: none !important;
+    transform: none !important;
+  }
+  
+  .event-emergency-pulse {
+    animation-duration: 3s !important;
+  }
+}
+
+/* Dark mode support for events */
+@media (prefers-color-scheme: dark) {
+  .appointment-event-pro {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
+  }
+}
+
+/* === DayPilot Modal Fixes === */
+.modal_default_inner {
+  background: #ffffff !important;
+  border: 1px solid #d1d5db !important;
+  border-radius: 8px !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
+}
+
+.modal_default_content {
+  color: #1f2937 !important;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+  font-size: 14px !important;
+  padding: 20px !important;
+  text-align: center !important;
+}
+
+.modal_default_buttons {
+  background: #f9fafb !important;
+  border-top: 1px solid #e5e7eb !important;
+  padding: 10px 20px !important;
+  text-align: center !important;
+}
+
+.modal_default_ok {
+  background: #3b82f6 !important;
+  color: #ffffff !important;
+  border: none !important;
+  padding: 8px 16px !important;
+  border-radius: 4px !important;
+  cursor: pointer !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  transition: background-color 0.2s !important;
+}
+
+.modal_default_ok:hover {
+  background: #2563eb !important;
+}
+
+.modal_default_ok:focus {
+  outline: 2px solid #3b82f6 !important;
+  outline-offset: 2px !important;
+}
+
+/* Chat message animations */
+@keyframes message-appear {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.message-appear {
+  animation: message-appear 0.3s ease-out;
+}
+
+/* Loading spinner */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+} 
