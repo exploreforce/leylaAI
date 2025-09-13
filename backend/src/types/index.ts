@@ -126,12 +126,11 @@ export interface ChatMessage {
     appointmentId?: string;
     status?: 'draft' | 'sent';
     
-    // New structured output metadata
-    language?: string;
-    confidence?: number;
-    intent?: string;
-    urgency?: 'low' | 'medium' | 'high';
-    requiresFollowUp?: boolean;
+    // New structured output metadata (revised schema)
+    userLanguage?: string; // detected language code for the turn
+    isFlagged?: boolean; // moderation flag
+    userSentiment?: string; // qualitative label
+    userInformation?: string; // rolling summary to carry across turns
   };
 }
 

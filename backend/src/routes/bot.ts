@@ -244,11 +244,11 @@ router.get(
       const chats = [];
       
       // Get Test Chat sessions with pending drafts
+      // Needs Review only for flagged drafts
       const testSessions = await db('test_chat_sessions')
         .select('test_chat_sessions.*')
         .leftJoin('chat_messages', 'test_chat_sessions.id', 'chat_messages.session_id')
-        .whereRaw(`chat_messages.metadata LIKE '%"status":"draft"%'`)
-        .orWhereRaw(`chat_messages.role = 'assistant' AND (chat_messages.metadata IS NULL OR chat_messages.metadata = '{}')`)
+        .whereRaw(`chat_messages.role = 'assistant' AND chat_messages.metadata LIKE '%"status":"draft"%' AND (chat_messages.metadata LIKE '%"isFlagged":true%' OR chat_messages.metadata LIKE '%"is_flagged":true%')`)
         .groupBy('test_chat_sessions.id')
         .orderBy('test_chat_sessions.last_activity', 'desc');
       
@@ -416,6 +416,19 @@ router.get(
           .where('session_id', session.id)
           .orderBy('timestamp', 'desc')
           .first();
+
+        // Get last assistant message to determine flagged state
+        const lastAssistantMsg = await db('chat_messages')
+          .where('session_id', session.id)
+          .andWhere('role', 'assistant')
+          .orderBy('timestamp', 'desc')
+          .first();
+        let isFlagged = false;
+        if (lastAssistantMsg) {
+          let meta: any = lastAssistantMsg.metadata;
+          try { if (typeof meta === 'string') meta = JSON.parse(meta); } catch {}
+          isFlagged = Boolean(meta?.isFlagged ?? meta?.is_flagged);
+        }
         
         return {
           id: String(session.id),
@@ -424,6 +437,7 @@ router.get(
           createdAt: session.created_at ? new Date(session.created_at).toISOString() : new Date().toISOString(),
           lastActivity: session.last_activity ? new Date(session.last_activity).toISOString() : 
                        session.updated_at ? new Date(session.updated_at).toISOString() : new Date().toISOString(),
+          isFlagged,
           stats: {
             totalMessages: parseInt(messageStats?.total_messages || '0'),
             userMessages: parseInt(messageStats?.user_messages || '0'),

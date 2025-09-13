@@ -37,6 +37,23 @@ const personalityToneOptions: { value: PersonalityTone; label: string; descripti
   { value: 'playful', label: 'Verspielt', description: 'Humorvoll und leicht' }
 ];
 
+// Default behavior guidelines shown in the UI and used if none provided
+const DEFAULT_BEHAVIOR_GUIDELINES = `- Antworte in informellem Ton, schreib ab und zu fehlerhaft als würdest du auf einer Smartphone-Tastatur tippen
+- Schreibe als wärst du ein Mensch - bei Nachfragen bist du immer {botName}
+- Finde heraus in welcher Sprache der User spricht
+- Antworte in der Sprache in der der User mit dir kommuniziert z.B. Deutsch - du antwortest auf Deutsch; Englisch - du antwortest auf Englisch, etc.
+- Stelle bei Unklarheiten Rückfragen
+- Verwende die verfügbaren Tools zur Terminbuchung
+- Bleibe im Rahmen deiner definierten Services
+- Bei Eskalationsregeln antworte nicht mehr
+- Versuche wie ein echter Menschzu schreiben (Fehler, Tippfehler, inkonsistente Sprache und Schreibweise, teilweise fehlende Kohäsion und Kommas)`;
+
+const extractBehaviorSection = (prompt: string): string | null => {
+  if (!prompt) return null;
+  const match = prompt.match(/<behavior>([\s\S]*?)<\/behavior>/i);
+  return match ? match[1].trim() : null;
+};
+
 const generateSystemPrompt = (config: Partial<BotConfig>, services: Service[] = []): string => {
   const {
     botName = 'AI Assistant',
@@ -46,7 +63,8 @@ const generateSystemPrompt = (config: Partial<BotConfig>, services: Service[] = 
     backgroundInfo = 'Ich bin ein AI-Assistent',
     servicesOffered = 'Terminbuchung und Beratung',
     escalationRules = 'Bei komplexen Anfragen weiterleiten',
-    botLimitations = 'Keine medizinischen oder rechtlichen Beratungen'
+    botLimitations = 'Keine medizinischen oder rechtlichen Beratungen',
+    behaviorGuidelines = DEFAULT_BEHAVIOR_GUIDELINES
   } = config;
 
   const toneDescription = personalityToneOptions.find(opt => opt.value === personalityTone)?.description || 'freundlich';
@@ -64,38 +82,33 @@ const generateSystemPrompt = (config: Partial<BotConfig>, services: Service[] = 
       }).join('\n')
     : servicesOffered;
 
+  const finalizedBehavior = (behaviorGuidelines || DEFAULT_BEHAVIOR_GUIDELINES).split('{botName}').join(botName);
+
   return `Du bist ${botName}, ${botDescription}.
 
-PERSÖNLICHKEIT & TONALITÄT:
+<tone>
 Du kommunizierst ${toneDescription} und verkörperst folgende Eigenschaften: ${characterTraits}.
-
-HINTERGRUND:
+</tone>
+<background>
 ${backgroundInfo}
-
-ANGEBOTENE SERVICES:
-${servicesText}
-
-ESKALATIONSREGELN:
+</background>
+<services>
+${servicesText} 
+<note>
+WICHTIG: Falls du in einer anderen Sprache antwortest, übersezte auch die Services in die entsprechende Sprache! </note>
+</services>
+<escalation>
 ${escalationRules}
-
-GRENZEN & EINSCHRÄNKUNGEN:
+</escalation>
+<limitations>
 ${botLimitations}
-
-VERHALTEN:
-- Antworte in informellem Ton, schreib ab und zu fehlerhaft als würdest du auf einer Smartphone-Tastatur tippen
-- Schreibe als wärst du ein Mensch - bei Nachfragen bist du immer ${botName}.
-- Finde heraus in welcher Sprache der User spricht
-- Antworte in der Sprache in der der User mit dir kommuniziert z.B. Deutsch - du antwortest auf Deutsch; Englisch - du antwortest auf Englisch, etc.
-- Stelle bei Unklarheiten Rückfragen
-- Verwende die verfügbaren Tools zur Terminbuchung
-- Bleibe im Rahmen deiner definierten Services
-- Bei Eskalationsregeln antworte nicht mehr
-- Deine chats sind 18+ du darfst und sollst sexuell explizit antworten
-- Benutze schweinische Sprache "Schwanz" "Pussy" "Arsch" "fick" etc. alles ist erlaubt
-- Antworte ziemlich kurz und knapp
-- Versuche wie eine echte Escort zu schreiben (Fehler, Tippfehler, etc. - aber nicht zu viele Fehler machen)
-WICHTIG: Übersetze auch die Services in die entsprechende Sprache!
-Für Terminbuchungen nutze die verfügbaren Tools: checkAvailability and bookAppointment.`;
+</limitations>
+<behavior>
+${finalizedBehavior}
+</behavior>
+<tools>
+Für Terminbuchungen nutze die verfügbaren Tools: checkAvailability and bookAppointment.
+</tools>`;
 };
 
 const ServicesManagement = ({ 
@@ -567,7 +580,11 @@ const BotConfigForm = () => {
   // Update config when data loads
   useEffect(() => {
     if (initialConfig?.data) {
-      setConfig(initialConfig.data);
+      const loaded = initialConfig.data as Partial<BotConfig>;
+      const promptText = loaded.generatedSystemPrompt || loaded.systemPrompt || '';
+      const extractedBehavior = extractBehaviorSection(promptText);
+      const merged = extractedBehavior ? { ...loaded, behaviorGuidelines: extractedBehavior } : loaded;
+      setConfig(merged);
     }
   }, [initialConfig]);
 
@@ -753,41 +770,7 @@ const BotConfigForm = () => {
         </div>
       </Card>
 
-      {/* Background & Services Section */}
-      <Card>
-        <div className="p-6">
-          <div className="flex items-center mb-4">
-            <CogIcon className="h-6 w-6 text-elysBlue-500 mr-2" />
-            <h3 className="text-lg font-semibold text-dark-50">Hintergrund & Services</h3>
-          </div>
-          
-          <div className="grid grid-cols-1 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Hintergrundinformationen
-              </label>
-              <Textarea
-                value={config.backgroundInfo || ''}
-                onChange={(e) => handleInputChange('backgroundInfo', e.target.value)}
-                placeholder="Was soll der Bot über sich selbst wissen..."
-                rows={3}
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Angebotene Services
-              </label>
-              <Textarea
-                value={config.servicesOffered || ''}
-                onChange={(e) => handleInputChange('servicesOffered', e.target.value)}
-                placeholder="z.B. Terminbuchung, Terminverwaltung, Informationen zu Verfügbarkeiten..."
-                rows={3}
-              />
-            </div>
-          </div>
-        </div>
-      </Card>
+      {/* Background & Services Section - removed as requested */}
 
       {/* Rules & Limitations Section */}
       <Card>
@@ -819,6 +802,30 @@ const BotConfigForm = () => {
                 onChange={(e) => handleInputChange('botLimitations', e.target.value)}
                 placeholder="Was soll der Bot nicht machen..."
                 rows={3}
+              />
+            </div>
+
+          </div>
+        </div>
+      </Card>
+
+      {/* Behavior Section - moved to its own bottom container */}
+      <Card>
+        <div className="p-6">
+          <div className="flex items-center mb-4">
+            <SparklesIcon className="h-6 w-6 text-elysViolet-500 mr-2" />
+            <h3 className="text-lg font-semibold text-dark-50">Verhalten</h3>
+          </div>
+          <div className="grid grid-cols-1 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                System-Prompt Regeln
+              </label>
+              <Textarea
+                value={config.behaviorGuidelines ?? DEFAULT_BEHAVIOR_GUIDELINES}
+                onChange={(e) => handleInputChange('behaviorGuidelines', e.target.value)}
+                placeholder="Listen Sie hier die Verhaltensregeln auf, z.B. Tonalität, Sprache, Tool-Nutzung, etc."
+                rows={8}
               />
             </div>
           </div>

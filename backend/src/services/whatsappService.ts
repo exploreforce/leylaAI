@@ -110,25 +110,58 @@ class WhatsAppService {
     const aiResponse = await AIService.getChatResponse(messageHistory, sessionId);
 
     if (aiResponse.content) {
-      // AI Response als "draft" speichern (NICHT automatisch senden)
-      const aiMessageData: DbChatMessage = {
-        session_id: sessionId,
-        role: 'assistant',
-        content: aiResponse.content,
-        timestamp: new Date(),
-        metadata: { ...aiResponse.metadata, status: 'draft' },
-      };
-      const savedMessage = await Database.addChatMessage(aiMessageData);
+      const isFlagged = Boolean((aiResponse as any)?.metadata?.isFlagged);
+      const baseMetadata: any = { ...(aiResponse.metadata || {}) };
 
-      // Für Review-Flow: Nur Draft zurückgeben
-      if (savedMessage?.id) {
-        return {
-          id: savedMessage.id,
+      if (isFlagged) {
+        // Flagged → Draft for review
+        const aiMessageData: DbChatMessage = {
+          session_id: sessionId,
           role: 'assistant',
           content: aiResponse.content,
           timestamp: new Date(),
-          metadata: { ...aiResponse.metadata, status: 'draft' },
+          metadata: { ...baseMetadata, status: 'draft' },
         };
+        const savedMessage = await Database.addChatMessage(aiMessageData);
+
+        if (savedMessage?.id) {
+          return {
+            id: savedMessage.id,
+            role: 'assistant',
+            content: aiResponse.content,
+            timestamp: new Date(),
+            metadata: { ...baseMetadata, status: 'draft' },
+          };
+        }
+      } else {
+        // Not flagged → Auto-approve (and auto-send if WhatsApp)
+        const aiMessageData: DbChatMessage = {
+          session_id: sessionId,
+          role: 'assistant',
+          content: aiResponse.content,
+          timestamp: new Date(),
+          metadata: { ...baseMetadata, approved: true, status: sendToWhatsApp ? 'sent' : 'approved' },
+        };
+        const savedMessage = await Database.addChatMessage(aiMessageData);
+
+        // Auto-send on WhatsApp flow
+        if (sendToWhatsApp && whatsappRecipient) {
+          try {
+            await this.sendMessage(whatsappRecipient, aiResponse.content);
+          } catch (err) {
+            console.error('❌ Failed to auto-send WhatsApp message:', err);
+          }
+        }
+
+        if (savedMessage?.id) {
+          return {
+            id: savedMessage.id,
+            role: 'assistant',
+            content: aiResponse.content,
+            timestamp: new Date(),
+            metadata: { ...baseMetadata, approved: true, status: sendToWhatsApp ? 'sent' : 'approved' },
+          };
+        }
       }
     }
     

@@ -13,55 +13,44 @@ const openai = new OpenAI({
 const botResponseSchema = {
   type: "object" as const,
   properties: {
-    message: {
+    chat_response: {
       type: "string" as const,
-      description: "The response message to send to the user"
+      description: "Chat answer from the system. This is what will be shown to the user."
     },
-    language: {
-      type: "string" as const, 
-      description: "ISO 639-1 language code of the detected user language and response language (e.g., 'en', 'de', 'es')"
+    is_flagged: {
+      type: "boolean" as const,
+      description: "Has the user's message crossed a red line? True if flagged."
     },
-    confidence: {
-      type: "number" as const,
-      description: "Confidence score (0-1) for language detection",
-      minimum: 0,
-      maximum: 1
+    user_sentiment: {
+      type: "string" as const,
+      description: "Interpretation of the user's emotional state."
     },
-    metadata: {
-      type: "object" as const,
-      properties: {
-        intent: {
-          type: "string" as const,
-          description: "Detected user intent (e.g., 'booking', 'inquiry', 'greeting')"
-        },
-        urgency: {
-          type: "string" as const,
-          enum: ["low", "medium", "high"],
-          description: "Message urgency level"
-        },
-        requiresFollowUp: {
-          type: "boolean" as const,
-          description: "Whether this conversation requires follow-up"
-        }
-      },
-      required: ["intent", "urgency", "requiresFollowUp"],
-      additionalProperties: false
+    user_information: {
+      type: "string" as const,
+      description: "Summary of the most important information about the user to carry across turns."
+    },
+    user_language: {
+      type: "string" as const,
+      description: "ISO 639-1 language code the user is writing in (e.g., 'de', 'en')."
     }
   },
-  required: ["message", "language", "confidence", "metadata"],
+  required: [
+    "chat_response",
+    "is_flagged",
+    "user_sentiment",
+    "user_information",
+    "user_language"
+  ],
   additionalProperties: false
 };
 
 // Interface for the structured response
 interface BotResponse {
-  message: string;
-  language: string;
-  confidence: number;
-  metadata: {
-    intent: string;
-    urgency: 'low' | 'medium' | 'high';
-    requiresFollowUp: boolean;
-  };
+  chat_response: string;
+  is_flagged: boolean;
+  user_sentiment: string;
+  user_information: string;
+  user_language: string;
 }
 
 // --- Tool Definitions for OpenAI Function Calling ---
@@ -298,13 +287,11 @@ export class AIService {
     const promptType = botConfig.generatedSystemPrompt ? 'generated' : 'legacy';
     
     // Content Filter Settings
-    const allowExplicit = process.env.OPENAI_ALLOW_EXPLICIT === 'true';
     const contentFilterEnabled = process.env.OPENAI_CONTENT_FILTER !== 'false';
     
     console.log('🤖 AI Service: Bot config loaded:', {
       promptType,
       systemPrompt: activeSystemPrompt.substring(0, 50) + '...',
-      allowExplicit,
       contentFilterEnabled
     });
 
@@ -320,36 +307,30 @@ export class AIService {
       weekday: 'long'
     });
     
+    // Pull last assistant metadata to seed session memory (handle object or JSON string)
+    const lastAssistant = [...messages].reverse().find(m => m.role === 'assistant');
+    let lastMeta: any = (lastAssistant as any)?.metadata;
+    try { if (typeof lastMeta === 'string') lastMeta = JSON.parse(lastMeta); } catch {}
+    const previousUserInformation = lastMeta?.userInformation || lastMeta?.user_information || '';
+    const previousUserLanguage = lastMeta?.userLanguage || lastMeta?.user_language || '';
+    const previousIsFlagged = (lastMeta?.isFlagged ?? lastMeta?.is_flagged) || false;
+
     let extendedSystemPrompt = activeSystemPrompt + `
     
-CURRENT DATE & TIME INFORMATION:
-- Today's date: ${currentDate}
-- Current date and time: ${currentDateTime}
-- Use this information when users ask for appointments "today", "tomorrow", "next week", etc.
-- Always convert relative dates (like "tomorrow", "next Friday") to specific dates in YYYY-MM-DD format before calling tools.
+SESSION MEMORY
+- Known user info: ${previousUserInformation || 'None'}
+- Last user language: ${previousUserLanguage || 'unknown'}
+- Last safety flag: ${previousIsFlagged ? 'true' : 'false'}
 
-LANGUAGE INSTRUCTION:
-- IMPORTANT: Always detect the user's language from their message and respond in the SAME language
-- Maintain consistent language throughout your entire response including services, appointment details, etc.
-- Include the detected language code in your structured response
-- If unsure, default to English ('en')
-
-STRUCTURED RESPONSE:
-- You must ALWAYS respond using the structured JSON format
-- Include your message, detected language, confidence score, and metadata
-- Analyze user intent (booking, inquiry, greeting, complaint, etc.)
-- Assess message urgency (low, medium, high)
-- Determine if follow-up is needed`;
-    
-    if (allowExplicit) {
-      extendedSystemPrompt += `
-
-CONTENT POLICY:
-- Du kannst offen über alle Themen sprechen, einschließlich expliziter/erotischer Inhalte
-- Achte darauf, dass der Nutzer volljährig ist (18+) bei expliziten Themen
-- Verwende angemessene Sprache basierend auf dem Kontext
-- Respektiere immer Grenzen und Einverständnis`;
-    }
+GUIDELINES
+- Detect user's language and reply fully in that language
+- Always return JSON matching the provided schema (no prose outside JSON)
+- chat_response is what the user sees
+- user_information is a concise rolling summary to carry across turns
+- user_language is the detected language code (e.g., 'de', 'en')
+- is_flagged true only if content crosses a red line
+- user_sentiment is a short qualitative label
+`;
 
     const systemMessage: OpenAI.Chat.ChatCompletionMessageParam = {
       role: 'system',
@@ -379,7 +360,7 @@ CONTENT POLICY:
       response_format: {
         type: "json_schema",
         json_schema: {
-          name: "bot_response",
+          name: "chat_response",
           schema: botResponseSchema,
           strict: true
         }
@@ -425,7 +406,7 @@ CONTENT POLICY:
         response_format: {
           type: "json_schema",
           json_schema: {
-            name: "bot_response",
+            name: "chat_response",
             schema: botResponseSchema,
             strict: true
           }
@@ -445,38 +426,33 @@ CONTENT POLICY:
       try {
         structuredResponse = JSON.parse(finalMessage.content || '{}') as BotResponse;
         console.log('🎯 Structured response received:', {
-          language: structuredResponse.language,
-          confidence: structuredResponse.confidence,
-          intent: structuredResponse.metadata?.intent,
-          urgency: structuredResponse.metadata?.urgency,
-          requiresFollowUp: structuredResponse.metadata?.requiresFollowUp
+          user_language: structuredResponse.user_language,
+          is_flagged: structuredResponse.is_flagged,
+          user_sentiment: structuredResponse.user_sentiment,
+          user_information: (structuredResponse.user_information || '').substring(0, 80) + '...'
         });
       } catch (error) {
         console.error('❌ Failed to parse structured response:', error);
         // Fallback to raw content
         structuredResponse = {
-          message: finalMessage.content || 'Sorry, I encountered an error processing your request.',
-          language: 'en',
-          confidence: 0.5,
-          metadata: {
-            intent: 'unknown',
-            urgency: 'medium',
-            requiresFollowUp: false
-          }
-        };
+          chat_response: finalMessage.content || 'Sorry, I encountered an error processing your request.',
+          user_language: 'en',
+          is_flagged: false,
+          user_sentiment: 'neutral',
+          user_information: previousUserInformation || ''
+        } as BotResponse;
       }
       
       return {
         id: '', // Will be set by the database
         role: 'assistant',
-        content: structuredResponse.message,
+        content: structuredResponse.chat_response,
         timestamp: new Date(),
         metadata: {
-          language: structuredResponse.language,
-          confidence: structuredResponse.confidence,
-          intent: structuredResponse.metadata.intent,
-          urgency: structuredResponse.metadata.urgency,
-          requiresFollowUp: structuredResponse.metadata.requiresFollowUp,
+          userLanguage: structuredResponse.user_language,
+          isFlagged: structuredResponse.is_flagged,
+          userSentiment: structuredResponse.user_sentiment,
+          userInformation: structuredResponse.user_information,
           toolCalls: toolCalls.map((tc, i) => ({
             name: tc.function.name,
             parameters: JSON.parse(tc.function.arguments),
@@ -491,38 +467,33 @@ CONTENT POLICY:
       try {
         structuredResponse = JSON.parse(responseMessage.content || '{}') as BotResponse;
         console.log('🎯 Structured response received:', {
-          language: structuredResponse.language,
-          confidence: structuredResponse.confidence,
-          intent: structuredResponse.metadata?.intent,
-          urgency: structuredResponse.metadata?.urgency,
-          requiresFollowUp: structuredResponse.metadata?.requiresFollowUp
+          user_language: structuredResponse.user_language,
+          is_flagged: structuredResponse.is_flagged,
+          user_sentiment: structuredResponse.user_sentiment,
+          user_information: (structuredResponse.user_information || '').substring(0, 80) + '...'
         });
       } catch (error) {
         console.error('❌ Failed to parse structured response:', error);
         // Fallback to raw content
         structuredResponse = {
-          message: responseMessage.content || 'Sorry, I encountered an error processing your request.',
-          language: 'en',
-          confidence: 0.5,
-          metadata: {
-            intent: 'unknown',
-            urgency: 'medium',
-            requiresFollowUp: false
-          }
-        };
+          chat_response: responseMessage.content || 'Sorry, I encountered an error processing your request.',
+          user_language: 'en',
+          is_flagged: false,
+          user_sentiment: 'neutral',
+          user_information: previousUserInformation || ''
+        } as BotResponse;
       }
       
       return {
         id: '',
         role: 'assistant',
-        content: structuredResponse.message,
+        content: structuredResponse.chat_response,
         timestamp: new Date(),
         metadata: {
-          language: structuredResponse.language,
-          confidence: structuredResponse.confidence,
-          intent: structuredResponse.metadata.intent,
-          urgency: structuredResponse.metadata.urgency,
-          requiresFollowUp: structuredResponse.metadata.requiresFollowUp
+          userLanguage: structuredResponse.user_language,
+          isFlagged: structuredResponse.is_flagged,
+          userSentiment: structuredResponse.user_sentiment,
+          userInformation: structuredResponse.user_information
         }
       };
     }

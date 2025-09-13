@@ -131,6 +131,7 @@ This project is a full-stack application designed to provide a configurable AI-p
     *   Character traits and background information
     *   Services offered and escalation rules
     *   Bot limitations and boundaries
+    *   Behavior guidelines (editable behavior section used in system prompt)
     *   Automatic system prompt generation from configuration
 *   **Test Chat:** A chat interface for testing the chatbot's responses and tool calls.
 *   **WhatsApp Integration:** The application is integrated with the WhatsApp API to send and receive messages.
@@ -217,7 +218,7 @@ The `app` directory contains the application's routes.
 
 The `components` directory contains the reusable React components that are used throughout the application.
 
-*   `BotConfigForm.tsx`: A comprehensive form for configuring the AI bot with advanced options including bot identity, personality settings, character traits, services offered, escalation rules, limitations, and automatic system prompt generation with live preview. Icons for sections (`CurrencyEuroIcon`, `UserIcon`, `ChatBubbleLeftRightIcon`, `CogIcon`, `SparklesIcon`) were updated with Leyla AI colors. Table header text color and tab active state colors were updated.
+*   `BotConfigForm.tsx`: A comprehensive form for configuring the AI bot with advanced options including bot identity, personality settings, character traits, services offered, escalation rules, limitations, behavior guidelines (new editable textarea bound to `behaviorGuidelines`), and automatic system prompt generation with live preview. Icons for sections (`CurrencyEuroIcon`, `UserIcon`, `ChatBubbleLeftRightIcon`, `CogIcon`, `SparklesIcon`) were updated with Leyla AI colors. Table header text color and tab active state colors were updated.
 *   `calendar/CalendarPro.tsx`: This component, which renders the main calendar view, was extensively updated to integrate the dark theme, replace emojis with Heroicons in buttons, and update text colors and status badges. It now uses the new DayPilot theme. Its colors were updated to the Leyla AI gradient scheme. Emojis in `getServiceIcon` were replaced with Heroicons (`ChatBubbleLeftRightIcon`, `MagnifyingGlassIcon`, `HeartIcon`, `SparklesIcon`, `BuildingOffice2Icon`, `ExclamationCircleIcon`, `CalendarDaysIcon`) with appropriate `text-elys*` colors. Icons in the availability configuration section (`ClockIcon`, `CalendarIcon`, `CogIcon`) were updated with Leyla AI colors. Icons in the appointment modal (`PlusIcon`, `PencilIcon`, `EyeIcon`, `UserIcon`, `PhoneIcon`, `ClockIcon`) were also updated. During rebranding, `DESCRIPTION` and `LOCATION` in the ICS export, and `PRODID` were updated from "ElysAI" to "Leyla AI".
 *   `chat/ChatInput.tsx`: The chat input component. It contains the input field and the send button.
 *   `chat/MessageBubble.tsx`: The message bubble component. It displays a single chat message. **Recently updated to hide the `ToolCallDisplay` component from user view, ensuring only the AI's natural language response is shown. Also, the import for `ToolCallDisplay` was commented out.**
@@ -525,8 +526,9 @@ The enhanced bot configuration system provides comprehensive customization optio
 
 The system automatically generates comprehensive system prompts from the configuration fields using the `generateSystemPrompt` function:
 
-*   **Structure**: Organized sections for personality, background, services, rules, and behavior
+*   **Structure**: Organized sections `<tone>`, `<background>`, `<services>`, `<escalation>`, `<limitations>`, and `<behavior>`
 *   **Dynamic Content**: Automatically incorporates all configuration values
+*   **Behavior Merge**: Uses `behaviorGuidelines` from the UI to fill `<behavior>`; on first load attempts to extract `<behavior>` from existing stored prompt to preserve legacy content
 *   **Live Preview**: Real-time preview of generated prompt in the configuration interface
 *   **Validation**: Ensures all critical information is included
 

@@ -45,6 +45,7 @@ export interface BotConfig {
   servicesOffered: string;
   escalationRules: string;
   botLimitations: string;
+  behaviorGuidelines?: string;
   generatedSystemPrompt?: string;
   
   createdAt: string;
@@ -145,6 +146,7 @@ export interface ChatSession {
   status: 'active' | 'archived' | 'inactive';
   createdAt: string;
   lastActivity: string;
+  isFlagged?: boolean;
   stats: {
     totalMessages: number;
     userMessages: number;

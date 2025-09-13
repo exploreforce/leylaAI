@@ -355,6 +355,11 @@ export default function AllChatsPage() {
                       }`}>
                         {getStatusLabel(session.status)}
                       </span>
+                      {session.isFlagged && (
+                        <span className="ml-2 text-xs bg-red-600/20 text-red-300 border border-red-600/30 px-2 py-1 rounded-full shadow-lg">
+                          RED FLAG
+                        </span>
+                      )}
                       {session.stats.draftMessages > 0 && (
                         <span className="ml-2 text-xs bg-rouge-500 text-white px-2 py-1 rounded-full shadow-lg">
                           {session.stats.draftMessages} Draft{session.stats.draftMessages !== 1 ? 's' : ''}
