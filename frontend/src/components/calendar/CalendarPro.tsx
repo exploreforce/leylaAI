@@ -30,7 +30,8 @@ import {
   HeartIcon,
   SparklesIcon,
   BuildingOffice2Icon,
-  ExclamationCircleIcon
+  ExclamationCircleIcon,
+  LinkIcon
 } from '@heroicons/react/24/outline';
 import Card from '@/components/ui/Card';
 
@@ -1198,6 +1199,40 @@ const CalendarPro: React.FC<CalendarProProps> = ({ className = '' }) => {
     downloadICS(icsContent, filename);
   };
 
+  const copyIcsFeedUrl = async () => {
+    try {
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL || window.location.origin;
+      // Try to fetch current user's token so URL can include it
+      let tokenParam = '';
+      try {
+        const token = (typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null);
+        const resp = await fetch(`${baseUrl}/api/bot/me`, { credentials: 'include', headers: { 'Authorization': (token ? `Bearer ${token}` : '') } });
+        if (resp.ok) {
+          const me = await resp.json();
+          if (me && me.calendarFeedToken) {
+            tokenParam = `?token=${encodeURIComponent(me.calendarFeedToken)}`;
+          }
+        }
+      } catch {}
+      const feedUrl = `${baseUrl}/api/calendar/ics${tokenParam}`;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(feedUrl);
+      } else {
+        const input = document.createElement('input');
+        input.value = feedUrl;
+        document.body.appendChild(input);
+        input.select();
+        document.execCommand('copy');
+        document.body.removeChild(input);
+      }
+      if (window.DayPilot?.Modal) {
+        window.DayPilot.Modal.alert('ICS Feed URL copied to clipboard');
+      }
+    } catch (e) {
+      console.error('Failed to copy ICS URL', e);
+    }
+  };
+
   const generateICSContent = (appointments: Appointment[]) => {
     if (!window.DayPilot) return '';
     
@@ -1342,6 +1377,16 @@ END:VCALENDAR`;
               >
                 <ArrowDownTrayIcon className="h-4 w-4" />
                 <span>Export ICS</span>
+              </Button>
+
+              <Button
+                onClick={copyIcsFeedUrl}
+                variant="secondary"
+                className="flex items-center space-x-2 px-4 py-2 text-sm font-medium min-w-[120px] justify-center"
+                title="Copy ICS Feed URL"
+              >
+                <LinkIcon className="h-4 w-4" />
+                <span>ICS Feed URL</span>
               </Button>
 
               </div>

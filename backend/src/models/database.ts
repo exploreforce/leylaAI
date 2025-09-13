@@ -8,6 +8,21 @@ export const db = knex(config);
 
 // Database helper functions
 export class Database {
+  // Users & Accounts
+  static async getUserByFeedToken(feedToken: string): Promise<{ id: string; account_id: string } | null> {
+    const user = await db('users').select('id', 'account_id').where({ calendar_feed_token: feedToken }).first();
+    return user || null;
+  }
+
+  static async ensureUserFeedToken(userId: string): Promise<string> {
+    const existing = await db('users').where({ id: userId }).first();
+    if (existing?.calendar_feed_token) return existing.calendar_feed_token;
+    const { randomUUID } = require('crypto');
+    const token = randomUUID();
+    await db('users').where({ id: userId }).update({ calendar_feed_token: token, updated_at: new Date() });
+    return token;
+  }
+
   // Bot Config operations
   static async getBotConfig(): Promise<BotConfig | null> {
     const result = await db('bot_configs')
@@ -80,6 +95,7 @@ export class Database {
     startDateStr?: string;
     endDateStr?: string;
     status?: string;
+    accountId?: string;
   } = {}): Promise<Appointment[]> {
     try {
       console.log('🔍 Database.getAppointments called with STRING filters:', {
@@ -106,6 +122,10 @@ export class Database {
       if (filters.status) {
         console.log('🔍 Adding status filter:', filters.status);
         query = query.where('status', filters.status);
+      }
+      if (filters.accountId) {
+        console.log('🔍 Adding account filter:', filters.accountId);
+        query = query.where('account_id', filters.accountId);
       }
       
       console.log('🔍 Executing query:', query.toString());

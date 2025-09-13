@@ -27,6 +27,28 @@ router.get(
   })
 );
 
+// Current user info including calendar feed token (auth via Bearer JWT)
+router.get(
+  '/me',
+  asyncHandler(async (req: Request, res: Response) => {
+    try {
+      const auth = req.headers.authorization;
+      if (!auth || !auth.startsWith('Bearer ')) {
+        return res.status(401).json({ error: 'Unauthorized' });
+      }
+      const jwt = require('jsonwebtoken');
+      const raw = auth.split(' ')[1];
+      const payload = jwt.verify(raw, process.env.JWT_SECRET || 'dev-secret') as any;
+      const userId = payload?.userId;
+      if (!userId) return res.status(401).json({ error: 'Unauthorized' });
+      const tokenValue = await Database.ensureUserFeedToken(userId);
+      return res.json({ calendarFeedToken: tokenValue });
+    } catch (e) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+  })
+);
+
 // Approve last draft (Test flow only)
 router.post(
   '/test-chat/approve',

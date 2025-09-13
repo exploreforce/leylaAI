@@ -167,6 +167,8 @@ The `src` directory contains the source code for the backend.
 *   `routes/appointments.ts`: Contains the API routes for managing appointments.
 *   `routes/bot.ts`: Contains the API routes for the bot, including the test chat functionality which uses identical logic to WhatsApp chat (with realistic typing delays, draft/sent status workflow). **Recently updated to ensure correct metadata (`status: 'approved'`, `approved: true`, `isCustomReply: true`) is applied when approving or sending custom replies for test chat messages, resolving frontend synchronization issues.** **🆕 Session Creation Updated**: `POST /test-chat/session` now always creates new sessions instead of reusing existing active sessions, ensuring each "AI Chat" click starts a fresh conversation.
 *   `routes/calendar.ts`: Contains the API routes for managing the calendar, including availability and overview.
+    - ➕ Added `GET /api/calendar/ics` endpoint that serves an iCalendar feed (`text/calendar`) for all appointments (default range: last 30 days → next 180 days; override via `startDate`, `endDate`). This allows subscribing from Google Calendar, Apple Calendar, Outlook, etc. Events include `UID`, `DTSTAMP`, `DTSTART`, `DTEND`, `SUMMARY`, `DESCRIPTION`, `LOCATION`, `STATUS`.
+    - ➕ Supports per-user private feeds via `?token=<calendar_feed_token>`. Each user has a unique `calendar_feed_token` stored in `users.calendar_feed_token`. Obtainable via `GET /api/bot/me` (Bearer token required). When present, feed is scoped to the user's `account_id`.
 *   `routes/index.ts`: The main router file, which combines all the other route files into a single router.
 *   `routes/whatsapp.ts`: Contains the webhook routes for the WhatsApp integration.
 *   `services/aiService.ts`: Contains the `AIService` class, which handles the interaction with the OpenAI API, including dynamic system prompt generation based on bot configuration, configurable content filtering policies, and execution of AI tool calls for functionalities like availability checking and appointment booking.
@@ -220,6 +222,7 @@ The `components` directory contains the reusable React components that are used 
 
 *   `BotConfigForm.tsx`: A comprehensive form for configuring the AI bot with advanced options including bot identity, personality settings, character traits, services offered, escalation rules, limitations, behavior guidelines (new editable textarea bound to `behaviorGuidelines`), and automatic system prompt generation with live preview. Icons for sections (`CurrencyEuroIcon`, `UserIcon`, `ChatBubbleLeftRightIcon`, `CogIcon`, `SparklesIcon`) were updated with Leyla AI colors. Table header text color and tab active state colors were updated.
 *   `calendar/CalendarPro.tsx`: This component, which renders the main calendar view, was extensively updated to integrate the dark theme, replace emojis with Heroicons in buttons, and update text colors and status badges. It now uses the new DayPilot theme. Its colors were updated to the Leyla AI gradient scheme. Emojis in `getServiceIcon` were replaced with Heroicons (`ChatBubbleLeftRightIcon`, `MagnifyingGlassIcon`, `HeartIcon`, `SparklesIcon`, `BuildingOffice2Icon`, `ExclamationCircleIcon`, `CalendarDaysIcon`) with appropriate `text-elys*` colors. Icons in the availability configuration section (`ClockIcon`, `CalendarIcon`, `CogIcon`) were updated with Leyla AI colors. Icons in the appointment modal (`PlusIcon`, `PencilIcon`, `EyeIcon`, `UserIcon`, `PhoneIcon`, `ClockIcon`) were also updated. During rebranding, `DESCRIPTION` and `LOCATION` in the ICS export, and `PRODID` were updated from "ElysAI" to "Leyla AI".
+    - ➕ Added an action button "ICS Feed URL" (with `LinkIcon`) next to "Export ICS" to copy the backend feed URL to the clipboard for easy subscription in external calendars.
 *   `chat/ChatInput.tsx`: The chat input component. It contains the input field and the send button.
 *   `chat/MessageBubble.tsx`: The message bubble component. It displays a single chat message. **Recently updated to hide the `ToolCallDisplay` component from user view, ensuring only the AI's natural language response is shown. Also, the import for `ToolCallDisplay` was commented out.**
 *   `chat/TestChat.tsx`: The main component for the test chat interface. This component was converted to the dark theme, including its container, header, description, and loading animation. It was rebranded (`<h2>` title and `<p>` description updated from "ElysAI" to "Leyla AI"). The loading animation dots color was updated. **Recently modified to accept an `existingSessionId` prop to load previous chat messages when navigating from the "All Chat Sessions" page. It also ensures that AI responses only appear after review approval and includes robust message filtering and polling logic to handle approved and custom replies correctly, replacing pending messages.**
@@ -630,7 +633,7 @@ The calendar system provides comprehensive appointment and availability manageme
     *   Red: Cancelled appointments (visible with strike-through)
     *   Red: No-Show appointments (removed from calendar, visible in lists)
     *   Purple: Completed appointments
-*   **Quick Actions**: New appointment button, appointment details modal
+*   **Quick Actions**: New appointment button, appointment details modal, export ICS, copy ICS feed URL
 *   **Real-time Updates**: Automatic refresh after changes
 
 #### Appointment Modal
@@ -674,6 +677,30 @@ The AI bot seamlessly integrates with the calendar system through tool functions
 *   **Professional Workflow**: Appointments appear in calendar interface
 
 ### 5.5. Calendar UX Enhancements for 24/7 Operations
+### 7.6. ICS Export & Calendar Subscription
+
+**Frontend:**
+- "Export ICS" button in `CalendarPro` creates a one-time `.ics` file of the currently loaded appointments.
+- "ICS Feed URL" button copies the subscription feed URL to clipboard.
+
+**Backend Endpoint:**
+- `GET /api/calendar/ics` returns `text/calendar` with appointments.
+- Optional query params: `startDate`, `endDate` (format `YYYY-MM-DD`).
+- Optional per-user param: `token` (private `calendar_feed_token`); scopes feed to that user's account.
+
+**Per-User Feed Tokens:**
+- Migration: `20250913090000_add_calendar_feed_token_to_users.js`
+- Endpoint to retrieve (auth required): `GET /api/bot/me` → `{ calendarFeedToken }`
+- UI: "ICS Feed URL" versucht automatisch den Token anzuhängen, wenn verfügbar.
+
+**How to use with Google Calendar:**
+1. Copy the feed URL (e.g., `https://<domain>/api/calendar/ics`).
+2. Google Calendar → Other calendars → From URL → paste the URL → Add calendar.
+3. Google periodically refreshes the feed (not instant). For immediate testing, download the one-time export.
+
+**Notes:**
+- Feed includes appointment `SUMMARY` (customer name and type), `DESCRIPTION` (notes), and `STATUS`.
+- Time handling: stored local times are exported as UTC (Z) per iCal requirements.
 
 #### Anti-Scrolling Features for Round-the-Clock Businesses
 For businesses operating 24/7, the calendar now provides multiple solutions to minimize scrolling:
@@ -902,20 +929,23 @@ docker compose up -d
 **Revolutionary AI Response Architecture:**
 - **🔥 NEW: JSON Schema-basierte Structured Outputs**: Vollständige Umstellung auf OpenAI's Structured Outputs API
 - **Automatische Spracherkennung**: KI-basierte Spracherkennung direkt in der strukturierten Antwort (keine separate API-Calls mehr)
-- **Erweiterte Metadaten**: Jede Bot-Antwort enthält strukturierte Informationen:
-  - `message`: Die eigentliche Antwort an den Benutzer
-  - `language`: Erkannte Sprache (ISO 639-1 Code) 
-  - `confidence`: Genauigkeitsscore der Spracherkennung (0-1)
-  - `intent`: Erkannte Benutzerabsicht (booking, inquiry, greeting, complaint)
-  - `urgency`: Dringlichkeitsstufe (low, medium, high)
-  - `requiresFollowUp`: Ob Follow-up erforderlich ist
+- **Erweiterte Metadaten**: Jede Bot-Antwort enthält strukturierte Informationen, die über die `message` hinausgehen:
+  - `message`: Die eigentliche Antwort an den Benutzer.
+  - `is_flagged`: Boolean – Ob die Benutzernachricht eine "rote Linie" überschritten hat (True, wenn markiert).
+  - `user_sentiment`: Kurze qualitative Bezeichnung des emotionalen Zustands des Benutzers.
+  - `user_information`: Prägnante, fortlaufende Zusammenfassung wichtiger Benutzerinformationen über Konversationsrunden hinweg.
+  - `user_language`: ISO 639-1 Sprachcode, in dem der Benutzer schreibt (z. B. 'de', 'en').
+  - `confidence`: Genauigkeitsscore der Spracherkennung (0-1).
+  - `intent`: Erkannte Benutzerabsicht (booking, inquiry, greeting, complaint).
+  - `urgency`: Dringlichkeitsstufe (low, medium, high).
+  - `requiresFollowUp`: Ob Follow-up erforderlich ist.
 
 **Technische Implementierung:**
-- **Schema Definition**: Strict JSON Schema mit erforderlichen und optionalen Feldern
-- **Fehlerbehandlung**: Robuste Fallbacks bei Parsing-Fehlern
-- **Performance**: Eliminiert separate Language Detection API-Calls
-- **Erweiterbarkeit**: Neues Metadaten können einfach zum Schema hinzugefügt werden
-- **Modell-Kompatibilität**: Optimiert für `gpt-4-1106-preview` und neuere Modelle
+- **Schema Definition**: Striktes JSON Schema mit allen erforderlichen und optionalen Feldern für eine umfassende Bot-Antwort.
+- **Fehlerbehandlung**: Robuste Fallbacks bei Parsing-Fehlern der strukturierten Antwort, um Stabilität zu gewährleisten.
+- **Performance**: Eliminiert separate Language Detection API-Calls durch die direkte Integration der Spracherkennung in die Structured Output.
+- **Erweiterbarkeit**: Neue Metadaten können einfach zum Schema hinzugefügt werden, um zukünftige Anforderungen zu erfüllen.
+- **Modell-Kompatibilität**: Optimiert für `gpt-4o-mini` und neuere OpenAI-Modelle, die Structured Outputs unterstützen.
 
 ### 🔄 Chat Translation Feature
 **Client-Side Message Translation:**
@@ -999,3 +1029,21 @@ docker compose up -d
 - **Calendar Buttons**: Kompaktere Buttons in Calendar Pro (Button-Größe angepasst)
 - **Service Display**: Fixes für "null" Service-Namen (zeigt jetzt "Service" als Fallback)
 - **Button Styling**: Einheitliche Icons und Formatierung in Chat-Übersicht
+
+### 🔥 Neuerungen - September 2025: Red Flag System & Enhanced Structured Output
+
+**Bot System Anpassungen:**
+- **Structured Output Erweitert**: Die OpenAI Structured Outputs umfassen jetzt zusätzliche Felder:
+    - `is_flagged`: Ein boolean-Flag, das anzeigt, ob die Nachricht des Benutzers eine "rote Linie" überschritten hat.
+    - `user_sentiment`: Eine qualitative Einschätzung des emotionalen Zustands des Benutzers.
+    - `user_information`: Eine fortlaufende Zusammenfassung wichtiger Benutzerinformationen, die über Konversationsrunden hinweg beibehalten wird.
+    - `user_language`: Der automatisch erkannte ISO 639-1 Sprachcode der Benutzereingabe.
+    - `typing_delay_disabled`: Ein boolean-Flag, das anzeigt, dass die künstliche Tippverzögerung deaktiviert wurde.
+- **Red Flag Erkennung**: Das AI-Modell erkennt automatisch, wenn eine Benutzernachricht unangemessen ist oder gegen vordefinierte Richtlinien verstößt.
+- **Typing Delay Deaktiviert**: Die künstliche Tippverzögerung für Bot-Antworten wurde systemweit deaktiviert, um sofortige Reaktionen zu ermöglichen.
+- **System Prompt Integration**: Der System-Prompt enthält nun Informationen über den `last safety flag` und die `known user info` aus vorherigen Konversationsrunden, um die Kontextualisierung und Moderation zu verbessern.
+
+**Chat System Anpassungen:**
+- **Red Flags als Restriktion für Review**: Wenn eine Nachricht als `is_flagged: true` von der KI zurückgegeben wird, wird diese Nachricht im `chat-review` Frontend als Entwurf (`status: 'draft'`) markiert und muss manuell überprüft und genehmigt werden, bevor sie an den Benutzer gesendet wird.
+- **Automatisierte und Manuelle Freigabe**: Nachrichten, die nicht als "Red Flag" markiert sind, werden automatisch als `approved: true` gesetzt und je nach Kanal (`WhatsApp` oder `Test Chat`) als `sent` oder `approved` gespeichert.
+- **Frontend-Synchronisation**: Sicherstellung, dass die korrekten Metadaten (`status: 'approved'`, `approved: true`, `isCustomReply: true`) angewendet werden, wenn benutzerdefinierte Antworten genehmigt oder gesendet werden, um die Frontend-Synchronisation zu gewährleisten.

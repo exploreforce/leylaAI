@@ -10,6 +10,16 @@ const router = Router();
 // Get all appointments
 router.get('/', asyncHandler(async (req: Request, res: Response) => {
   const { startDate, endDate, status } = req.query;
+  // Optional auth for per-account scoping
+  let accountId: string | undefined;
+  try {
+    const auth = req.headers.authorization as string | undefined;
+    if (auth && auth.startsWith('Bearer ')) {
+      const jwt = require('jsonwebtoken');
+      const payload = jwt.verify(auth.split(' ')[1], process.env.JWT_SECRET || 'dev-secret') as any;
+      accountId = payload?.accountId;
+    }
+  } catch {}
   
   console.log('🔍 GET /appointments query params:', { startDate, endDate, status });
   
@@ -28,6 +38,7 @@ router.get('/', asyncHandler(async (req: Request, res: Response) => {
     startDateStr: startDateStr,
     endDateStr: endDateStr,
     status: status as 'confirmed' | 'cancelled' | undefined,
+    accountId,
   });
   
   console.log('🔍 Database query result:', {
@@ -49,6 +60,16 @@ router.get('/', asyncHandler(async (req: Request, res: Response) => {
 // Create new appointment
 router.post('/', asyncHandler(async (req: Request, res: Response) => {
   const { customerName, customerPhone, customerEmail, datetime, duration, notes, appointmentType } = req.body;
+  // Extract accountId from JWT if present to stamp row
+  let accountId: string | undefined;
+  try {
+    const auth = req.headers.authorization as string | undefined;
+    if (auth && auth.startsWith('Bearer ')) {
+      const jwt = require('jsonwebtoken');
+      const payload = jwt.verify(auth.split(' ')[1], process.env.JWT_SECRET || 'dev-secret') as any;
+      accountId = payload?.accountId;
+    }
+  } catch {}
   
   console.log('📝 Creating appointment:', { customerName, customerPhone, customerEmail, datetime, duration, notes, appointmentType });
   
@@ -73,6 +94,7 @@ router.post('/', asyncHandler(async (req: Request, res: Response) => {
       status: 'confirmed',
       notes,
       appointment_type: appointmentType,
+      account_id: accountId,
     };
     
     console.log('📝 Creating appointment with LOCAL datetime:', datetimeStr);
@@ -110,6 +132,7 @@ router.post('/', asyncHandler(async (req: Request, res: Response) => {
     status: 'confirmed',
     notes,
     appointment_type: appointmentType,
+    account_id: accountId,
   };
   
   console.log('📝 Creating appointment with LOCAL datetime:', finalDatetimeStr);
