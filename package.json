@@ -1,7 +1,7 @@
 {
   "name": "whatsapp-bot",
   "version": "1.0.0",
-  "description": "AI-powered WhatsApp chatbot for business appointments",
+  "description": "Leyla Suite - AI-powered WhatsApp chatbot for business appointments",
   "main": "index.js",
   "scripts": {
     "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",

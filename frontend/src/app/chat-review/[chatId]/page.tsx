@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { botApi } from '@/utils/api';
+import MessageBubbleWithTranslation from '@/components/chat/MessageBubbleWithTranslation';
 
 interface ChatMessage {
   id: string;
@@ -27,7 +28,13 @@ interface ChatForReview {
 export default function ChatDetailReview() {
   const params = useParams();
   const router = useRouter();
-  const chatId = params.chatId as string;
+  const chatId = params?.chatId as string;
+  
+  // Redirect if no chatId
+  if (!chatId) {
+    router.push('/chat-review');
+    return <div>Redirecting...</div>;
+  }
   
   const [chat, setChat] = useState<ChatForReview | null>(null);
   const [loading, setLoading] = useState(true);
@@ -215,15 +222,13 @@ export default function ChatDetailReview() {
           <h3 className="font-medium text-dark-50 mb-3">Conversation History</h3>
           <div className="space-y-2">
             {chat.messages.slice(0, -1).map((message) => (
-              <div key={message.id} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                <div className={`max-w-xs px-3 py-2 rounded-lg text-sm ${
-                  message.role === 'user' 
-                    ? 'bg-elysPink-500 text-white' 
-                    : 'bg-dark-600 text-dark-100 border border-dark-500'
-                }`}>
-                  {message.content}
-                </div>
-              </div>
+              <MessageBubbleWithTranslation
+                key={message.id}
+                message={{
+                  ...message,
+                  timestamp: message.timestamp
+                }}
+              />
             ))}
           </div>
         </div>

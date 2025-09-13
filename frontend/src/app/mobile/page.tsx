@@ -30,7 +30,7 @@ export default function MobileDashboard() {
           href="/config"
           className="block p-4 bg-dark-700 rounded-xl shadow-2xl text-center font-medium text-dark-50 border border-dark-600 hover:border-elysPink-500 transition-all duration-300"
         >
-          Leyla AI Config
+          Settings
         </Link>
         <Link
           href="/calendar-new"

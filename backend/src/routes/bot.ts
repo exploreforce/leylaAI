@@ -3,7 +3,6 @@ import { asyncHandler } from '../middleware/errorHandler';
 import { Database } from '../models/database';
 import { whatsappService } from '../services/whatsappService';
 import { ChatMessage } from '../types';
-import { detectLanguage, translate } from '../services/translationService';
 import db from '../models/database';
 
 const router = Router();
@@ -145,18 +144,8 @@ router.post(
     console.log('📝 Processing user message:', { sessionId, content: userMessage.content });
 
     // Use identical logic as WhatsApp chat (but without sending to WhatsApp)
+    // Language detection is now handled automatically by structured outputs in AIService
     const aiResponse = await whatsappService.handleTestMessage(sessionId, userMessage.content);
-    if (aiResponse && targetLanguage) {
-      try {
-        const detected = await detectLanguage(aiResponse.content || '');
-        if (detected && detected.toLowerCase() !== targetLanguage.toLowerCase()) {
-          const translated = await translate(aiResponse.content || '', targetLanguage);
-          aiResponse.content = translated;
-        }
-      } catch (e) {
-        console.warn('Translation failed, returning original content');
-      }
-    }
     
     // Update session activity
     await Database.updateChatSessionActivity(sessionId);
@@ -174,30 +163,18 @@ router.post(
   })
 );
 
-// Get or create test chat session (persistent)
+// Create new test chat session (always creates new session)
 router.post(
   '/test-chat/session',
   asyncHandler(async (req: Request, res: Response) => {
-    console.log('🔵 Getting or creating test chat session...');
+    console.log('🔵 Creating new test chat session...');
     
-    // Try to get the most recent active session first
-    const existingSession = await Database.getActiveTestChatSession();
-    
-    if (existingSession) {
-      console.log('📝 Found existing session:', JSON.stringify(existingSession, null, 2));
-      return res.json({
-        message: 'Active test chat session found',
-        data: existingSession,
-      });
-    }
-    
-    // Create new session only if none exists
-    console.log('🔵 No active session found, creating new one...');
+    // Always create a new session (no longer reusing existing sessions)
     const session = await Database.createTestChatSession();
-    console.log('📝 Session created:', JSON.stringify(session, null, 2));
+    console.log('📝 New session created:', JSON.stringify(session, null, 2));
     
     const responseData = {
-      message: 'Test chat session created',
+      message: 'New test chat session created',
       data: session,
     };
     console.log('📤 Sending response:', JSON.stringify(responseData, null, 2));
@@ -374,6 +351,40 @@ router.get(
   })
 );
 
+// Helper function to assign session numbers
+const assignSessionNumbers = async () => {
+  const sessionsWithoutNumbers = await db('test_chat_sessions')
+    .where('session_number', null)
+    .orderBy('created_at', 'asc');
+  
+  if (sessionsWithoutNumbers.length > 0) {
+    // Find the highest existing session number
+    const maxNumber = await db('test_chat_sessions')
+      .max('session_number as maxNum')
+      .first();
+    
+    let nextNumber = (maxNumber?.maxNum || 0) + 1;
+    
+    for (const session of sessionsWithoutNumbers) {
+      await db('test_chat_sessions')
+        .where('id', session.id)
+        .update({ session_number: nextNumber });
+      nextNumber++;
+    }
+  }
+};
+
+// Helper function to update session status based on inactivity
+const updateInactiveStatus = async () => {
+  const twoWeeksAgo = new Date();
+  twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
+  
+  await db('test_chat_sessions')
+    .where('last_activity', '<', twoWeeksAgo)
+    .where('status', 'active')
+    .update({ status: 'inactive' });
+};
+
 // Get all test chat sessions with stats
 router.get(
   '/test-chat/sessions',
@@ -381,6 +392,10 @@ router.get(
     console.log('🔍 Getting all test chat sessions...');
     
     try {
+      // Assign session numbers and update inactive status
+      await assignSessionNumbers();
+      await updateInactiveStatus();
+      
       const sessions = await db('test_chat_sessions')
         .orderBy('last_activity', 'desc');
       
@@ -404,6 +419,8 @@ router.get(
         
         return {
           id: String(session.id),
+          sessionNumber: session.session_number,
+          status: session.status || 'active',
           createdAt: session.created_at ? new Date(session.created_at).toISOString() : new Date().toISOString(),
           lastActivity: session.last_activity ? new Date(session.last_activity).toISOString() : 
                        session.updated_at ? new Date(session.updated_at).toISOString() : new Date().toISOString(),
@@ -438,6 +455,15 @@ router.delete(
     console.log('🗑️ Deleting test chat session:', sessionId);
     
     try {
+      // Get session info first to free up the session number
+      const session = await db('test_chat_sessions')
+        .where('id', parseInt(sessionId, 10))
+        .first();
+        
+      if (!session) {
+        return res.status(404).json({ error: 'Session not found' });
+      }
+      
       // Delete all messages for this session first
       await db('chat_messages')
         .where('session_id', parseInt(sessionId, 10))
@@ -448,15 +474,44 @@ router.delete(
         .where('id', parseInt(sessionId, 10))
         .del();
       
-      if (deletedCount === 0) {
-        return res.status(404).json({ error: 'Session not found' });
-      }
+      // The session number becomes available for reuse (handled automatically by assignSessionNumbers)
       
       console.log('✅ Session deleted successfully');
       return res.json({ success: true, message: 'Session deleted successfully' });
     } catch (error) {
       console.error('Error deleting session:', error);
       return res.status(500).json({ error: 'Failed to delete session' });
+    }
+  })
+);
+
+// Archive/Unarchive test chat session
+router.patch(
+  '/test-chat/sessions/:sessionId/status',
+  asyncHandler(async (req: Request, res: Response) => {
+    const { sessionId } = req.params;
+    const { status } = req.body;
+    
+    if (!['active', 'archived', 'inactive'].includes(status)) {
+      return res.status(400).json({ error: 'Invalid status. Must be active, archived, or inactive' });
+    }
+    
+    console.log(`📝 Updating session ${sessionId} status to:`, status);
+    
+    try {
+      const updatedCount = await db('test_chat_sessions')
+        .where('id', parseInt(sessionId, 10))
+        .update({ status: status });
+      
+      if (updatedCount === 0) {
+        return res.status(404).json({ error: 'Session not found' });
+      }
+      
+      console.log('✅ Session status updated successfully');
+      return res.json({ success: true, message: `Session ${status === 'archived' ? 'archived' : status === 'active' ? 'activated' : 'set to inactive'} successfully` });
+    } catch (error) {
+      console.error('Error updating session status:', error);
+      return res.status(500).json({ error: 'Failed to update session status' });
     }
   })
 );
@@ -495,6 +550,120 @@ router.post(
     } catch (error) {
       console.error('❌ Error with availability config:', error);
       return res.status(500).json({ error: 'Failed to setup availability config' });
+    }
+  })
+);
+
+// Language Settings API
+// Get all available languages
+router.get(
+  '/languages',
+  asyncHandler(async (req: Request, res: Response) => {
+    console.log('🌍 Getting available languages...');
+    
+    try {
+      const languages = await db('language_settings')
+        .select('*')
+        .orderBy('language_name', 'asc');
+      
+      console.log('✅ Found', languages.length, 'languages');
+      return res.json({
+        success: true,
+        data: languages,
+        message: 'Available languages retrieved'
+      });
+    } catch (error) {
+      console.error('❌ Error getting languages:', error);
+      return res.status(500).json({ error: 'Failed to get languages' });
+    }
+  })
+);
+
+// Get current language setting
+router.get(
+  '/language-setting',
+  asyncHandler(async (req: Request, res: Response) => {
+    console.log('🌍 Getting current language setting...');
+    
+    try {
+      const currentLanguage = await db('language_settings')
+        .where('is_default', true)
+        .first();
+      
+      if (!currentLanguage) {
+        // Set German as default if none set
+        await db('language_settings')
+          .where('language_code', 'de')
+          .update({ is_default: true });
+        
+        const defaultLanguage = await db('language_settings')
+          .where('language_code', 'de')
+          .first();
+          
+        return res.json({
+          success: true,
+          data: defaultLanguage,
+          message: 'Default language set to German'
+        });
+      }
+      
+      console.log('✅ Current language:', currentLanguage.language_name);
+      return res.json({
+        success: true,
+        data: currentLanguage,
+        message: 'Current language setting retrieved'
+      });
+    } catch (error) {
+      console.error('❌ Error getting current language:', error);
+      return res.status(500).json({ error: 'Failed to get current language' });
+    }
+  })
+);
+
+// Update language setting
+router.put(
+  '/language-setting',
+  asyncHandler(async (req: Request, res: Response) => {
+    const { language_code } = req.body;
+    
+    if (!language_code) {
+      return res.status(400).json({ error: 'Language code is required' });
+    }
+    
+    console.log('🌍 Updating language setting to:', language_code);
+    
+    try {
+      // Check if the language exists
+      const language = await db('language_settings')
+        .where('language_code', language_code)
+        .first();
+      
+      if (!language) {
+        return res.status(404).json({ error: 'Language not found' });
+      }
+      
+      // Reset all languages to not default
+      await db('language_settings')
+        .update({ is_default: false });
+      
+      // Set the new default language
+      await db('language_settings')
+        .where('language_code', language_code)
+        .update({ is_default: true });
+      
+      const updatedLanguage = await db('language_settings')
+        .where('language_code', language_code)
+        .first();
+      
+      console.log('✅ Language setting updated to:', updatedLanguage.language_name);
+      return res.json({
+        success: true,
+        data: updatedLanguage,
+        message: `Language setting updated to ${updatedLanguage.language_name}`
+      });
+    } catch (error) {
+      console.error('❌ Error updating language setting:', error);
+      return res.status(500).json({ error: 'Failed to update language setting' });
     }
   })
 );

@@ -1,5 +1,121 @@
 # WhatsApp Bot Documentation
 
+## 0. Quick Start (für Nooby-freundlichen Betrieb)
+
+Für einen einfachen und idiotensicheren Start des Projekts wurden spezielle Batch-Scripts erstellt:
+
+### 0.1. Projekt starten
+
+**Windows:**
+- **Option 1:** `start-project.bat` (Doppelklick)  
+- **Option 2:** `start-simple.bat` (Doppelklick, falls Option 1 nicht geht)
+
+**macOS/Linux:**
+- **Option 1:** `start-project.sh` (Terminal: `./start-project.sh` oder Doppelklick im Finder)
+- **Option 2:** `start-simple.sh` (Terminal: `./start-simple.sh` oder Doppelklick im Finder)
+
+**Das ist der wichtigste File zum Testen!**
+
+**Was das Script automatisch macht:**
+*   ✅ Prüft ob Node.js und npm installiert sind
+*   ✅ Installiert alle Dependencies automatisch
+*   ✅ **Löscht den problematischen `.next` Ordner im Frontend** (behebt häufige Probleme)
+*   ✅ Prüft ob alle .env Konfigurationsdateien vorhanden sind
+*   ✅ Startet Backend (Port 5000) und Frontend (Port 3000) gleichzeitig
+*   ✅ Zeigt hilfreiche Fehlermeldungen falls etwas schief läuft
+
+**Nach dem Start erreichbar unter:**
+*   Frontend: http://localhost:3000
+*   Backend API: http://localhost:5000
+
+### 0.2. Projekt zurücksetzen
+
+**Windows:** `reset-project.bat` (Doppelklick)  
+**macOS/Linux:** `reset-project.sh` (Terminal: `./reset-project.sh` oder Doppelklick im Finder)
+
+Falls es Probleme gibt oder das Projekt "kaputt" ist, einfach das entsprechende Script ausführen.
+
+**Was das Script macht:**
+*   🧹 Löscht alle `node_modules` Ordner (Frontend, Backend, Root)
+*   🧹 Löscht den `.next` Ordner
+*   🧹 Bereitet alles für einen Neustart vor
+*   ⚠️ **Fragt vor dem Löschen nach Bestätigung**
+
+**Nach dem Reset:** Einfach wieder das entsprechende Start-Script ausführen.
+
+### 0.3. Voraussetzungen
+
+**Einmalig installieren (falls noch nicht vorhanden):**
+*   Node.js von https://nodejs.org/ (Version 18 oder höher)
+*   Die Scripts prüfen automatisch ob alles installiert ist
+
+**Konfigurationsdateien:**
+*   `frontend/.env` - ✅ Bereits konfiguriert
+*   `backend/.env` - ✅ Bereits konfiguriert (mit OpenAI API Key)
+
+### 0.4. Häufige Probleme und Lösungen
+
+| Problem | Lösung |
+|---------|--------|
+| "Node.js nicht gefunden" | Node.js von nodejs.org installieren |
+| Frontend startet nicht | `reset-project.bat` ausführen, dann neu starten |
+| Port bereits belegt | Andere Anwendungen auf Port 3000/5000 beenden |
+| Dependencies-Fehler | `reset-project.bat` ausführen für kompletten Neustart |
+
+### 0.5. Manuelle Alternative
+
+Falls die Scripts nicht funktionieren, kann man auch manuell starten:
+
+**Windows:**
+```cmd
+# Dependencies installieren
+npm install
+
+# Frontend .next Ordner löschen
+rmdir /s frontend\.next
+
+# Projekt starten
+npm run dev
+```
+
+**macOS/Linux:**
+```bash
+# Dependencies installieren
+npm install
+
+# Frontend .next Ordner löschen
+rm -rf frontend/.next
+
+# Projekt starten
+npm run dev
+```
+
+**⚠️ Wichtig:** Der `.next` Ordner muss vor jedem Start gelöscht werden, sonst gibt es Probleme!
+
+### 0.6. Production Build (Deployment)
+
+Für Production/Deployment gibt es optimierte Build-Scripts:
+
+**Windows:**
+- **Build:** `build-project.bat` (Doppelklick)
+- **Start:** `start-production.bat` (Doppelklick)
+
+**macOS/Linux:**  
+- **Build:** `./build-project.sh` (Terminal oder Doppelklick)
+- **Start:** `./start-production.sh` (Terminal oder Doppelklick)
+
+**Was der Build macht:**
+- ✅ Kompiliert TypeScript → JavaScript (Backend → `backend/dist/`)
+- ✅ Optimiert Next.js für Production (Frontend → `frontend/.next/`)
+- ✅ Reduziert Dateigröße und verbessert Performance
+
+**Docker Alternative (einfachster Weg):**
+```bash
+docker-compose up -d
+```
+
+---
+
 ## 1. General App Information
 
 This project is a full-stack application designed to provide a configurable AI-powered WhatsApp chatbot for business owners. The chatbot can handle tasks like appointment booking through AI tool calls and is integrated with an internal calendar system. The application features a clean frontend for configuration and testing.
@@ -48,7 +164,7 @@ The `src` directory contains the source code for the backend.
 *   `middleware/logger.ts`: Contains the `logger` middleware, which logs incoming requests to the console.
 *   `models/database.ts`: Contains the `Database` class, which provides a high-level API for interacting with the database.
 *   `routes/appointments.ts`: Contains the API routes for managing appointments.
-*   `routes/bot.ts`: Contains the API routes for the bot, including the test chat functionality which uses identical logic to WhatsApp chat (with realistic typing delays, draft/sent status workflow). **Recently updated to ensure correct metadata (`status: 'approved'`, `approved: true`, `isCustomReply: true`) is applied when approving or sending custom replies for test chat messages, resolving frontend synchronization issues.**
+*   `routes/bot.ts`: Contains the API routes for the bot, including the test chat functionality which uses identical logic to WhatsApp chat (with realistic typing delays, draft/sent status workflow). **Recently updated to ensure correct metadata (`status: 'approved'`, `approved: true`, `isCustomReply: true`) is applied when approving or sending custom replies for test chat messages, resolving frontend synchronization issues.** **🆕 Session Creation Updated**: `POST /test-chat/session` now always creates new sessions instead of reusing existing active sessions, ensuring each "AI Chat" click starts a fresh conversation.
 *   `routes/calendar.ts`: Contains the API routes for managing the calendar, including availability and overview.
 *   `routes/index.ts`: The main router file, which combines all the other route files into a single router.
 *   `routes/whatsapp.ts`: Contains the webhook routes for the WhatsApp integration.
@@ -83,8 +199,8 @@ The `src` directory contains the source code for the frontend.
 
 The `app` directory contains the application's routes.
 
-*   `layout.tsx`: The root layout for the application. It includes the main HTML structure and the `Inter` font. The `title` metadata was updated from `'ElysAI Management Centre'` to `'Leyla AI Management Centre'`.
-*   `page.tsx`: The main dashboard page. It displays an overview of the application and provides links to the other pages, including a new link to the mobile-optimized view. The page was updated to use the new dark theme, rebranded (`alt` for logo, `<h1>` title updated to "Leyla AI"), and its logo size was increased. Emojis were replaced with Heroicons, and all text and button colors were updated to the Leyla AI gradient scheme. Main page containers were redesigned for fixed height, standardized button placement, and the "Configure Bot" container's detailed text was replaced with a minimalist icon badge. The logo `src` was updated from `/branding/ElysAI.png` to `/branding/LeylaAI.png`.
+*   `layout.tsx`: The root layout for the application. It includes the main HTML structure and the `Inter` font. The `title` metadata was updated from `'ElysAI Management Centre'` to `'Leyla Suite'`.
+*   `page.tsx`: The main dashboard page. It displays an overview of the application and provides links to the other pages, including a new link to the mobile-optimized view. The page was updated to use the new dark theme, rebranded (`alt` for logo, `<h1>` title updated to "Leyla AI"), and its logo size was increased. Emojis were replaced with Heroicons, and all text and button colors were updated to the Leyla AI gradient scheme. Main page containers were redesigned for fixed height, standardized button placement, and the "Configure Bot" container's detailed text was replaced with a minimalist icon badge. The logo `src` was updated from `/branding/ElysAI.png` to `/branding/LeylaAI.png`. **Recently updated to use German labels ("Termine", "Laufende Chats", "Überprüfung erforderlich", "Einstellungen") and all content within cards is now centered instead of left-aligned for better visual balance.**
 *   `calendar/page.tsx`: (DELETED)
 *   `calendar-new/page.tsx`: The new calendar page. The calendar page was updated to use the new dark theme for its layout, header, and the container holding the `CalendarPro` component. Its logo size was increased. Its colors were updated to the Leyla AI gradient scheme. The `alt` attribute for the logo was updated from "ElysAI" to "Leyla AI", and the `src` for the logo was updated from `/branding/ElysAI.png` to `/branding/LeylaAI.png`.
 *   `chat-review/page.tsx`: The "All Chat Sessions for Review" page. This page was fully converted to the dark theme, including its layout, header, empty state, individual session cards, statistic cards, last message preview, and action buttons. It was rebranded (`alt` for logo updated from "ElysAI" to "Leyla AI", `src` updated from `/branding/ElysAI.png` to `/branding/LeylaAI.png`). Emojis were replaced with Heroicons (`DocumentTextIcon`, `ChatBubbleLeftRightIcon`, `TrashIcon`). Stats card colors were updated to `elysPink` and `elysViolet`.
@@ -92,7 +208,7 @@ The `app` directory contains the application's routes.
 *   `chats/page.tsx`: The "All Chat Sessions" page. This page was fully converted to the dark theme, including its layout, header, empty state, individual session cards, statistic cards, last message preview, and action buttons. It was rebranded (`alt` for logo updated from "ElysAI" to "Leyla AI", `src` updated from `/branding/ElysAI.png` to `/branding/LeylaAI.png`). Emojis were replaced with Heroicons (`DocumentTextIcon`, `ChatBubbleLeftRightIcon`, `ClockIcon`, `TrashIcon`). Stats card colors were updated to `elysPink` and `elysViolet`. **Recently updated to navigate to the `test-chat` page with the `sessionId` as a URL parameter, allowing the Test Chat to load existing session history.**
 *   `config/page.tsx`: The bot configuration page. It displays the form for updating the bot's configuration. This page was converted to the dark theme, including its layout and header. It was rebranded (`alt` for logo and `<h1>` title updated from "ElysAI" to "Leyla AI", `src` updated from `/branding/ElysAI.png` to `/branding/LeylaAI.png`). The `CogIcon` color was updated. White containers in the configuration screen were addressed.
 *   `globals.css`: Global CSS styles. Defined CSS variables for `dark`, `rouge`, `luxe`, `gold` and applied overrides for DayPilot. Later, `rouge`, `luxe`, and `gold` were replaced with `elysPink`, `elysViolet`, and `elysBlue` variables. All hardcoded color values and references to old color variables were updated to the new Leyla AI palette, affecting inputs, selects, textareas, buttons, and various DayPilot calendar elements. Comments were updated for Leyla AI branding.
-*   `layout.tsx`: The root layout for the application. It includes the main HTML structure and the `Inter` font. The root layout component was updated to set the global background to the deep dark theme color and to include the new DayPilot theme. It was rebranded (`title` metadata updated from `'ElysAI Management Centre'` to `'Leyla AI Management Centre'`).
+*   `layout.tsx`: The root layout for the application. It includes the main HTML structure and the `Inter` font. The root layout component was updated to set the global background to the deep dark theme color and to include the new DayPilot theme. It was rebranded (`title` metadata updated from `'ElysAI Management Centre'` to `'Leyla Suite'`).
 *   `mobile/page.tsx`: The mobile-optimized main page, possibly an alternative entry point for smaller screens or specific mobile functionalities. This page was rebranded (`<h1>` title and "ElysAI Config" link text updated to "Leyla AI"). Its navigation links and colors were updated to the Leyla AI gradient scheme.
 *   `page.tsx`: The main dashboard page. It displays an overview of the application and provides links to the other pages, including a new link to the mobile-optimized view. The page was updated to use the new dark theme, rebranded (`alt` for logo, `<h1>` title updated to "Leyla AI"), and its logo size was increased. Emojis were replaced with Heroicons, and all text and button colors were updated to the Leyla AI gradient scheme. Main page containers were redesigned for fixed height, standardized button placement, and the "Configure Bot" container's detailed text was replaced with a minimalist icon badge. The logo `src` was updated from `/branding/ElysAI.png` to `/branding/LeylaAI.png`.
 *   `test-chat/page.tsx`: The test chat page. It displays the chat interface for testing the chatbot. This page was converted to the dark theme, including its layout and header. It was rebranded (`alt` for logo updated from "ElysAI" to "Leyla AI", `src` updated from `/branding/ElysAI.png` to `/branding/LeylaAI.png`). Emojis in navigation links were replaced with Heroicons (`ChatBubbleLeftRightIcon`, `DocumentTextIcon`). The header border color was updated. **Recently updated to accept a `sessionId` URL parameter and pass it to the `TestChat` component, enabling loading of existing chat sessions.**
@@ -506,20 +622,25 @@ The calendar system provides comprehensive appointment and availability manageme
 *   **Multiple Views**: Month, Week, Day, and Agenda views
 *   **Appointment Management**: Click to create/edit appointments, drag-and-drop support
 *   **Color-Coded Status**: Visual indicators for appointment status:
+    *   Cyan: Booked appointments (standard status from AI bot)
     *   Green: Confirmed appointments
-    *   Yellow: Pending appointments  
-    *   Red: Cancelled appointments
-    *   Gray: Completed appointments
+    *   Yellow: Pending appointments
+    *   Red: Cancelled appointments (visible with strike-through)
+    *   Red: No-Show appointments (removed from calendar, visible in lists)
+    *   Purple: Completed appointments
 *   **Quick Actions**: New appointment button, appointment details modal
 *   **Real-time Updates**: Automatic refresh after changes
 
 #### Appointment Modal
-*   **Customer Information**: Name, phone, email fields
+*   **Customer Information**: Name, phone, email fields (all populated from AI bot data)
 *   **Appointment Details**: Date/time picker, duration, appointment type
-*   **Appointment Types**: Consultation, Checkup, Follow-up, Treatment, Emergency
+*   **Appointment Types**: Dynamic service types loaded from bot configuration
+*   **Status Management**: Pending, Booked, Confirmed, Cancelled, Completed, No-Show
 *   **Notes Field**: Additional information storage
 *   **CRUD Operations**: Create, Read, Update, Delete appointments
-*   **Validation**: Form validation with error handling
+*   **Enhanced Display**: Proper datetime formatting, improved validation
+*   **Cancelled Events**: Remain visible in red for billing purposes
+*   **No-Show Management**: Mark appointments as no-show, removes from calendar but keeps record
 
 #### Availability Management
 *   **Weekly Schedule**: Configure available days and time slots
@@ -538,9 +659,10 @@ The AI bot seamlessly integrates with the calendar system through tool functions
     *   Returns: Array of available time slots
     *   Respects weekly schedule and blackout dates (uses active bot config)
 *   **`bookAppointment`**: Bot can create new appointments
-    *   Parameters: customerName, customerPhone, datetime, duration, notes
+    *   Parameters: customerName, customerPhone, customerEmail, datetime, duration, appointmentType, notes
     *   Returns: Created appointment with confirmation
-    *   Automatic status setting and validation (uses active bot config)
+    *   Automatic status setting to 'booked' and validation (uses active bot config)
+    *   **Enhanced Data Collection**: Now captures customer email and appointment service type
 
 #### Integration Benefits
 *   **Seamless Booking**: Customers can book directly through WhatsApp
@@ -548,6 +670,59 @@ The AI bot seamlessly integrates with the calendar system through tool functions
 *   **Automatic Updates**: Calendar updates immediately after bot bookings
 *   **Conflict Prevention**: Built-in validation prevents double bookings
 *   **Professional Workflow**: Appointments appear in calendar interface
+
+### 5.5. Calendar UX Enhancements for 24/7 Operations
+
+#### Anti-Scrolling Features for Round-the-Clock Businesses
+For businesses operating 24/7, the calendar now provides multiple solutions to minimize scrolling:
+
+**Zoom Levels:**
+*   **24h Compact**: Ultra-compact view (15px cells) showing full 24-hour day without scrolling
+*   **Normal**: Balanced view (25px cells) for standard use
+*   **Groß**: Spacious view (35px cells) for detailed work
+
+**Smart Time Management:**
+*   **Dynamic Business Hours**: Automatically detects relevant time ranges from actual appointments
+*   **Intelligent Focus**: Shows 6 AM to 10 PM by default, extends based on actual bookings
+*   **Auto-Scroll**: Automatically positions view at current time or next appointment on load
+
+**Navigation Aids:**
+*   **"Jetzt" Button**: Instantly jump to current time in Day/Week views
+*   **Optimal Positioning**: Calendar starts at most relevant time, not midnight
+*   **Context-Aware**: Considers both business hours and actual appointment times
+
+### 5.6. Recent Appointment System Enhancements
+
+#### Enhanced AI Bot Integration
+*   **Extended Data Collection**: AI bot now captures customer email and appointment service type
+*   **Improved Status System**: New 'booked' status as default for AI-created appointments
+*   **Better Tool Parameters**: `bookAppointment` tool enhanced with customerEmail and appointmentType fields
+
+#### Calendar View Improvements  
+*   **Cancelled Event Visibility**: Cancelled appointments remain visible in red for billing/record-keeping
+*   **Enhanced Status Colors**: Added cyan color for 'booked' status, improved red for cancelled
+*   **Better DateTime Handling**: Fixed "Invalid Date" issues with robust datetime parsing
+*   **Complete Data Display**: All appointment fields now properly populated in view modal
+*   **Smart Scrolling Solution**: Multiple options to reduce scrolling in 24h operations:
+    *   **Compact View**: 24h mode with smaller cell height for full day visibility
+    *   **Dynamic Time Range**: Automatically focuses on relevant business hours
+    *   **Auto-Scroll**: Automatically scrolls to current time or next appointment
+*   **Availability Highlighting**: Available time slots are now visually highlighted:
+    *   **Background Colors**: Subtle color coding for business vs non-business hours
+    *   **Border Accents**: Visual borders to distinguish available times
+    *   **Theme Integration**: Colors match the overall design (elysViolet/elysPink)
+*   **No-Show Management**: New status for tracking patient no-shows:
+    *   **Separate Status**: Distinct from cancelled appointments
+    *   **Visual Distinction**: Dark red coloring with warning icons
+    *   **Billing Tracking**: Remains visible for accounting purposes
+
+#### Status Workflow
+1. **Pending** (Yellow): Manual appointments awaiting confirmation
+2. **Booked** (Cyan): Initial status when AI bot creates appointment
+3. **Confirmed** (Green): Manually confirmed by staff  
+4. **Cancelled** (Red): Cancelled but kept visible for records
+5. **No-Show** (Dark Red): Patients who didn't show up - tracked separately
+6. **Completed** (Purple): Successfully completed appointments
 
 ## 6. Content Policy & Explicit Content
 
@@ -696,4 +871,129 @@ docker compose up -d
 *   **Tabbed Interface**: Separate views for calendar and availability
 *   **Modal System**: Overlay interface for appointment management  
 *   **State Management**: React hooks for data synchronization
-*   **Error Handling**: Comprehensive error states and user feedbacknp
+*   **Error Handling**: Comprehensive error states and user feedback
+
+---
+
+## 🆕 Neuerungen - Januar 2025
+
+### Dashboard & Settings Rebranding
+- **Dashboard**: "Configure Bot" wurde zu "Settings" umbenannt für bessere UX
+- **Header-Updates**: Config-Seite header aktualisiert zu "Settings"
+- **Mobile Dashboard**: Entsprechend angepasst
+
+### 🌍 Language Settings Feature
+**Backend-Erweiterungen:**
+- Neue Tabelle: `language_settings` für Sprachkonfiguration
+- API-Endpoints: `GET/PUT /api/bot/languages`, `/api/bot/language-setting`
+- Unterstützte Sprachen: Alle osteuropäischen Sprachen, Spanisch, Italienisch, Griechisch, Thai, Tagalog, Vietnamesisch
+- Migration: `20250102000000_add_language_settings.js`
+- Seed: `004_language_settings.js` (26 Sprachen vordefiniert)
+
+**Frontend-Erweiterungen:**  
+- Neuer Tab "Settings" in `/config` neben "Bot-Konfiguration" und "Services & Preise"
+- `LanguageSettings` Komponente mit Grid-Layout für Sprachauswahl
+- Visuelle Auswahl-Bestätigung, Toast-Benachrichtigungen, Speicher-Button
+- Integration mit bestehender API-Struktur
+
+### 🤖 OpenAI Structured Outputs Integration
+**Revolutionary AI Response Architecture:**
+- **🔥 NEW: JSON Schema-basierte Structured Outputs**: Vollständige Umstellung auf OpenAI's Structured Outputs API
+- **Automatische Spracherkennung**: KI-basierte Spracherkennung direkt in der strukturierten Antwort (keine separate API-Calls mehr)
+- **Erweiterte Metadaten**: Jede Bot-Antwort enthält strukturierte Informationen:
+  - `message`: Die eigentliche Antwort an den Benutzer
+  - `language`: Erkannte Sprache (ISO 639-1 Code) 
+  - `confidence`: Genauigkeitsscore der Spracherkennung (0-1)
+  - `intent`: Erkannte Benutzerabsicht (booking, inquiry, greeting, complaint)
+  - `urgency`: Dringlichkeitsstufe (low, medium, high)
+  - `requiresFollowUp`: Ob Follow-up erforderlich ist
+
+**Technische Implementierung:**
+- **Schema Definition**: Strict JSON Schema mit erforderlichen und optionalen Feldern
+- **Fehlerbehandlung**: Robuste Fallbacks bei Parsing-Fehlern
+- **Performance**: Eliminiert separate Language Detection API-Calls
+- **Erweiterbarkeit**: Neues Metadaten können einfach zum Schema hinzugefügt werden
+- **Modell-Kompatibilität**: Optimiert für `gpt-4-1106-preview` und neuere Modelle
+
+### 🔄 Chat Translation Feature
+**Client-Side Message Translation:**
+- **On-Demand Translation**: Jede Chat-Nachricht kann individual übersetzt werden
+- **Toggle-Funktionalität**: Benutzer können zwischen Original und Übersetzung hin- und herschalten
+- **Multi-Language Support**: Übersetzung in Deutsch, Englisch, Spanisch, Französisch, Italienisch
+- **Smart Language Detection**: Automatische Erkennung der Ausgangssprache für präzise Übersetzung
+- **Real-time Translation**: Instant-Übersetzung ohne Server-Roundtrips
+
+**Frontend-Implementierung:**
+- **Neue Hook**: `useTranslateMessage` für Google Translate API Integration
+- **Enhanced Components**: `MessageBubbleWithTranslation` mit eingebauter Translation-UI
+- **Updated Pages**: Chat-Übersicht (`/chats`) und Chat-Detail (`/chat-review/[chatId]`) mit Translation-Buttons
+- **Dependency**: `google-translate-api-x` für Client-Side-Übersetzung
+
+**User Interface:**
+- **Translation Buttons**: "→ Deutsch", "→ English", etc. unter jeder Nachricht
+- **Show Original Button**: Zurück zur ursprünglichen Nachricht mit "Show Original"
+- **Translation Indicator**: Visueller Hinweis auf übersetzte Inhalte
+- **Loading States**: Spinner-Animation während der Übersetzung
+
+**Technische Details:**
+- **Implementation**: In `AIService.getChatResponse()` wurde Spracherkennung über OpenAI API integriert
+- **Service**: Language detection is now integrated into OpenAI Structured Outputs (no separate service needed)
+- **System Prompt Enhancement**: Spezifische Anweisungen wie "IMPORTANT: The user is communicating in German (Deutsch). You MUST respond in German (Deutsch) only."
+- **Logging**: Ausführliche Protokollierung der erkannten Sprache für Debugging und Monitoring
+
+**Vorteile:**
+- **Konsistente Mehrsprachigkeit**: Bot antwortet zuverlässig in der Sprache des Benutzers
+- **Bessere UX**: Keine manuellen Spracheinstellungen erforderlich
+- **Automatische Service-Übersetzung**: Services und Termine werden in der entsprechenden Sprache angezeigt
+- **WhatsApp & Test Chat**: Funktioniert sowohl für WhatsApp-Nachrichten als auch für Test-Chat-Sessions
+
+### 🔧 Language System Synchronization
+**Vollständige Systemintegration:**
+- **Backend Database**: 32 Sprachen in `language_settings` Tabelle (inkl. 6 neue: Französisch, Portugiesisch, Niederländisch, Türkisch, Arabisch, Chinesisch, Japanisch, Koreanisch, Hindi)
+- **AI Service Detection**: Identische Sprachunterstützung in `aiService.ts` mit spezifischen Anweisungen pro Sprache
+- **Frontend Translation**: `useTranslateMessage` Hook und `DynamicTranslationProvider` unterstützen alle 32 Sprachen
+- **Chat Interface**: Aktualisierte Language Names in Chat-Übersicht für alle unterstützten Sprachen
+- **Database Seed**: Erweiterte `004_language_settings.js` mit allen populären Weltsprachen
+
+**Konsistenz-Garantie:**
+- ✅ Alle 32 Sprachen funktionieren in Language Settings UI
+- ✅ Alle 32 Sprachen werden von AI Detection erkannt und verarbeitet
+- ✅ Alle 32 Sprachen können in Frontend Translation verwendet werden
+- ✅ Keine "orphaned" Sprachen - jede angebotene Sprache funktioniert vollständig
+
+### 💬 Chat Management Verbesserungen  
+**Features für Chat-Übersicht (`/chats`):**
+- **Filter-System**: Dropdown für Chat-Status (Alle/Aktiv/Archiviert/Inaktiv)
+- **Chat-Status**: Automatische Inactive-Erkennung (2 Wochen), Archive-Funktionalität
+- **Session-Nummerierung**: Einzigartige recycelbare Nummern (1, 2, 3...)
+- **Sortierung**: Neueste Chats zuerst
+- **Archive-Button**: Mit Bestätigungspopup "Wirklich archivieren?"
+- **Status-Badges**: Farbkodiert (Grün=Aktiv, Grau=Archiviert, Orange=Inaktiv)
+- **🆕 Session Management**: Jeder Klick auf "AI Chat" erstellt IMMER eine neue Session (keine Wiederverwendung bestehender Sessions)
+
+**Backend-Updates:**
+- Neue Felder: `status`, `session_number` in `test_chat_sessions`
+- API: `PATCH /api/bot/test-chat/sessions/:sessionId/status`
+- Migration: `20250101100000_add_status_and_number_to_test_chat_sessions.js`
+
+**Navigation & User Flow:**
+- **AI Chat Button**: Jeder Klick erstellt eine komplett neue Session
+- **View All Chats** (`/chats`): Übersicht aller bisherigen Sessions mit Filterfunktion
+- **Session öffnen**: Von `/chats` aus können alte Sessions geöffnet werden (über `?sessionId=...` Parameter)
+- **Workflow**: Neue Session für Tests → Alte Sessions über `/chats` einsehen und weiterführen
+
+### 🎨 UI/UX Verbesserungen
+- **Calendar Buttons**: Kompaktere Buttons in Calendar Pro (Button-Größe angepasst)
+- **Service Display**: Fixes für "null" Service-Namen (zeigt jetzt "Service" als Fallback)
+- **Button Styling**: Einheitliche Icons und Formatierung in Chat-Übersicht
+- **Status-Badges**: Farbkodiert (Grün=Aktiv, Grau=Archiviert, Orange=Inaktiv)
+
+**Backend-Updates:**
+- Neue Felder: `status`, `session_number` in `test_chat_sessions`
+- API: `PATCH /api/bot/test-chat/sessions/:sessionId/status`
+- Migration: `20250101100000_add_status_and_number_to_test_chat_sessions.js`
+
+### 🎨 UI/UX Verbesserungen
+- **Calendar Buttons**: Kompaktere Buttons in Calendar Pro (Button-Größe angepasst)
+- **Service Display**: Fixes für "null" Service-Namen (zeigt jetzt "Service" als Fallback)
+- **Button Styling**: Einheitliche Icons und Formatierung in Chat-Übersicht

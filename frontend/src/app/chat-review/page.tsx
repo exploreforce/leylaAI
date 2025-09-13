@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { botApi } from '@/utils/api';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -17,6 +18,7 @@ interface ChatForReview {
 }
 
 export default function ChatReviewPage() {
+  const { t } = useTranslation('chat');
   const [chats, setChats] = useState<ChatForReview[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -53,7 +55,7 @@ export default function ChatReviewPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-dark-900 flex items-center justify-center">
-        <div className="text-lg text-dark-50">Loading chats...</div>
+        <div className="text-lg text-dark-50">{t('chat_review.loading_chats')}</div>
       </div>
     );
   }
@@ -72,13 +74,13 @@ export default function ChatReviewPage() {
                 height={40}
                 className="h-10 w-auto"
               />
-              <h1 className="text-2xl font-bold text-dark-50">AI Response Review</h1>
+              <h1 className="text-2xl font-bold text-dark-50">{t('chat_review.title')}</h1>
             </div>
             <Link 
               href="/" 
               className="text-elysViolet-400 hover:text-elysViolet-300 px-3 py-2 rounded transition-colors"
             >
-              ← Back to Dashboard
+              {t('common.back_to_dashboard')}
             </Link>
           </div>
         </div>
@@ -90,14 +92,14 @@ export default function ChatReviewPage() {
           <div className="bg-dark-700 rounded-xl shadow-2xl p-8 text-center border border-dark-600">
             <div className="flex items-center justify-center text-elysPink-400 text-lg mb-4">
               <CheckCircleIcon className="h-6 w-6 mr-2" />
-              No pending reviews!
+              {t('chat_review.no_chats')}
             </div>
-            <p className="text-dark-200">All chats are up to date.</p>
+            <p className="text-dark-200">{t('chat_review.all_up_to_date')}</p>
             <Link 
               href="/test-chat" 
               className="mt-4 inline-block bg-gradient-to-r from-elysViolet-500 to-elysBlue-600 text-white px-4 py-2 rounded-lg hover:from-elysViolet-600 hover:to-elysBlue-700 transition-all duration-300 shadow-lg"
             >
-              Start AI Chat
+              {t('test_chat.start_new')}
             </Link>
           </div>
         ) : (
@@ -117,18 +119,18 @@ export default function ChatReviewPage() {
                         }`}></span>
                         <h3 className="font-semibold text-dark-50">{chat.title}</h3>
                         <span className="ml-2 text-xs bg-rouge-500 text-white px-2 py-1 rounded-full shadow-lg">
-                          Pending Review
+                          {t('chat_review.pending_review')}
                         </span>
                       </div>
                       
                       <div className="space-y-3">
                         <div className="bg-dark-600 rounded-lg p-3 border border-elysPink-400/20">
-                          <div className="text-xs text-elysPink-400 font-medium mb-1">User:</div>
+                          <div className="text-xs text-elysPink-400 font-medium mb-1">{t('chat_review.user_label')}</div>
                           <div className="text-dark-100 text-sm">{chat.lastUserMessage}</div>
                         </div>
                         
                         <div className="bg-dark-600 rounded-lg p-3 border border-elysViolet-400/20">
-                          <div className="text-xs text-elysViolet-400 font-medium mb-1">Pending AI Reply:</div>
+                          <div className="text-xs text-elysViolet-400 font-medium mb-1">{t('chat_review.pending_ai_reply')}</div>
                           <div className="text-dark-100 text-sm">{chat.pendingReply}</div>
                         </div>
                       </div>
@@ -137,7 +139,7 @@ export default function ChatReviewPage() {
                     <div className="ml-4 text-right">
                       <div className="text-xs text-dark-300">{formatTimestamp(chat.timestamp)}</div>
                       <div className="mt-2 text-elysViolet-400 hover:text-elysViolet-300 text-sm font-medium transition-colors">
-                        Review →
+                        {t('chat_review.review_arrow')}
                       </div>
                     </div>
                   </div>

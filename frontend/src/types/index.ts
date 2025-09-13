@@ -59,7 +59,7 @@ export interface Appointment {
   customerEmail?: string;
   datetime: string;
   duration: number;
-  status: 'pending' | 'confirmed' | 'cancelled' | 'completed';
+  status: 'pending' | 'booked' | 'confirmed' | 'cancelled' | 'completed' | 'noshow';
   notes?: string;
   appointmentType?: string;
   createdAt: string;
@@ -132,9 +132,30 @@ export interface ToolCall {
 
 export interface TestChatSession {
   id: string;
+  sessionNumber: number;
+  status: 'active' | 'archived' | 'inactive';
   messages: ChatMessage[];
   createdAt: string;
   lastActivity: string;
+}
+
+export interface ChatSession {
+  id: string;
+  sessionNumber: number;
+  status: 'active' | 'archived' | 'inactive';
+  createdAt: string;
+  lastActivity: string;
+  stats: {
+    totalMessages: number;
+    userMessages: number;
+    assistantMessages: number;
+    draftMessages: number;
+  };
+  lastMessage: {
+    role: 'user' | 'assistant' | 'system';
+    content: string;
+    timestamp: string;
+  } | null;
 }
 
 // UI Types

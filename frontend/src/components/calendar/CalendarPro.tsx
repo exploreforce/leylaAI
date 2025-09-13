@@ -18,13 +18,19 @@ import {
   ClockIcon,
   UserIcon,
   PhoneIcon,
+  ExclamationTriangleIcon,
   Cog6ToothIcon,
   CalendarIcon,
-  ChartBarIcon,
+
   ChevronLeftIcon,
   ChevronRightIcon,
   CalendarDaysIcon,
-  ExclamationTriangleIcon
+  ChatBubbleLeftRightIcon,
+  MagnifyingGlassIcon,
+  HeartIcon,
+  SparklesIcon,
+  BuildingOffice2Icon,
+  ExclamationCircleIcon
 } from '@heroicons/react/24/outline';
 import Card from '@/components/ui/Card';
 
@@ -372,14 +378,53 @@ const AvailabilitySettings = () => {
   );
 };
 
+// Helper function to format datetime safely
+const formatDateTime = (datetime: string | Date) => {
+  try {
+    let dateObj: Date;
+    
+    if (typeof datetime === 'string') {
+      // Handle different string formats
+      if (datetime.includes('T')) {
+        // ISO format: "2025-08-12T11:00:00.000Z" or "2025-08-12T11:00:00"
+        dateObj = new Date(datetime.replace('Z', ''));
+      } else {
+        // Local format: "2025-08-12 11:00" -> "2025-08-12T11:00"
+        dateObj = new Date(datetime.replace(' ', 'T'));
+      }
+    } else {
+      dateObj = new Date(datetime);
+    }
+    
+    if (isNaN(dateObj.getTime())) {
+      console.warn('⚠️ Invalid datetime:', datetime);
+      return 'Invalid Date';
+    }
+    
+    return dateObj.toLocaleDateString('de-DE', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    });
+  } catch (error) {
+    console.error('❌ Error formatting datetime:', datetime, error);
+    return 'Invalid Date';
+  }
+};
+
 const CalendarPro: React.FC<CalendarProProps> = ({ className = '' }) => {
-  const [view, setView] = useState<'Month' | 'Week' | 'Day' | 'Resources' | 'Availability'>('Week');
+  const [view, setView] = useState<'Month' | 'Week' | 'Day' | 'Availability'>('Week');
+  const [zoomLevel, setZoomLevel] = useState<'compact' | 'normal' | 'spacious'>('compact');
   const [startDate, setStartDate] = useState<any>(null);
   const [events, setEvents] = useState<any[]>([]);
   const [services, setServices] = useState<Service[]>([]);
   const [calendar, setCalendar] = useState<any>(null);
   // const [navigator, setNavigator] = useState<any>(null); // Removed Navigator
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
+  const [availabilityConfig, setAvailabilityConfig] = useState<any>(null);
   
   const calendarRef = useRef<HTMLDivElement>(null);
   // const navigatorRef = useRef<HTMLDivElement>(null); // Removed Navigator
@@ -503,6 +548,30 @@ const CalendarPro: React.FC<CalendarProProps> = ({ className = '' }) => {
       setServices([]);
     }
   }, [botConfig?.data?.id]);
+  
+  // Load availability configuration for calendar display
+  useEffect(() => {
+    const loadAvailabilityForCalendar = async () => {
+      try {
+        const configResponse = await fetch('/api/bot/debug/availability-config', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        
+        if (configResponse.ok) {
+          const configData = await configResponse.json();
+          if (configData.config && configData.config.weeklySchedule) {
+            console.log('📅 Loaded availability config for calendar:', configData.config);
+            setAvailabilityConfig(configData.config.weeklySchedule);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to load availability config for calendar:', error);
+      }
+    };
+
+    loadAvailabilityForCalendar();
+  }, []);
 
   // Transform appointments to DayPilot events format
   useEffect(() => {
@@ -515,8 +584,8 @@ const CalendarPro: React.FC<CalendarProProps> = ({ className = '' }) => {
     if (appointmentsData?.data && window.DayPilot) {
       console.log('🔄 Processing', appointmentsData.data.length, 'appointments for calendar display');
       
-      // Exclude cancelled appointments from calendar view
-      const visibleAppointments = appointmentsData.data.filter((a: Appointment) => a.status !== 'cancelled');
+      // Show all appointments including cancelled and no-show (they will be styled in red)
+      const visibleAppointments = appointmentsData.data;
       
       const dayPilotEvents = visibleAppointments.map((appointment: Appointment) => {
         console.log('🔄 Processing appointment:', {
@@ -561,7 +630,7 @@ const CalendarPro: React.FC<CalendarProProps> = ({ className = '' }) => {
           // Event styling will be handled by onBeforeEventRender
           tags: {
             status: appointment.status,
-            serviceType: appointment.appointmentType,
+            serviceType: appointment.appointmentType || 'Service',
             duration: appointment.duration,
             priority: getDurationPriority(appointment.duration)
           }
@@ -593,7 +662,7 @@ const CalendarPro: React.FC<CalendarProProps> = ({ className = '' }) => {
     if (isScriptLoaded && calendarRef.current && startDate) {
       initializeCalendar();
     }
-  }, [isScriptLoaded, view, startDate]);
+  }, [isScriptLoaded, view, startDate, zoomLevel, events, availabilityConfig]);
 
   // Update events when they change
   useEffect(() => {
@@ -612,23 +681,35 @@ const CalendarPro: React.FC<CalendarProProps> = ({ className = '' }) => {
 
   const getStatusColorPalette = (status: string) => {
     const palettes = {
-      confirmed: {
-        bg: 'linear-gradient(135deg, #10b981 0%, #059669 25%, #047857 100%)',
-        border: '#047857',
-        bar: '#34d399',
-        shadow: 'rgba(16, 185, 129, 0.3)'
-      },
       pending: {
         bg: 'linear-gradient(135deg, #f59e0b 0%, #d97706 25%, #b45309 100%)',
         border: '#b45309',
         bar: '#fbbf24',
         shadow: 'rgba(245, 158, 11, 0.3)'
       },
+      booked: {
+        bg: 'linear-gradient(135deg, #06b6d4 0%, #0891b2 25%, #0e7490 100%)',
+        border: '#0e7490',
+        bar: '#67e8f9',
+        shadow: 'rgba(6, 182, 212, 0.3)'
+      },
+      confirmed: {
+        bg: 'linear-gradient(135deg, #10b981 0%, #059669 25%, #047857 100%)',
+        border: '#047857',
+        bar: '#34d399',
+        shadow: 'rgba(16, 185, 129, 0.3)'
+      },
       cancelled: {
         bg: 'linear-gradient(135deg, #ef4444 0%, #dc2626 25%, #b91c1c 100%)',
         border: '#b91c1c',
         bar: '#f87171',
         shadow: 'rgba(239, 68, 68, 0.3)'
+      },
+      noshow: {
+        bg: 'linear-gradient(135deg, #dc2626 0%, #b91c1c 25%, #991b1b 100%)',
+        border: '#991b1b',
+        bar: '#fca5a5',
+        shadow: 'rgba(220, 38, 38, 0.3)'
       },
       completed: {
         bg: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 25%, #6d28d9 100%)',
@@ -666,6 +747,70 @@ const CalendarPro: React.FC<CalendarProProps> = ({ className = '' }) => {
     return <CalendarDaysIcon className={`${iconClasses} text-elysPink-500`} />; // Default icon
   };
 
+  // Helper function to get optimal time range based on appointments and availability
+  const getOptimalTimeRange = () => {
+    // Default business hours if no specific data
+    let earliestHour = 6;
+    let latestHour = 22;
+    
+    // Check existing appointments for actual time range
+    if (events && events.length > 0) {
+      const times = events.map(event => {
+        const start = new Date(event.start.toString());
+        return start.getHours();
+      });
+      
+      const minHour = Math.min(...times);
+      const maxHour = Math.max(...times);
+      
+      // Expand range to include appointment times with some buffer
+      earliestHour = Math.max(0, Math.min(earliestHour, minHour - 1));
+      latestHour = Math.min(23, Math.max(latestHour, maxHour + 2));
+    }
+    
+    return { businessBegin: `${earliestHour}:00`, businessEnd: `${latestHour + 1}:00` };
+  };
+  
+  // Get zoom-based cell height
+  const getCellHeight = () => {
+    switch (zoomLevel) {
+      case 'compact': return 15; // Very compact for 24h view
+      case 'normal': return 25;  // Normal size
+      case 'spacious': return 35; // More space
+      default: return 25;
+    }
+  };
+  
+  // Convert availability config to DayPilot business hours format
+  const getBusinessHoursForCalendar = () => {
+    if (!availabilityConfig) return null;
+    
+    const businessHours: any[] = [];
+    
+    // Map day names to DayPilot day numbers (0=Sunday, 1=Monday, etc.)
+    const dayMapping: { [key: string]: number } = {
+      sunday: 0, monday: 1, tuesday: 2, wednesday: 3,
+      thursday: 4, friday: 5, saturday: 6
+    };
+    
+    Object.entries(availabilityConfig).forEach(([dayName, config]: [string, any]) => {
+      const dayNumber = dayMapping[dayName];
+      
+      if (config.isAvailable && config.timeSlots && config.timeSlots.length > 0) {
+        config.timeSlots.forEach((slot: { start: string; end: string }) => {
+          businessHours.push({
+            day: dayNumber,
+            start: slot.start,
+            end: slot.end
+          });
+        });
+      }
+    });
+    
+    console.log('🕰️ Generated business hours:', businessHours);
+    return businessHours;
+  };
+
   // initializeNavigator removed - no longer needed
 
   const initializeCalendar = () => {
@@ -681,24 +826,34 @@ const CalendarPro: React.FC<CalendarProProps> = ({ className = '' }) => {
       contextMenu: new window.DayPilot.Menu([
         {
           text: "View Details",
-          onClick: (args: any) => openAppointmentModal(args.source.data, 'view')
+          onClick: (args: any) => {
+            const appointmentData = args.source.data?.data || args.source.data;
+            openAppointmentModal(appointmentData, 'view');
+          }
         },
         {
           text: "Edit Appointment", 
-          onClick: (args: any) => openAppointmentModal(args.source.data, 'edit')
+          onClick: (args: any) => {
+            const appointmentData = args.source.data?.data || args.source.data;
+            openAppointmentModal(appointmentData, 'edit');
+          }
         },
         {
           text: "-"
         },
         {
           text: "Export to ICS",
-          onClick: (args: any) => exportSingleEventToICS(args.source.data)
+          onClick: (args: any) => {
+            const appointmentData = args.source.data?.data || args.source.data;
+            exportSingleEventToICS(appointmentData);
+          }
         },
         {
           text: "Delete",
           onClick: async (args: any) => {
             if (await window.DayPilot.Modal.confirm("Delete this appointment?")) {
-              handleDeleteAppointment(args.source.data.id);
+              const appointmentData = args.source.data?.data || args.source.data;
+              handleDeleteAppointment(appointmentData.id);
             }
           }
         }
@@ -723,26 +878,46 @@ const CalendarPro: React.FC<CalendarProProps> = ({ className = '' }) => {
         
         console.log('🎨 Rendering event for:', appointment.customerName, 'Status:', tags.status);
         
-        // Hide cancelled events completely
-        if (tags.status === 'cancelled') {
-          args.data.visible = false;
-          return;
-        }
+        // Show cancelled events in red (don't hide them)
+        // if (tags.status === 'cancelled') {
+        //   args.data.visible = false;
+        //   return;
+        // }
 
         // SIMPLE RENDERING - no complex HTML for debugging
-        const colorPalette = getStatusColorPalette(tags.status);
-        args.data.backColor = colorPalette.bg;
-        args.data.borderColor = colorPalette.border;
-        args.data.barColor = colorPalette.bar;
-        args.data.fontColor = "#ffffff";
-        args.data.text = `${appointment.customerName} - ${tags.serviceType} (${tags.duration}min)`;
+        // Handle special statuses first (cancelled, noshow) then apply general palette
+        if (tags.status === 'cancelled') {
+          args.data.fontColor = "#ffffff";
+          args.data.backColor = '#ef4444'; // Red background for cancelled
+          args.data.borderColor = '#dc2626';
+          args.data.barColor = '#f87171';
+          args.data.text = `❌ ${appointment.customerName} - CANCELLED`;
+        } else if (tags.status === 'noshow') {
+          args.data.fontColor = "#ffffff";
+          args.data.backColor = '#dc2626'; // Darker red background for no-show
+          args.data.borderColor = '#991b1b';
+          args.data.barColor = '#fca5a5';
+          args.data.text = `⚠️ ${appointment.customerName} - NO-SHOW`;
+        } else {
+          // Apply general color palette for all other statuses
+          const colorPalette = getStatusColorPalette(tags.status);
+          args.data.backColor = colorPalette.bg;
+          args.data.borderColor = colorPalette.border;
+          args.data.barColor = colorPalette.bar;
+          args.data.fontColor = "#ffffff";
+          const serviceType = tags.serviceType && tags.serviceType !== 'null' ? tags.serviceType : 'Service';
+          args.data.text = `${appointment.customerName} - ${serviceType} (${tags.duration}min)`;
+        }
+        
         args.data.toolTip = `${appointment.customerName} - ${tags.status} - ${String(appointment.datetime)}`;
         
         console.log('✅ Event rendered with simple styling');
       },
       
       onEventClick: (args: any) => {
-        openAppointmentModal(args.e.data, 'view');
+        // Use the stored appointment data from event.data field
+        const appointmentData = args.e.data?.data || args.e.data;
+        openAppointmentModal(appointmentData, 'view');
       },
       onTimeRangeSelected: (args: any) => {
         setSelectedSlot({ start: args.start, end: args.end });
@@ -831,53 +1006,113 @@ const CalendarPro: React.FC<CalendarProProps> = ({ className = '' }) => {
     };
 
     if (view === 'Month') {
+      const cellHeight = zoomLevel === 'compact' ? 80 : zoomLevel === 'normal' ? 100 : 120;
+      const businessHours = getBusinessHoursForCalendar();
+      
       calendarInstance = new window.DayPilot.Month(calendarRef.current, {
         ...commonConfig,
         viewType: "Month",
         startDate: startDate,
-        cellHeight: 100,
+        cellHeight: cellHeight,
         weekStarts: 1,
-        headerHeight: 30,
-        cellHeaderHeight: 25,
+        headerHeight: Math.max(25, Math.floor(cellHeight * 0.3)),
+        cellHeaderHeight: Math.max(20, Math.floor(cellHeight * 0.25)),
         showWeekend: true,
+        
+        // Business hours highlighting for month view
+        businessHours: businessHours,
+        businessHoursColor: "rgba(236, 72, 153, 0.04)", // elysPink-500 with 4% opacity for month view
+        nonBusinessBackColor: "rgba(71, 85, 105, 0.02)", // Even more subtle for month
+        
+        // Custom styling for month view
+        onAfterRender: () => {
+          if (calendarRef.current) {
+            const businessCells = calendarRef.current.querySelectorAll('.calendar_default_cell_business');
+            businessCells.forEach((cell: any) => {
+              cell.style.borderTop = '1px solid rgba(236, 72, 153, 0.15)'; // Subtle pink border for month
+            });
+          }
+        },
+        
         theme: "calendar_rouge_district"
       });
-    } else if (view === 'Resources') {
-      // Scheduler view for services
-      calendarInstance = new window.DayPilot.Scheduler(calendarRef.current, {
-        ...commonConfig,
-        viewType: "Days",
-        days: 7,
-        startDate: startDate,
-        scale: "Hour",
-        timeHeaders: [
-          { groupBy: "Day", format: "dddd M/d" },
-          { groupBy: "Hour", format: "h tt" }
-        ],
-        resources: services.map(service => ({
-          id: service.id,
-          name: service.name,
-          expanded: true,
-          children: []
-        })),
-        cellHeight: 40,
-        headerHeight: 30,
-        eventHeight: 35
-      });
+
     } else {
+      const timeRange = getOptimalTimeRange();
+      const cellHeight = getCellHeight();
+      
+      const businessHours = getBusinessHoursForCalendar();
+      
       calendarInstance = new window.DayPilot.Calendar(calendarRef.current, {
         ...commonConfig,
         viewType: view,
         startDate: startDate,
-        cellHeight: 30,
-        headerHeight: 30,
-        hourWidth: 60,
-        cellHeaderHeight: 25,
+        
+        // Dynamic time range based on actual appointments
+        businessBeginsHour: parseInt(timeRange.businessBegin.split(':')[0]),
+        businessEndsHour: parseInt(timeRange.businessEnd.split(':')[0]),
+        
+        // Zoom-based sizing
+        cellHeight: cellHeight,
+        headerHeight: Math.max(25, cellHeight),
+        hourWidth: zoomLevel === 'compact' ? 50 : 60,
+        cellHeaderHeight: Math.max(20, cellHeight - 5),
+        
+        // Better scroll handling
+        scrollLabels: true,
+        timeRangeSelectedHandling: "Enabled",
+        
+        // Business hours highlighting
+        businessHours: businessHours,
+        businessHoursColor: "rgba(168, 85, 247, 0.05)", // elysViolet-500 with 5% opacity
+        nonBusinessBackColor: "rgba(71, 85, 105, 0.03)", // Very subtle slate background
+        
+        // Custom CSS for additional styling
+        onAfterRender: () => {
+          // Add custom styling for business hours if needed
+          if (calendarRef.current) {
+            const businessCells = calendarRef.current.querySelectorAll('.calendar_default_cell_business');
+            businessCells.forEach((cell: any) => {
+              cell.style.borderLeft = '2px solid rgba(168, 85, 247, 0.2)'; // Subtle violet border
+            });
+          }
+        },
+        
         theme: "calendar_rouge_district"
       });
     }
 
     calendarInstance.init();
+    
+    // Auto-scroll to current time or next appointment for better UX
+    if (view === 'Day' || view === 'Week') {
+      setTimeout(() => {
+        const now = new Date();
+        const currentHour = now.getHours();
+        
+        // Find next appointment or use current time
+        let scrollToHour = currentHour;
+        
+        if (events && events.length > 0) {
+          const upcomingEvents = events
+            .map(event => new Date(event.start.toString()))
+            .filter(eventTime => eventTime > now)
+            .sort((a, b) => a.getTime() - b.getTime());
+            
+          if (upcomingEvents.length > 0) {
+            scrollToHour = Math.max(0, upcomingEvents[0].getHours() - 1); // 1 hour before next appointment
+          }
+        }
+        
+        // Scroll to the calculated hour
+        try {
+          calendarInstance.scrollTo(scrollToHour * 60); // DayPilot scrollTo expects minutes
+        } catch (e) {
+          console.log('Auto-scroll not available for this view');
+        }
+      }, 100); // Small delay to ensure calendar is fully rendered
+    }
+    
     setCalendar(calendarInstance);
   };
 
@@ -935,6 +1170,17 @@ const CalendarPro: React.FC<CalendarProProps> = ({ className = '' }) => {
       window.DayPilot.Modal.alert("Appointment deleted successfully!");
     } catch (error) {
       window.DayPilot.Modal.alert("Error deleting appointment");
+    }
+  };
+
+  const handleNoShowAppointment = async (id: string) => {
+    try {
+      await updateAppointment(() => appointmentsApi.update(id, { status: 'noshow' }));
+      refetchAppointments();
+      setShowAppointmentModal(false);
+      window.DayPilot.Modal.alert("Appointment marked as No-Show!");
+    } catch (error) {
+      window.DayPilot.Modal.alert("Error marking appointment as No-Show");
     }
   };
 
@@ -1033,23 +1279,18 @@ END:VCALENDAR`;
     <div className={`bg-dark-700 rounded-lg shadow-lg border border-dark-600 ${className}`}>
       {/* Header with enhanced controls */}
       <div className="p-4 border-b border-elysPink-600">
-        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center space-y-4 lg:space-y-0">
+        <div className="flex justify-between items-start">
           
           {/* View selector with enhanced options */}
           <div className="flex flex-wrap gap-2">
-            {(['Month', 'Week', 'Day', 'Resources', 'Availability'] as const).map((v) => (
+            {(['Month', 'Week', 'Day', 'Availability'] as const).map((v) => (
               <Button
                 key={v}
                 onClick={() => setView(v)}
                 variant={view === v ? 'primary' : 'secondary'}
                 className="text-sm px-3 py-2 flex items-center space-x-2"
               >
-                {v === 'Resources' ? (
-                  <>
-                    <ChartBarIcon className="h-4 w-4" />
-                    <span>Services</span>
-                  </>
-                ) : v === 'Availability' ? (
+                {v === 'Availability' ? (
                   <>
                     <Cog6ToothIcon className="h-4 w-4" />
                     <span>Verfügbarkeiten</span>
@@ -1064,28 +1305,46 @@ END:VCALENDAR`;
             ))}
           </div>
           
-          {/* Enhanced toolbar */}
+          {/* Right side controls - stacked */}
           {view !== 'Availability' && (
-            <div className="flex items-center space-x-2">
+            <div className="flex flex-col items-end space-y-2">
+              {/* Zoom Controls - top row */}
+              <div className="flex items-center space-x-1">
+                <span className="text-xs text-dark-200 mr-2">Ansicht:</span>
+                {(['compact', 'normal', 'spacious'] as const).map((zoom) => (
+                  <Button
+                    key={zoom}
+                    onClick={() => setZoomLevel(zoom)}
+                    variant={zoomLevel === zoom ? 'primary' : 'secondary'}
+                    className="text-xs px-3 py-1.5 min-w-[60px]"
+                    title={zoom === 'compact' ? '24h kompakt - weniger Scrollen' : zoom === 'normal' ? 'Normal' : 'Geräumig'}
+                  >
+                    {zoom === 'compact' ? '24h' : zoom === 'normal' ? 'Normal' : 'Groß'}
+                  </Button>
+                ))}
+              </div>
+              
+              {/* Action buttons - bottom row */}
+              <div className="flex items-center space-x-2">
               <Button
                 onClick={() => openAppointmentModal(null, 'create')}
                 variant="primary"
-                className="flex items-center space-x-2 text-sm"
+                className="flex items-center space-x-2 px-4 py-2 text-sm font-medium min-w-[140px] justify-center"
               >
                 <PlusIcon className="h-4 w-4" />
-                <span className="hidden sm:inline">New Appointment</span>
-                <span className="sm:hidden">New</span>
+                <span>New Appointment</span>
               </Button>
               
               <Button
                 onClick={exportAllToICS}
                 variant="secondary"
-                className="flex items-center space-x-2 text-sm"
+                className="flex items-center space-x-2 px-4 py-2 text-sm font-medium min-w-[120px] justify-center"
               >
                 <ArrowDownTrayIcon className="h-4 w-4" />
-                <span className="hidden sm:inline">Export ICS</span>
-                <span className="sm:hidden">Export</span>
+                <span>Export ICS</span>
               </Button>
+
+              </div>
             </div>
           )}
         </div>
@@ -1101,7 +1360,6 @@ END:VCALENDAR`;
               <h2 className="text-lg font-semibold text-dark-50">
                 {view === 'Month' ? startDate.toString('MMMM yyyy') : 
                  view === 'Week' ? `Week of ${startDate.toString('MMM dd, yyyy')}` :
-                 view === 'Resources' ? `Services - ${startDate.toString('MMM dd, yyyy')}` :
                  startDate.toString('MMMM dd, yyyy')}
               </h2>
               <Button onClick={navigateToday} variant="secondary" className="text-sm px-3 py-1">
@@ -1118,7 +1376,7 @@ END:VCALENDAR`;
         {view === 'Availability' && (
           <div className="mt-4">
             <h2 className="text-lg font-semibold text-dark-50 flex items-center">
-              <CogIcon className="h-5 w-5 mr-2 text-elysBlue-500" />
+              <Cog6ToothIcon className="h-5 w-5 mr-2 text-elysBlue-500" />
               Verfügbarkeiten konfigurieren
             </h2>
             <p className="text-sm text-dark-200 mt-1">
@@ -1150,6 +1408,7 @@ END:VCALENDAR`;
           selectedSlot={selectedSlot}
           onSave={modalMode === 'create' ? handleCreateAppointment : (data: any) => handleUpdateAppointment(selectedAppointment?.id || '', data)}
           onDelete={handleDeleteAppointment}
+          onNoShow={handleNoShowAppointment}
           onClose={() => setShowAppointmentModal(false)}
           isLoading={isCreating || isUpdating || isDeleting}
         />
@@ -1166,12 +1425,10 @@ const AppointmentModal: React.FC<{
   selectedSlot: {start: any, end: any} | null;
   onSave: (data: any) => void;
   onDelete: (id: string) => void;
+  onNoShow: (id: string) => void;
   onClose: () => void;
   isLoading: boolean;
-}> = ({ appointment, mode, services, selectedSlot, onSave, onDelete, onClose, isLoading }) => {
-  
-  console.log('🔍 AppointmentModal: Received services:', services);
-  console.log('🔍 AppointmentModal: Services count:', services?.length || 0);
+}> = ({ appointment, mode, services, selectedSlot, onSave, onDelete, onNoShow, onClose, isLoading }) => {
   
   // Safe datetime conversion (NO TIMEZONE CONVERSION - ONLY STRINGS!)
   const getSafeDateTime = (appointment: Appointment | null, selectedSlot: {start: any, end: any} | null): string => {
@@ -1224,7 +1481,7 @@ const AppointmentModal: React.FC<{
     duration: appointment?.duration || 60,
     notes: appointment?.notes || '',
     serviceId: appointment?.appointmentType || (services && services.length > 0 ? services[0].id : ''),
-    status: appointment?.status || 'confirmed'
+    status: appointment?.status || 'booked'
   });
 
   // Update serviceId when services are loaded
@@ -1288,6 +1545,7 @@ const AppointmentModal: React.FC<{
           {mode === 'view' ? (
             // View mode
             <div className="space-y-4">
+
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-dark-200 mb-1">Customer</label>
@@ -1315,7 +1573,7 @@ const AppointmentModal: React.FC<{
                   <label className="block text-sm font-medium text-dark-200 mb-1">Date & Time</label>
                   <div className="flex items-center text-dark-50">
                     <ClockIcon className="h-4 w-4 mr-2 text-dark-300" />
-                    {appointment && new Date(appointment.datetime).toLocaleString()}
+                    {appointment && formatDateTime(appointment.datetime)}
                   </div>
                 </div>
                 <div>
@@ -1333,11 +1591,14 @@ const AppointmentModal: React.FC<{
                 <label className="block text-sm font-medium text-dark-200 mb-1">Status</label>
                 <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                   appointment?.status === 'confirmed' ? 'bg-success-500 text-white' :
+                  appointment?.status === 'booked' ? 'bg-cyan-500 text-white' :
                   appointment?.status === 'pending' ? 'bg-elysPink-500 text-white' :
-                  appointment?.status === 'cancelled' ? 'bg-dark-500 text-dark-200' :
+                  appointment?.status === 'cancelled' ? 'bg-red-500 text-white' :
+                  appointment?.status === 'noshow' ? 'bg-red-500 text-white' :
+                  appointment?.status === 'completed' ? 'bg-purple-500 text-white' :
                   'bg-dark-600 text-dark-100'
                 }`}>
-                  {appointment?.status}
+                  {appointment?.status === 'noshow' ? 'No-Show' : appointment?.status}
                 </span>
               </div>
               
@@ -1349,15 +1610,28 @@ const AppointmentModal: React.FC<{
               )}
 
               <div className="flex justify-end space-x-3 pt-4 border-t">
-                <Button
-                  onClick={() => onDelete(appointment?.id || '')}
-                  variant="secondary"
-                  className="text-red-600 hover:text-red-700"
-                  disabled={isLoading}
-                >
-                  <TrashIcon className="h-4 w-4 mr-1" />
-                  Delete
-                </Button>
+                {appointment?.status !== 'cancelled' && appointment?.status !== 'noshow' && (
+                  <>
+                    <Button
+                      onClick={() => onNoShow(appointment?.id || '')}
+                      variant="secondary"
+                      className="text-red-600 hover:text-red-700"
+                      disabled={isLoading}
+                    >
+                      <ExclamationTriangleIcon className="h-4 w-4 mr-1" />
+                      No-Show
+                    </Button>
+                    <Button
+                      onClick={() => onDelete(appointment?.id || '')}
+                      variant="secondary"
+                      className="text-red-600 hover:text-red-700"
+                      disabled={isLoading}
+                    >
+                      <TrashIcon className="h-4 w-4 mr-1" />
+                      Delete
+                    </Button>
+                  </>
+                )}
                 <Button onClick={onClose} variant="secondary">
                   Close
                 </Button>
@@ -1434,12 +1708,14 @@ const AppointmentModal: React.FC<{
               <Select
                 label="Status"
                 value={formData.status}
-                onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.value as 'pending' | 'confirmed' | 'cancelled' | 'completed' }))}
+                onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.value as 'pending' | 'booked' | 'confirmed' | 'cancelled' | 'completed' | 'noshow' }))}
                 options={[
                   { value: "pending", label: "Pending" },
+                  { value: "booked", label: "Booked" },
                   { value: "confirmed", label: "Confirmed" },
                   { value: "completed", label: "Completed" },
-                  { value: "cancelled", label: "Cancelled" }
+                  { value: "cancelled", label: "Cancelled" },
+                  { value: "noshow", label: "No-Show" }
                 ]}
               />
 

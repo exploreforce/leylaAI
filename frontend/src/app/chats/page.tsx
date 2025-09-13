@@ -4,35 +4,48 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { DocumentTextIcon, TrashIcon, ClockIcon, ChatBubbleLeftRightIcon } from '@heroicons/react/24/outline';
+import { DocumentTextIcon, TrashIcon, ClockIcon, ChatBubbleLeftRightIcon, ArchiveBoxIcon, FunnelIcon, CheckIcon, LanguageIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
+import { useTranslation } from 'react-i18next';
 import { botApi } from '@/utils/api';
+import { ChatSession } from '@/types';
+import { useTranslateMessage } from '@/hooks/useTranslateMessage';
 
-interface ChatSession {
-  id: string;
-  createdAt: string;
-  lastActivity: string;
-  stats: {
-    totalMessages: number;
-    userMessages: number;
-    assistantMessages: number;
-    draftMessages: number;
-  };
-  lastMessage: {
-    role: 'user' | 'assistant' | 'system';
-    content: string;
-    timestamp: string;
-  } | null;
-}
+type FilterStatus = 'all' | 'active' | 'archived' | 'inactive';
 
 export default function AllChatsPage() {
+  const { t, i18n } = useTranslation('chat');
   const router = useRouter();
+  const { translateMessage, isTranslating } = useTranslateMessage();
+  
   const [sessions, setSessions] = useState<ChatSession[]>([]);
+  const [filteredSessions, setFilteredSessions] = useState<ChatSession[]>([]);
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [archivingId, setArchivingId] = useState<string | null>(null);
+  const [filterStatus, setFilterStatus] = useState<FilterStatus>('all');
+  const [showFilters, setShowFilters] = useState(false);
+  
+  // Translation state for lastMessages
+  const [translatedMessages, setTranslatedMessages] = useState<Record<string, { text: string; language: string }>>({});
+  const [showingTranslations, setShowingTranslations] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     loadSessions();
   }, []);
+
+  // Filter sessions based on status
+  useEffect(() => {
+    let filtered = [...sessions];
+    
+    if (filterStatus !== 'all') {
+      filtered = filtered.filter(session => session.status === filterStatus);
+    }
+    
+    // Sort by last activity (newest first)
+    filtered.sort((a, b) => new Date(b.lastActivity).getTime() - new Date(a.lastActivity).getTime());
+    
+    setFilteredSessions(filtered);
+  }, [sessions, filterStatus]);
 
   const loadSessions = async () => {
     try {
@@ -48,7 +61,7 @@ export default function AllChatsPage() {
   };
 
   const handleDeleteSession = async (sessionId: string) => {
-    if (!confirm('Are you sure you want to delete this chat session? This action cannot be undone.')) {
+    if (!confirm(t('chat_list.actions.confirm_delete'))) {
       return;
     }
 
@@ -58,9 +71,31 @@ export default function AllChatsPage() {
       setSessions(sessions.filter(s => s.id !== sessionId));
     } catch (error) {
       console.error('Failed to delete session:', error);
-      alert('Failed to delete session. Please try again.');
+      alert('Fehler beim Löschen der Session. Bitte versuchen Sie es erneut.');
     } finally {
       setDeletingId(null);
+    }
+  };
+
+  const handleArchiveSession = async (sessionId: string, currentStatus: string) => {
+    const newStatus = currentStatus === 'archived' ? 'active' : 'archived';
+    const action = newStatus === 'archived' ? 'archivieren' : 'reaktivieren';
+    
+    if (newStatus === 'archived' && !confirm('Wirklich archivieren?')) {
+      return;
+    }
+
+    setArchivingId(sessionId);
+    try {
+      await botApi.updateSessionStatus(sessionId, newStatus);
+      setSessions(sessions.map(s => 
+        s.id === sessionId ? { ...s, status: newStatus } : s
+      ));
+    } catch (error) {
+      console.error('Failed to update session status:', error);
+      alert(`Fehler beim ${action} der Session. Bitte versuchen Sie es erneut.`);
+    } finally {
+      setArchivingId(null);
     }
   };
 
@@ -80,18 +115,106 @@ export default function AllChatsPage() {
   };
 
   const getSessionTitle = (session: ChatSession) => {
-    if (session.lastMessage) {
-      return session.lastMessage.role === 'user' 
-        ? session.lastMessage.content.substring(0, 50) + (session.lastMessage.content.length > 50 ? '...' : '')
-        : 'Chat Session';
-    }
-    return `Chat Session ${session.id}`;
+    return `Chat Session ${session.sessionNumber || session.id}`;
   };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'active': return 'bg-success-500';
+      case 'archived': return 'bg-dark-400';
+      case 'inactive': return 'bg-orange-500';
+      default: return 'bg-luxe-500';
+    }
+  };
+
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case 'active': return 'Aktiv';
+      case 'archived': return 'Archiviert';
+      case 'inactive': return 'Inaktiv';
+      default: return 'Unbekannt';
+    }
+  };
+
+  // Translation functions for lastMessage
+  const handleTranslateLastMessage = async (sessionId: string, content: string) => {
+    const targetLanguage = i18n.language || 'de';
+    try {
+      const result = await translateMessage(content, targetLanguage);
+      setTranslatedMessages(prev => ({
+        ...prev,
+        [sessionId]: { text: result.text, language: targetLanguage }
+      }));
+      setShowingTranslations(prev => new Set(Array.from(prev).concat([sessionId])));
+    } catch (error) {
+      console.error('Translation failed:', error);
+    }
+  };
+
+  const handleShowOriginalMessage = (sessionId: string) => {
+    setShowingTranslations(prev => {
+      const newSet = new Set(prev);
+      newSet.delete(sessionId);
+      return newSet;
+    });
+  };
+
+  const getLanguageName = (code: string) => {
+    const names: Record<string, string> = {
+      // Core Languages
+      'de': 'Deutsch',
+      'en': 'English',
+      
+      // Eastern European Languages
+      'ru': 'Русский',
+      'pl': 'Polski',
+      'cs': 'Čeština',
+      'sk': 'Slovenčina',
+      'hu': 'Magyar',
+      'ro': 'Română',
+      'bg': 'български език',
+      'sr': 'српски језик',
+      'hr': 'Hrvatski',
+      'sl': 'Slovenski',
+      'bs': 'Bosanski',
+      'mk': 'македонски јазик',
+      'sq': 'Shqip',
+      'lv': 'Latviešu',
+      'lt': 'Lietuvių',
+      'et': 'Eesti',
+      'uk': 'українська',
+      'be': 'беларуская',
+      
+      // Western & Southern European Languages
+      'es': 'Español',
+      'it': 'Italiano',
+      'fr': 'Français',
+      'pt': 'Português',
+      'nl': 'Nederlands',
+      'el': 'Ελληνικά',
+      
+      // Asian Languages
+      'th': 'ไทย',
+      'tl': 'Filipino',
+      'vi': 'Tiếng Việt',
+      'zh': '中文',
+      'ja': '日本語',
+      'ko': '한국어',
+      'hi': 'हिन्दी',
+      
+      // Middle Eastern & Other
+      'tr': 'Türkçe',
+      'ar': 'العربية',
+    };
+    return names[code] || code.toUpperCase();
+  };
+
+  const targetLanguage = i18n.language || 'de';
 
   if (loading) {
     return (
       <div className="min-h-screen bg-dark-900 flex items-center justify-center">
-        <div className="text-lg text-dark-50">Loading chat sessions...</div>
+        <div className="text-lg text-dark-50">{t('chat_list.loading')}</div>
       </div>
     );
   }
@@ -123,44 +246,115 @@ export default function AllChatsPage() {
                 href="/" 
                 className="text-elysViolet-400 hover:text-elysViolet-300 px-3 py-2 rounded transition-colors"
               >
-                ← Back to Dashboard
+                {t('common.back_to_dashboard')}
               </Link>
             </div>
           </div>
         </div>
       </header>
 
-      {/* Chat Sessions List */}
-      <main className="max-w-7xl mx-auto py-8 px-4">
-        {sessions.length === 0 ? (
-          <div className="bg-dark-700 rounded-xl shadow-2xl p-8 text-center border border-dark-600">
-            <div className="flex items-center justify-center text-elysPink-400 text-lg mb-4">
-              <ChatBubbleLeftRightIcon className="h-6 w-6 mr-2" />
-              No chat sessions yet!
-            </div>
-            <p className="text-dark-200 mb-6">Start your first test chat to see it here.</p>
-            <Link 
-              href="/test-chat" 
-              className="inline-block bg-gradient-to-r from-elysViolet-500 to-elysBlue-600 text-white px-6 py-3 rounded-lg hover:from-elysViolet-600 hover:to-elysBlue-700 transition-all duration-300 shadow-lg"
-            >
-              Start AI Chat
-            </Link>
+      {/* Filters and Stats */}
+      <div className="max-w-7xl mx-auto px-4 py-4">
+        <div className="flex items-center justify-between mb-6">
+          <div className="text-sm text-dark-200">
+            {filteredSessions.length} von {sessions.length} Chat Session{filteredSessions.length !== 1 ? 's' : ''}
+            {filterStatus !== 'all' && ` (${getStatusLabel(filterStatus)} gefiltert)`}
           </div>
+          
+          <div className="relative">
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className="flex items-center space-x-2 bg-dark-700 text-dark-200 px-4 py-2 rounded-lg hover:bg-dark-600 transition-colors border border-dark-600"
+            >
+              <FunnelIcon className="h-4 w-4" />
+              <span>Filter</span>
+            </button>
+            
+            {showFilters && (
+              <div className="absolute right-0 mt-2 w-48 bg-dark-700 border border-dark-600 rounded-lg shadow-xl z-10">
+                {[
+                  {key: 'all', label: t('chat_list.filters.all')}, 
+                  {key: 'active', label: t('chat_list.filters.active')}, 
+                  {key: 'archived', label: t('chat_list.filters.archived')}, 
+                  {key: 'inactive', label: t('chat_list.filters.inactive')}
+                ].map(({key, label}) => (
+                  <button
+                    key={key}
+                    onClick={() => {
+                      setFilterStatus(key as FilterStatus);
+                      setShowFilters(false);
+                    }}
+                    className={`w-full text-left px-4 py-2 hover:bg-dark-600 transition-colors first:rounded-t-lg last:rounded-b-lg ${
+                      filterStatus === key ? 'text-luxe-400' : 'text-dark-200'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span>{label}</span>
+                      {filterStatus === key && <CheckIcon className="h-4 w-4" />}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Chat Sessions List */}
+      <main className="max-w-7xl mx-auto py-0 px-4">
+        {filteredSessions.length === 0 ? (
+          sessions.length === 0 ? (
+            <div className="bg-dark-700 rounded-xl shadow-2xl p-8 text-center border border-dark-600">
+              <div className="flex items-center justify-center text-elysPink-400 text-lg mb-4">
+                <ChatBubbleLeftRightIcon className="h-6 w-6 mr-2" />
+                No chat sessions yet!
+              </div>
+              <p className="text-dark-200 mb-6">Start your first test chat to see it here.</p>
+              <Link 
+                href="/test-chat" 
+                className="inline-block bg-gradient-to-r from-elysViolet-500 to-elysBlue-600 text-white px-6 py-3 rounded-lg hover:from-elysViolet-600 hover:to-elysBlue-700 transition-all duration-300 shadow-lg"
+              >
+                Start AI Chat
+              </Link>
+            </div>
+          ) : (
+            <div className="bg-dark-700 rounded-xl shadow-2xl p-8 text-center border border-dark-600">
+              <div className="flex items-center justify-center text-elysPink-400 text-lg mb-4">
+                <FunnelIcon className="h-6 w-6 mr-2" />
+                Keine Chat Sessions gefunden!
+              </div>
+              <p className="text-dark-200 mb-6">
+                {filterStatus === 'all' 
+                  ? 'Aktuell sind alle Sessions herausgefiltert.' 
+                  : `Keine ${getStatusLabel(filterStatus)} Sessions vorhanden.`
+                }
+              </p>
+              <button
+                onClick={() => setFilterStatus('all')}
+                className="inline-block bg-gradient-to-r from-elysViolet-500 to-elysBlue-600 text-white px-6 py-3 rounded-lg hover:from-elysViolet-600 hover:to-elysBlue-700 transition-all duration-300 shadow-lg"
+              >
+                {t('chat_list.filters.all')}
+              </button>
+            </div>
+          )
         ) : (
           <div className="space-y-4">
-            <div className="text-sm text-dark-200 mb-4">
-              {sessions.length} chat session{sessions.length !== 1 ? 's' : ''} found
-            </div>
-            
-            {sessions.map((session) => (
+            {filteredSessions.map((session) => (
               <div key={session.id} className="bg-dark-700 rounded-xl shadow-2xl hover:shadow-rouge-500/20 transition-all duration-300 p-6 border border-dark-600 hover:border-rouge-500">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="flex items-center mb-3">
-                      <span className="inline-block w-3 h-3 rounded-full bg-luxe-500 mr-3 shadow-lg shadow-luxe-500/25"></span>
+                      <span className={`inline-block w-3 h-3 rounded-full ${getStatusColor(session.status)} mr-3 shadow-lg`}></span>
                       <h3 className="font-semibold text-dark-50 text-lg">
                         {getSessionTitle(session)}
                       </h3>
+                      <span className={`ml-3 text-xs px-2 py-1 rounded-full ${
+                        session.status === 'active' ? 'bg-success-500/20 text-success-300 border border-success-500/30' :
+                        session.status === 'archived' ? 'bg-dark-500/20 text-dark-300 border border-dark-500/30' :
+                        'bg-orange-500/20 text-orange-300 border border-orange-500/30'
+                      }`}>
+                        {getStatusLabel(session.status)}
+                      </span>
                       {session.stats.draftMessages > 0 && (
                         <span className="ml-2 text-xs bg-rouge-500 text-white px-2 py-1 rounded-full shadow-lg">
                           {session.stats.draftMessages} Draft{session.stats.draftMessages !== 1 ? 's' : ''}
@@ -192,7 +386,52 @@ export default function AllChatsPage() {
                         <div className="text-xs text-dark-200 mb-1">
                           Last message ({session.lastMessage.role}):
                         </div>
-                        <div className="text-sm text-dark-100">{session.lastMessage.content}</div>
+                        <div className="text-sm text-dark-100 mb-2">
+                          {showingTranslations.has(session.id) 
+                            ? translatedMessages[session.id]?.text 
+                            : session.lastMessage.content
+                          }
+                        </div>
+                        
+                        {/* Translation indicator */}
+                        {showingTranslations.has(session.id) && (
+                          <div className="text-xs opacity-60 mb-2 italic text-dark-300">
+                            Translated to {getLanguageName(translatedMessages[session.id]?.language || '')}
+                          </div>
+                        )}
+
+                        {/* Translation Controls */}
+                        {session.lastMessage.content.length > 10 && (
+                          <div className="flex flex-wrap gap-2 text-xs">
+                            {!showingTranslations.has(session.id) ? (
+                              // Show single translation button
+                              <button
+                                onClick={() => session.lastMessage && handleTranslateLastMessage(session.id, session.lastMessage.content)}
+                                disabled={isTranslating}
+                                className="text-dark-400 hover:text-elysViolet-500 transition-colors underline disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
+                              >
+                                <LanguageIcon className="h-3 w-3" />
+                                {isTranslating ? (
+                                  <>
+                                    <ArrowPathIcon className="h-3 w-3 animate-spin" />
+                                    <span>Translating...</span>
+                                  </>
+                                ) : (
+                                  <span>Translate to {getLanguageName(targetLanguage)}</span>
+                                )}
+                              </button>
+                            ) : (
+                              // Show original button
+                              <button
+                                onClick={() => handleShowOriginalMessage(session.id)}
+                                className="text-dark-400 hover:text-elysViolet-500 transition-colors underline flex items-center gap-1"
+                              >
+                                <ArrowPathIcon className="h-3 w-3" />
+                                Show Original
+                              </button>
+                            )}
+                          </div>
+                        )}
                       </div>
                     )}
 
@@ -205,32 +444,46 @@ export default function AllChatsPage() {
                   <div className="ml-6 flex flex-col space-y-2">
                     <button
                       onClick={() => handleOpenSession(session.id)}
-                      className="bg-gradient-to-r from-gold-400 to-gold-500 text-dark-900 px-4 py-2 rounded-lg hover:from-gold-500 hover:to-gold-600 text-sm font-semibold transition-all duration-300 shadow-lg"
+                      className="bg-dark-600 text-elysViolet-400 px-4 py-2 rounded-lg hover:bg-elysViolet-600 hover:text-white text-sm font-semibold border border-elysViolet-500/30 hover:border-elysViolet-500 transition-all duration-300 flex items-center justify-center"
                     >
-                      📱 Open Chat
+                      <ChatBubbleLeftRightIcon className="h-4 w-4 mr-2" />
+                      {t('chat_list.actions.open')}
                     </button>
                     
                     {session.stats.draftMessages > 0 && (
                       <Link
                         href={`/chat-review/test-${session.id}`}
-                        className="bg-gradient-to-r from-elysPink-500 to-elysViolet-600 text-white px-4 py-2 rounded-lg hover:from-elysPink-600 hover:to-elysBlue-700 text-sm text-center font-semibold transition-all duration-300 shadow-lg flex items-center"
+                        className="bg-gradient-to-r from-elysPink-500 to-elysViolet-600 text-white px-4 py-2 rounded-lg hover:from-elysPink-600 hover:to-elysBlue-700 text-sm text-center font-semibold transition-all duration-300 shadow-lg flex items-center justify-center"
                       >
-                        <DocumentTextIcon className="h-4 w-4 mr-1" />
+                        <DocumentTextIcon className="h-4 w-4 mr-2" />
                         Review Drafts
                       </Link>
                     )}
                     
                     <button
+                      onClick={() => handleArchiveSession(session.id, session.status)}
+                      disabled={archivingId === session.id}
+                      className="bg-dark-600 text-elysViolet-400 px-4 py-2 rounded-lg hover:bg-elysViolet-600 hover:text-white disabled:opacity-50 text-sm font-semibold border border-elysViolet-500/30 hover:border-elysViolet-500 transition-all duration-300 flex items-center justify-center"
+                    >
+                      {archivingId === session.id ? (
+                        <ClockIcon className="h-4 w-4 mr-2" />
+                      ) : (
+                        <ArchiveBoxIcon className="h-4 w-4 mr-2" />
+                      )}
+                      {session.status === 'archived' ? t('chat_list.actions.activate') : t('chat_list.actions.archive')}
+                    </button>
+                    
+                    <button
                       onClick={() => handleDeleteSession(session.id)}
                       disabled={deletingId === session.id}
-                      className="bg-dark-600 text-elysPink-400 px-4 py-2 rounded-lg hover:bg-elysPink-600 hover:text-white disabled:opacity-50 text-sm font-semibold border border-elysPink-500/30 hover:border-elysPink-500 transition-all duration-300"
+                      className="bg-dark-600 text-elysPink-400 px-4 py-2 rounded-lg hover:bg-elysPink-600 hover:text-white disabled:opacity-50 text-sm font-semibold border border-elysPink-500/30 hover:border-elysPink-500 transition-all duration-300 flex items-center justify-center"
                     >
                       {deletingId === session.id ? (
-                        <ClockIcon className="h-4 w-4 mr-1" />
+                        <ClockIcon className="h-4 w-4 mr-2" />
                       ) : (
-                        <TrashIcon className="h-4 w-4 mr-1" />
+                        <TrashIcon className="h-4 w-4 mr-2" />
                       )}
-                      Delete
+                      {t('chat_list.actions.delete')}
                     </button>
                   </div>
                 </div>

@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { botApi } from '@/utils/api';
 import { ChatMessage, TestChatSession } from '@/types';
-import MessageBubble from './MessageBubble';
+import MessageBubbleWithTranslation from './MessageBubbleWithTranslation';
 import ChatInput from './ChatInput';
 
 interface TestChatProps {
@@ -271,7 +271,10 @@ const TestChat = ({ existingSessionId }: TestChatProps) => {
       </div>
       <div className="flex-1 p-4 overflow-y-auto">
         {messages.map((msg) => (
-          <MessageBubble key={msg.id} message={msg} />
+          <MessageBubbleWithTranslation 
+            key={msg.id} 
+            message={msg}
+          />
         ))}
         {isLoading && (
           <div className="flex justify-start items-center">

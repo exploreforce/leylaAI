@@ -67,7 +67,7 @@ export interface Appointment {
   customerEmail?: string;
   datetime: Date;
   duration: number; // in minutes
-  status: 'pending' | 'confirmed' | 'cancelled' | 'completed';
+  status: 'pending' | 'booked' | 'confirmed' | 'cancelled' | 'completed' | 'noshow';
   notes?: string;
   appointmentType?: string;
   createdAt: Date;
@@ -121,9 +121,17 @@ export interface ChatMessage {
   content: string;
   timestamp: Date;
   metadata?: {
+    // Legacy metadata
     toolCalls?: ToolCall[];
     appointmentId?: string;
     status?: 'draft' | 'sent';
+    
+    // New structured output metadata
+    language?: string;
+    confidence?: number;
+    intent?: string;
+    urgency?: 'low' | 'medium' | 'high';
+    requiresFollowUp?: boolean;
   };
 }
 

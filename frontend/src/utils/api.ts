@@ -86,6 +86,23 @@ export const botApi = {
   deleteTestChatSession: async (sessionId: string): Promise<ApiResponse<any>> => {
     return api.delete(`/bot/test-chat/sessions/${sessionId}`);
   },
+
+  updateSessionStatus: async (sessionId: string, status: 'active' | 'archived' | 'inactive'): Promise<ApiResponse<any>> => {
+    return api.patch(`/bot/test-chat/sessions/${sessionId}/status`, { status });
+  },
+
+  // Language Settings API
+  getLanguages: async (): Promise<ApiResponse<any[]>> => {
+    return api.get('/bot/languages');
+  },
+
+  getCurrentLanguage: async (): Promise<ApiResponse<any>> => {
+    return api.get('/bot/language-setting');
+  },
+
+  updateLanguage: async (language_code: string): Promise<ApiResponse<any>> => {
+    return api.put('/bot/language-setting', { language_code });
+  },
 };
 
 // Appointments API

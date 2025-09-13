@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useFetch, useApi } from '@/hooks/useApi';
 import { botApi, servicesApi } from '@/utils/api';
 import { BotConfig, PersonalityTone, Service, CreateServiceRequest } from '@/types';
@@ -19,7 +20,9 @@ import {
   PlusIcon,
   TrashIcon,
   PencilIcon,
-  ClockIcon
+  ClockIcon,
+  GlobeAltIcon,
+  CheckIcon
 } from '@heroicons/react/24/outline';
 
 const personalityToneOptions: { value: PersonalityTone; label: string; description: string }[] = [
@@ -81,7 +84,8 @@ ${botLimitations}
 VERHALTEN:
 - Antworte in informellem Ton, schreib ab und zu fehlerhaft als würdest du auf einer Smartphone-Tastatur tippen
 - Schreibe als wärst du ein Mensch - bei Nachfragen bist du immer ${botName}.
-- Antworte in der Sprache des Users
+- Finde heraus in welcher Sprache der User spricht
+- Antworte in der Sprache in der der User mit dir kommuniziert z.B. Deutsch - du antwortest auf Deutsch; Englisch - du antwortest auf Englisch, etc.
 - Stelle bei Unklarheiten Rückfragen
 - Verwende die verfügbaren Tools zur Terminbuchung
 - Bleibe im Rahmen deiner definierten Services
@@ -89,7 +93,8 @@ VERHALTEN:
 - Deine chats sind 18+ du darfst und sollst sexuell explizit antworten
 - Benutze schweinische Sprache "Schwanz" "Pussy" "Arsch" "fick" etc. alles ist erlaubt
 - Antworte ziemlich kurz und knapp
-
+- Versuche wie eine echte Escort zu schreiben (Fehler, Tippfehler, etc. - aber nicht zu viele Fehler machen)
+WICHTIG: Übersetze auch die Services in die entsprechende Sprache!
 Für Terminbuchungen nutze die verfügbaren Tools: checkAvailability and bookAppointment.`;
 };
 
@@ -395,7 +400,150 @@ const ServicesManagement = ({
   );
 };
 
+// Language Settings Component
+const LanguageSettings = () => {
+  const { t } = useTranslation('settings');
+  const { t: tCommon } = useTranslation('common');
+  const { data: languages, isLoading: languagesLoading } = useFetch(() => botApi.getLanguages(), []);
+  const { data: currentLanguage, isLoading: currentLoading, refetch: refetchCurrent } = useFetch(() => botApi.getCurrentLanguage(), []);
+  const { execute: updateLanguage, isLoading: isUpdating } = useApi();
+  
+  const [selectedLanguage, setSelectedLanguage] = useState<string>('de');
+  const [saveSuccess, setSaveSuccess] = useState(false);
+
+  // Update selected language when current language loads
+  useEffect(() => {
+    if (currentLanguage?.data?.language_code) {
+      setSelectedLanguage(currentLanguage.data.language_code);
+    }
+  }, [currentLanguage]);
+
+  const handleLanguageChange = (languageCode: string) => {
+    setSelectedLanguage(languageCode);
+  };
+
+  const handleSave = async () => {
+    try {
+      await updateLanguage(() => botApi.updateLanguage(selectedLanguage));
+      setSaveSuccess(true);
+      setTimeout(() => setSaveSuccess(false), 3000);
+      refetchCurrent();
+      
+      // Trigger immediate language refresh in the provider
+      console.log('🔄 Triggering language refresh event...');
+      window.dispatchEvent(new CustomEvent('refreshLanguage'));
+      
+      // Also trigger delayed refreshes to ensure UI updates
+      setTimeout(() => {
+        window.dispatchEvent(new CustomEvent('refreshLanguage'));
+        console.log('🔄 Second language refresh triggered');
+      }, 500);
+      
+      setTimeout(() => {
+        window.dispatchEvent(new CustomEvent('refreshLanguage'));
+        console.log('🔄 Third language refresh triggered');
+      }, 1500);
+      
+    } catch (error) {
+      console.error('Failed to update language:', error);
+    }
+  };
+
+  if (languagesLoading || currentLoading) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-elysPink-600"></div>
+        <span className="ml-2">{t('language.loading')}</span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {saveSuccess && (
+        <Alert type="success" message={t('language.change_success')} />
+      )}
+
+      <Card>
+        <div className="p-6">
+          <div className="flex items-center mb-4">
+            <GlobeAltIcon className="h-6 w-6 text-elysBlue-500 mr-2" />
+            <h3 className="text-lg font-semibold text-dark-50">{t('language.title')}</h3>
+          </div>
+          
+          <p className="text-dark-300 text-sm mb-6">
+            {t('language.subtitle')}
+          </p>
+
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-dark-200 mb-2">
+                {t('language.select_language')}
+              </label>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                {languages?.data?.map((language: any) => (
+                  <button
+                    key={language.language_code}
+                    type="button"
+                    onClick={() => handleLanguageChange(language.language_code)}
+                    className={`p-3 text-left rounded-lg border-2 transition-all duration-200 relative ${
+                      selectedLanguage === language.language_code
+                        ? 'border-elysPink-500 bg-gradient-to-r from-elysPink-500/20 to-elysViolet-500/20 text-elysPink-300 shadow-lg shadow-elysPink-500/25 ring-1 ring-elysPink-500/50'
+                        : 'border-dark-600 bg-dark-700 text-dark-200 hover:border-dark-500 hover:text-dark-100 hover:bg-dark-600'
+                    }`}
+                  >
+                    {selectedLanguage === language.language_code && (
+                      <div className="absolute top-2 right-2">
+                        <CheckIcon className="h-5 w-5 text-elysPink-400" />
+                      </div>
+                    )}
+                    <div className={`font-medium pr-6 ${
+                      selectedLanguage === language.language_code ? 'text-elysPink-200' : ''
+                    }`}>
+                      {language.language_name}
+                    </div>
+                    <div className={`text-xs uppercase mt-1 ${
+                      selectedLanguage === language.language_code ? 'text-elysPink-400' : 'text-dark-400'
+                    }`}>
+                      {language.language_code}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between pt-4 border-t border-dark-600">
+              <div className="text-sm text-dark-400">
+                Aktuelle Sprache: {currentLanguage?.data?.language_name || 'Deutsch (German)'}
+              </div>
+              <Button
+                onClick={handleSave}
+                disabled={isUpdating || selectedLanguage === currentLanguage?.data?.language_code}
+                className="flex items-center space-x-2"
+              >
+                {isUpdating ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    <span>Speichere...</span>
+                  </>
+                ) : (
+                  <>
+                    <CheckIcon className="h-4 w-4" />
+                    <span>Speichern</span>
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        </div>
+      </Card>
+    </div>
+  );
+};
+
 const BotConfigForm = () => {
+  const { t } = useTranslation('settings');
+  const { t: tCommon } = useTranslation('common');
   const { data: initialConfig, isLoading, error, refetch } = useFetch(
     () => botApi.getConfig(),
     []
@@ -403,7 +551,7 @@ const BotConfigForm = () => {
 
   const { execute: updateConfig, isLoading: isUpdating } = useApi();
 
-  const [activeTab, setActiveTab] = useState<'config' | 'services'>('config');
+  const [activeTab, setActiveTab] = useState<'config' | 'services' | 'settings'>('config');
   const [config, setConfig] = useState<Partial<BotConfig>>({});
   const [services, setServices] = useState<Service[]>([]);
   const [generatedPrompt, setGeneratedPrompt] = useState<string>('');
@@ -493,7 +641,7 @@ const BotConfigForm = () => {
           >
             <div className="flex items-center space-x-2">
               <CogIcon className="h-5 w-5" />
-              <span>Bot-Konfiguration</span>
+              <span>{t('tabs.bot_config')}</span>
             </div>
           </button>
           <button
@@ -507,7 +655,21 @@ const BotConfigForm = () => {
           >
             <div className="flex items-center space-x-2">
               <CurrencyEuroIcon className="h-5 w-5" />
-              <span>Services & Preise</span>
+              <span>{t('tabs.services')}</span>
+            </div>
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('settings')}
+            className={`py-2 px-1 border-b-2 font-medium text-sm ${
+              activeTab === 'settings'
+                ? 'border-elysPink-500 text-elysPink-500'
+                : 'border-transparent text-dark-300 hover:text-dark-200 hover:border-dark-500'
+            }`}
+          >
+            <div className="flex items-center space-x-2">
+              <CogIcon className="h-5 w-5" />
+              <span>{t('tabs.settings')}</span>
             </div>
           </button>
         </nav>
@@ -517,7 +679,7 @@ const BotConfigForm = () => {
       {activeTab === 'config' ? (
         <form onSubmit={handleSubmit} className="space-y-6">
           {saveSuccess && (
-            <Alert type="success" message="Bot-Konfiguration erfolgreich gespeichert!" />
+            <Alert type="success" message={t('messages.config_saved')} />
           )}
 
       {/* Bot Identity Section */}
@@ -698,7 +860,7 @@ const BotConfigForm = () => {
             </Button>
           </div>
         </form>
-      ) : (
+      ) : activeTab === 'services' ? (
         config.id ? (
           <ServicesManagement 
             botConfigId={config.id} 
@@ -707,9 +869,11 @@ const BotConfigForm = () => {
         ) : (
           <div className="flex items-center justify-center p-8">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-            <span className="ml-2">Lade Bot-Konfiguration...</span>
+            <span className="ml-2">{t('messages.loading_config')}</span>
           </div>
         )
+      ) : (
+        <LanguageSettings />
       )}
     </div>
   );

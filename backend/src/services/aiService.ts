@@ -9,6 +9,61 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
+// --- Structured Output Schema ---
+const botResponseSchema = {
+  type: "object" as const,
+  properties: {
+    message: {
+      type: "string" as const,
+      description: "The response message to send to the user"
+    },
+    language: {
+      type: "string" as const, 
+      description: "ISO 639-1 language code of the detected user language and response language (e.g., 'en', 'de', 'es')"
+    },
+    confidence: {
+      type: "number" as const,
+      description: "Confidence score (0-1) for language detection",
+      minimum: 0,
+      maximum: 1
+    },
+    metadata: {
+      type: "object" as const,
+      properties: {
+        intent: {
+          type: "string" as const,
+          description: "Detected user intent (e.g., 'booking', 'inquiry', 'greeting')"
+        },
+        urgency: {
+          type: "string" as const,
+          enum: ["low", "medium", "high"],
+          description: "Message urgency level"
+        },
+        requiresFollowUp: {
+          type: "boolean" as const,
+          description: "Whether this conversation requires follow-up"
+        }
+      },
+      required: ["intent", "urgency", "requiresFollowUp"],
+      additionalProperties: false
+    }
+  },
+  required: ["message", "language", "confidence", "metadata"],
+  additionalProperties: false
+};
+
+// Interface for the structured response
+interface BotResponse {
+  message: string;
+  language: string;
+  confidence: number;
+  metadata: {
+    intent: string;
+    urgency: 'low' | 'medium' | 'high';
+    requiresFollowUp: boolean;
+  };
+}
+
 // --- Tool Definitions for OpenAI Function Calling ---
 
 const tools: ChatCompletionTool[] = [
@@ -43,6 +98,7 @@ const tools: ChatCompletionTool[] = [
         properties: {
           customerName: { type: 'string', description: "The customer's full name." },
           customerPhone: { type: 'string', description: "The customer's phone number." },
+          customerEmail: { type: 'string', description: "The customer's email address (optional)." },
           datetime: {
             type: 'string',
             description: 'The appointment start time in ISO 8601 format (e.g., 2024-07-25T14:30:00Z).',
@@ -51,12 +107,16 @@ const tools: ChatCompletionTool[] = [
             type: 'number',
             description: 'The duration of the appointment in minutes.',
           },
+          appointmentType: {
+            type: 'string',
+            description: 'The type/service of the appointment (e.g., "consultation", "treatment", etc.).',
+          },
           notes: {
             type: 'string',
             description: 'Any additional notes for the appointment.',
           },
         },
-        required: ['customerName', 'customerPhone', 'datetime', 'duration'],
+        required: ['customerName', 'customerPhone', 'datetime', 'duration', 'appointmentType'],
       },
     },
   },
@@ -192,8 +252,8 @@ const executeTool = async (toolCall: OpenAI.Chat.Completions.ChatCompletionMessa
       return { availableSlots };
 
     case 'bookAppointment':
-      const { customerName, customerPhone, datetime, duration: apptDuration, notes } = args;
-      console.log(`📅 Booking appointment:`, { customerName, customerPhone, datetime, duration: apptDuration });
+      const { customerName, customerPhone, customerEmail, datetime, duration: apptDuration, appointmentType, notes } = args;
+      console.log(`📅 Booking appointment:`, { customerName, customerPhone, customerEmail, datetime, duration: apptDuration, appointmentType });
       
       // Normalize incoming datetime to local string 'YYYY-MM-DD HH:mm'
       const localDatetime = String(datetime).replace('T', ' ').replace('Z', '').slice(0, 16);
@@ -203,10 +263,12 @@ const executeTool = async (toolCall: OpenAI.Chat.Completions.ChatCompletionMessa
         const newAppointment = await Database.createAppointment({
           customer_name: customerName,
           customer_phone: customerPhone,
+          customer_email: customerEmail || null,
           datetime: localDatetime,
           duration: apptDuration,
+          appointment_type: appointmentType,
           notes,
-          status: 'confirmed',
+          status: 'booked',
         });
         console.log(`✅ Appointment created successfully:`, newAppointment.id);
         return { success: true, appointment: newAppointment };
@@ -232,7 +294,7 @@ export class AIService {
       throw new Error('Bot configuration not found.');
     }
 
-        const activeSystemPrompt = botConfig.generatedSystemPrompt || botConfig.systemPrompt || 'You are a helpful AI assistant.';
+    const activeSystemPrompt = botConfig.generatedSystemPrompt || botConfig.systemPrompt || 'You are a helpful AI assistant.';
     const promptType = botConfig.generatedSystemPrompt ? 'generated' : 'legacy';
     
     // Content Filter Settings
@@ -266,7 +328,18 @@ CURRENT DATE & TIME INFORMATION:
 - Use this information when users ask for appointments "today", "tomorrow", "next week", etc.
 - Always convert relative dates (like "tomorrow", "next Friday") to specific dates in YYYY-MM-DD format before calling tools.
 
-Always respond in the same language as the user's last message.`;
+LANGUAGE INSTRUCTION:
+- IMPORTANT: Always detect the user's language from their message and respond in the SAME language
+- Maintain consistent language throughout your entire response including services, appointment details, etc.
+- Include the detected language code in your structured response
+- If unsure, default to English ('en')
+
+STRUCTURED RESPONSE:
+- You must ALWAYS respond using the structured JSON format
+- Include your message, detected language, confidence score, and metadata
+- Analyze user intent (booking, inquiry, greeting, complaint, etc.)
+- Assess message urgency (low, medium, high)
+- Determine if follow-up is needed`;
     
     if (allowExplicit) {
       extendedSystemPrompt += `
@@ -288,26 +361,33 @@ CONTENT POLICY:
       content: msg.content || '',
     })).filter(msg => msg.content.trim().length > 0) as OpenAI.Chat.ChatCompletionMessageParam[];
 
-    console.log('🤖 AI Service: Sending to OpenAI:', {
+    console.log('🤖 AI Service: Sending to OpenAI with structured outputs:', {
       systemMessage: typeof systemMessage.content === 'string' ? systemMessage.content.substring(0, 50) + '...' : 'Complex content',
       messageCount: conversationHistory.length,
       conversationHistory: conversationHistory.map(m => `${m.role}: ${typeof m.content === 'string' ? m.content.substring(0, 50) : 'complex'}...`),
       currentDate: currentDate,
-      currentDateTime: currentDateTime
+      currentDateTime: currentDateTime,
+      structuredOutput: true
     });
 
-    // OpenAI API Call mit angepassten Content Filter Einstellungen
+    // OpenAI API Call mit Structured Outputs
     const apiParams: any = {
-      model: process.env.OPENAI_MODEL || 'gpt-4.1-mini',
+      model: process.env.OPENAI_MODEL || 'gpt-4-1106-preview', // Ensure model supports structured outputs
       messages: [systemMessage, ...conversationHistory],
       tools: tools,
       tool_choice: 'auto',
+      response_format: {
+        type: "json_schema",
+        json_schema: {
+          name: "bot_response",
+          schema: botResponseSchema,
+          strict: true
+        }
+      }
     };
     
     // Content Filter Parameter hinzufügen (falls unterstützt vom Model)
     if (!contentFilterEnabled) {
-      // Hinweis: Nicht alle Modelle unterstützen diese Parameter
-      // apiParams.moderation = false;
       console.log('🔓 Content filtering disabled via environment variable');
     }
     
@@ -333,31 +413,70 @@ CONTENT POLICY:
         content: JSON.stringify(toolResults[i]),
       }));
       
-      // Send tool results back to the model mit gleichen Content Filter Einstellungen
+      // Send tool results back to the model with structured outputs
       const secondApiParams: any = {
-        model: process.env.OPENAI_MODEL || 'gpt-4.1-mini',
+        model: process.env.OPENAI_MODEL || 'gpt-4-1106-preview',
         messages: [
           systemMessage,
           ...conversationHistory,
           toolResponseMessage,
           ...toolFeedbackMessages,
         ],
+        response_format: {
+          type: "json_schema",
+          json_schema: {
+            name: "bot_response",
+            schema: botResponseSchema,
+            strict: true
+          }
+        }
       };
       
       if (!contentFilterEnabled) {
-        // apiParams.moderation = false;
         console.log('🔓 Content filtering disabled for tool response');
       }
       
       const secondResponse = await openai.chat.completions.create(secondApiParams);
 
       const finalMessage = secondResponse.choices[0].message;
+      
+      // Parse structured response
+      let structuredResponse: BotResponse;
+      try {
+        structuredResponse = JSON.parse(finalMessage.content || '{}') as BotResponse;
+        console.log('🎯 Structured response received:', {
+          language: structuredResponse.language,
+          confidence: structuredResponse.confidence,
+          intent: structuredResponse.metadata?.intent,
+          urgency: structuredResponse.metadata?.urgency,
+          requiresFollowUp: structuredResponse.metadata?.requiresFollowUp
+        });
+      } catch (error) {
+        console.error('❌ Failed to parse structured response:', error);
+        // Fallback to raw content
+        structuredResponse = {
+          message: finalMessage.content || 'Sorry, I encountered an error processing your request.',
+          language: 'en',
+          confidence: 0.5,
+          metadata: {
+            intent: 'unknown',
+            urgency: 'medium',
+            requiresFollowUp: false
+          }
+        };
+      }
+      
       return {
         id: '', // Will be set by the database
         role: 'assistant',
-        content: finalMessage.content || '',
+        content: structuredResponse.message,
         timestamp: new Date(),
         metadata: {
+          language: structuredResponse.language,
+          confidence: structuredResponse.confidence,
+          intent: structuredResponse.metadata.intent,
+          urgency: structuredResponse.metadata.urgency,
+          requiresFollowUp: structuredResponse.metadata.requiresFollowUp,
           toolCalls: toolCalls.map((tc, i) => ({
             name: tc.function.name,
             parameters: JSON.parse(tc.function.arguments),
@@ -367,12 +486,44 @@ CONTENT POLICY:
         }
       };
     } else {
-      // Standard text response
+      // Standard structured response
+      let structuredResponse: BotResponse;
+      try {
+        structuredResponse = JSON.parse(responseMessage.content || '{}') as BotResponse;
+        console.log('🎯 Structured response received:', {
+          language: structuredResponse.language,
+          confidence: structuredResponse.confidence,
+          intent: structuredResponse.metadata?.intent,
+          urgency: structuredResponse.metadata?.urgency,
+          requiresFollowUp: structuredResponse.metadata?.requiresFollowUp
+        });
+      } catch (error) {
+        console.error('❌ Failed to parse structured response:', error);
+        // Fallback to raw content
+        structuredResponse = {
+          message: responseMessage.content || 'Sorry, I encountered an error processing your request.',
+          language: 'en',
+          confidence: 0.5,
+          metadata: {
+            intent: 'unknown',
+            urgency: 'medium',
+            requiresFollowUp: false
+          }
+        };
+      }
+      
       return {
         id: '',
         role: 'assistant',
-        content: responseMessage.content || '',
+        content: structuredResponse.message,
         timestamp: new Date(),
+        metadata: {
+          language: structuredResponse.language,
+          confidence: structuredResponse.confidence,
+          intent: structuredResponse.metadata.intent,
+          urgency: structuredResponse.metadata.urgency,
+          requiresFollowUp: structuredResponse.metadata.requiresFollowUp
+        }
       };
     }
   }

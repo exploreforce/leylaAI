@@ -18,7 +18,7 @@ export default function ConfigPage() {
                 className="h-10 w-auto"
               />
               <CogIcon className="h-8 w-8 text-elysBlue-500" />
-              <h1 className="text-2xl font-bold text-dark-50">Leyla AI Configuration</h1>
+              <h1 className="text-2xl font-bold text-dark-50">Settings</h1>
             </div>
             <Link href="/" className="text-sm font-medium text-elysViolet-400 hover:text-elysViolet-300 transition-colors">
               ← Back to Dashboard
