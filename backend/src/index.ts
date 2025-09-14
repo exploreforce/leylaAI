@@ -11,6 +11,8 @@ import { Server } from 'socket.io';
 import { errorHandler } from './middleware/errorHandler';
 import { logger } from './middleware/logger';
 import apiRoutes from './routes';
+import { whatsappWebClient } from './services/whatsappWebClient';
+import { whatsappService } from './services/whatsappService';
 
 const app = express();
 const server = http.createServer(app);
@@ -81,5 +83,25 @@ server.listen(PORT, () => {
   console.log(`📡 Socket.IO server ready`);
   console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
 });
+
+// Initialize WhatsApp Web client
+(async () => {
+  try {
+    await whatsappWebClient.init(async (msg) => {
+      try {
+        const from = (msg.from || '').split('@')[0];
+        const body = msg.body || '';
+        if (from && body) {
+          await whatsappService.handleIncomingMessage(from, body);
+        }
+      } catch (e) {
+        console.error('Error handling incoming WA message:', e);
+      }
+    });
+    console.log('📲 WhatsApp Web client initialized');
+  } catch (err) {
+    console.error('❌ Failed to initialize WhatsApp Web client:', err);
+  }
+})();
 
 export { io }; 
