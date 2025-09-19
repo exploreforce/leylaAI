@@ -1,9 +1,9 @@
 #!/bin/sh
 set -e
 
-# Start backend
+# Start backend (binds to PORT provided by platform)
 cd /app/backend
-PORT=5000 npm run production &
+npm run production &
 
 # Start Next.js standalone
 cd /app/frontend-standalone

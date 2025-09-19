@@ -23,7 +23,7 @@ RUN mkdir -p /app/frontend-standalone
 RUN cp -r /app/frontend/.next/standalone/* /app/frontend-standalone/
 RUN mkdir -p /app/frontend-standalone/.next
 RUN cp -r /app/frontend/.next/static /app/frontend-standalone/.next/static
-RUN cp -r /app/frontend/public /app/frontend-standalone/public
+RUN cp -r /app/frontend/public /app/frontend-standalone/public 2>/dev/null || true
 
 # Clean up backend dev dependencies (optional, saves space)
 WORKDIR /app/backend
