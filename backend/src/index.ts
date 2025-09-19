@@ -27,7 +27,23 @@ const io = new Server(server, {
 const PORT = process.env.PORT || 5000;
 
 // Middleware
-app.use(helmet());
+// Security headers with a CSP that allows Next.js inline scripts/styles
+app.use(helmet({
+  contentSecurityPolicy: {
+    useDefaults: true,
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      imgSrc: ["'self'", 'data:', 'blob:'],
+      fontSrc: ["'self'", 'data:'],
+      connectSrc: ["'self'", '*'],
+      objectSrc: ["'none'"],
+      frameAncestors: ["'self'"],
+      baseUri: ["'self'"],
+    }
+  }
+}));
 app.use(cors({
   origin: process.env.FRONTEND_URL || "http://localhost:3000",
   credentials: true
@@ -61,6 +77,13 @@ app.head('/', (_req, res) => {
 app.use('/api', apiRoutes);
 app.use('/api/webhooks', webhookRoutes);
 
+// Serve selected static assets directly from frontend/public to avoid 404s
+const frontendPublicDir = path.join(__dirname, '../../frontend/public');
+app.use('/branding', express.static(path.join(frontendPublicDir, 'branding')));
+app.use('/themes', express.static(path.join(frontendPublicDir, 'themes')));
+app.use('/daypilot', express.static(path.join(frontendPublicDir, 'daypilot')));
+app.use('/locales', express.static(path.join(frontendPublicDir, 'locales')));
+
 // If frontend static build is missing, proxy app routes to Next server
 const nextServerUrl = process.env.NEXT_SERVER_URL || 'http://localhost:3000';
 app.use(
@@ -68,9 +91,6 @@ app.use(
     '/',
     '/_next',
     '/favicon.ico',
-    '/branding',
-    '/themes',
-    '/locales',
   ],
   createProxyMiddleware({
     target: nextServerUrl,
