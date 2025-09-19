@@ -3,12 +3,12 @@ const { i18n } = require('./next-i18next.config');
 const isProd = process.env.NODE_ENV === 'production';
 
 const nextConfig = {
-  // i18n is not compatible with static export
-  ...(isProd ? {} : { i18n }),
+  // Use Next.js i18n (disabled only for static export, which we no longer use)
+  i18n,
   reactStrictMode: true,
   swcMinify: true,
-  // Use static export for production builds (served by backend)
-  ...(isProd && { output: 'export' }),
+  // Use standalone Next.js server in production
+  ...(isProd && { output: 'standalone' }),
   images: { unoptimized: true },
   env: {
     CUSTOM_KEY: process.env.CUSTOM_KEY,

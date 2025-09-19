@@ -31,22 +31,16 @@ const loadTranslationResources = async () => {
   
   for (const lang of coreLanguages) {
     resources[lang] = {};
-    
     try {
-      // Load each namespace for each language
-      const common = await import(`../../../public/locales/${lang}/common.json`);
-      const dashboard = await import(`../../../public/locales/${lang}/dashboard.json`);
-      const settings = await import(`../../../public/locales/${lang}/settings.json`);
-      const chat = await import(`../../../public/locales/${lang}/chat.json`);
-      const calendar = await import(`../../../public/locales/${lang}/calendar.json`);
-
-      resources[lang] = {
-        common: common.default || common,
-        dashboard: dashboard.default || dashboard,
-        settings: settings.default || settings,
-        chat: chat.default || chat,
-        calendar: calendar.default || calendar,
-      };
+      const base = `/locales/${lang}`;
+      const [common, dashboard, settings, chat, calendar] = await Promise.all([
+        fetch(`${base}/common.json`).then(r => r.json()),
+        fetch(`${base}/dashboard.json`).then(r => r.json()),
+        fetch(`${base}/settings.json`).then(r => r.json()),
+        fetch(`${base}/chat.json`).then(r => r.json()),
+        fetch(`${base}/calendar.json`).then(r => r.json()),
+      ]);
+      resources[lang] = { common, dashboard, settings, chat, calendar };
     } catch (error) {
       console.error(`Failed to load core translations for ${lang}:`, error);
     }
@@ -56,22 +50,17 @@ const loadTranslationResources = async () => {
   for (const lang of supportedLanguages) {
     if (!coreLanguages.includes(lang)) {
       try {
-        const common = await import(`../../../public/locales/${lang}/common.json`);
-        const dashboard = await import(`../../../public/locales/${lang}/dashboard.json`);
-        const settings = await import(`../../../public/locales/${lang}/settings.json`);
-        const chat = await import(`../../../public/locales/${lang}/chat.json`);
-        const calendar = await import(`../../../public/locales/${lang}/calendar.json`);
-
-        resources[lang] = {
-          common: common.default || common,
-          dashboard: dashboard.default || dashboard,
-          settings: settings.default || settings,
-          chat: chat.default || chat,
-          calendar: calendar.default || calendar,
-        };
+        const base = `/locales/${lang}`;
+        const [common, dashboard, settings, chat, calendar] = await Promise.all([
+          fetch(`${base}/common.json`).then(r => r.json()),
+          fetch(`${base}/dashboard.json`).then(r => r.json()),
+          fetch(`${base}/settings.json`).then(r => r.json()),
+          fetch(`${base}/chat.json`).then(r => r.json()),
+          fetch(`${base}/calendar.json`).then(r => r.json()),
+        ]);
+        resources[lang] = { common, dashboard, settings, chat, calendar };
       } catch (error) {
         console.warn(`Failed to load translations for ${lang}, using fallback:`, error);
-        // Use English as fallback for other languages
         resources[lang] = resources['en'];
       }
     }

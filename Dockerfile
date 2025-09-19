@@ -13,15 +13,17 @@ RUN npm install
 # Build backend TypeScript first
 RUN npm run build
 
-# Install frontend dependencies and build (static export)
+# Install frontend dependencies and build (standalone server)
 WORKDIR /app/frontend
 RUN npm install
 RUN npm run build
-RUN npm run export
 
-# Copy Next.js static export to backend public folder
-RUN mkdir -p /app/backend/public
-RUN cp -r /app/frontend/out/* /app/backend/public/ 2>/dev/null || true
+# Copy Next.js standalone server to a folder served at runtime
+RUN mkdir -p /app/frontend-standalone
+RUN cp -r /app/frontend/.next/standalone/* /app/frontend-standalone/
+RUN mkdir -p /app/frontend-standalone/.next
+RUN cp -r /app/frontend/.next/static /app/frontend-standalone/.next/static
+RUN cp -r /app/frontend/public /app/frontend-standalone/public
 
 # Clean up backend dev dependencies (optional, saves space)
 WORKDIR /app/backend
@@ -33,6 +35,8 @@ RUN mkdir -p /app/backend/database
 # Expose port
 EXPOSE 5000
 
-# Start backend (which serves frontend static files)
-WORKDIR /app/backend
-CMD ["npm", "run", "production"]
+# Start both backend and Next.js server
+WORKDIR /app
+COPY start-all.sh ./start-all.sh
+RUN chmod +x ./start-all.sh
+CMD ["./start-all.sh"]
