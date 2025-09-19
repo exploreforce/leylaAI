@@ -8,18 +8,18 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // Dark theme base colors
+        // Light theme neutral remap (using "dark" keys for backward compatibility)
         dark: {
-          900: '#0a0a0b', // Deep black background
-          800: '#1a1a1b', // Primary dark background
-          700: '#262626', // Secondary background
-          600: '#333333', // Card backgrounds
-          500: '#404040', // Border colors
-          400: '#525252', // Subtle borders
-          300: '#737373', // Disabled text
-          200: '#a3a3a3', // Secondary text
-          100: '#d4d4d4', // Primary text (light)
-          50: '#f5f5f5',  // Brightest text
+          900: '#F8FAFC', // Page background
+          800: '#F1F5F9', // Primary light background
+          700: '#FFFFFF', // Card backgrounds
+          600: '#E2E8F0', // Borders
+          500: '#CBD5E1', // Subtle borders
+          400: '#94A3B8', // Muted text
+          300: '#64748B', // Disabled text
+          200: '#475569', // Secondary text
+          100: '#1F2937', // Primary text (dark)
+          50:  '#0F172A', // Deepest text
         },
         // ElysAI brand colors based on logo gradient (#c00e9d to #2929a6)
         elysPink: {

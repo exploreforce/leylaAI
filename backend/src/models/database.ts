@@ -14,6 +14,17 @@ export class Database {
     return user || null;
   }
 
+  static async getUserWasenderSessionId(userId: string): Promise<string | null> {
+    const user = await db('users').select('wasender_session_id').where({ id: userId }).first();
+    return user?.wasender_session_id || null;
+  }
+
+  static async setUserWasenderSessionId(userId: string, sessionId: string): Promise<void> {
+    await db('users')
+      .where({ id: userId })
+      .update({ wasender_session_id: sessionId, wasender_session_updated_at: new Date() });
+  }
+
   static async ensureUserFeedToken(userId: string): Promise<string> {
     const existing = await db('users').where({ id: userId }).first();
     if (existing?.calendar_feed_token) return existing.calendar_feed_token;
@@ -406,7 +417,9 @@ export class Database {
     
     try {
       const [insertResult] = await db('test_chat_sessions')
-        .insert({})
+        .insert({
+          session_type: 'test'
+        })
         .returning('id');
       
       console.log('💾 Database: Insert result:', insertResult, 'Type:', typeof insertResult);
@@ -451,6 +464,76 @@ export class Database {
     }
   }
 
+  // WhatsApp Chat Sessions
+  static async createWhatsAppChatSession(whatsappNumber: string): Promise<TestChatSession> {
+    console.log('📱 Database: Creating WhatsApp chat session for:', whatsappNumber);
+    
+    try {
+      // Check if session already exists for this WhatsApp number
+      const existing = await db('test_chat_sessions')
+        .where('whatsapp_number', whatsappNumber)
+        .andWhere('session_type', 'whatsapp')
+        .first();
+      
+      if (existing) {
+        console.log('📱 WhatsApp session already exists for', whatsappNumber, '- updating activity');
+        await db('test_chat_sessions')
+          .where('id', existing.id)
+          .update({ 
+            last_activity: new Date(),
+            status: 'active'
+          });
+        
+        return {
+          id: String(existing.id),
+          messages: [],
+          createdAt: new Date(existing.created_at).toISOString(),
+          lastActivity: new Date().toISOString()
+        };
+      }
+      
+      const [insertResult] = await db('test_chat_sessions')
+        .insert({
+          session_type: 'whatsapp',
+          whatsapp_number: whatsappNumber,
+          display_name: whatsappNumber, // Use phone number as display name
+          status: 'active'
+        })
+        .returning('id');
+      
+      let recordId: number;
+      if (typeof insertResult === 'number') {
+        recordId = insertResult;
+      } else if (insertResult && typeof insertResult === 'object' && insertResult.id) {
+        recordId = insertResult.id;
+      } else {
+        throw new Error('Could not determine record ID from insert result');
+      }
+      
+      // Fetch the full record
+      const created = await db('test_chat_sessions')
+        .where('id', recordId)
+        .first();
+      
+      console.log('📱 WhatsApp chat session created:', JSON.stringify(created, null, 2));
+      
+      if (!created) {
+        throw new Error(`Could not find created record with ID: ${recordId}`);
+      }
+      
+      return {
+        id: String(created.id),
+        messages: [],
+        createdAt: created.created_at ? new Date(created.created_at).toISOString() : new Date().toISOString(),
+        lastActivity: created.last_activity ? new Date(created.last_activity).toISOString() : 
+                     created.updated_at ? new Date(created.updated_at).toISOString() : new Date().toISOString()
+      };
+    } catch (error) {
+      console.error('📱 Database: Error creating WhatsApp chat session:', error);
+      throw error;
+    }
+  }
+
   static async getChatMessages(sessionId: string): Promise<ChatMessage[]> {
     const messages = await db('chat_messages')
       .where('session_id', parseInt(sessionId, 10))
@@ -478,6 +561,15 @@ export class Database {
     const [created] = await db('chat_messages')
       .insert(messageToInsert)
       .returning('*');
+    
+    // Update session's last_activity when a new message is added
+    await db('test_chat_sessions')
+      .where('id', parseInt(message.session_id, 10))
+      .update({ 
+        last_activity: new Date(),
+        status: 'active' // Ensure session is active when messages are added
+      });
+    
     return created;
   }
 

@@ -456,6 +456,9 @@ router.get(
           id: String(session.id),
           sessionNumber: session.session_number,
           status: session.status || 'active',
+          sessionType: session.session_type || 'test', // Add session type
+          whatsappNumber: session.whatsapp_number || null, // Add WhatsApp number
+          displayName: session.display_name || null, // Add display name
           createdAt: session.created_at ? new Date(session.created_at).toISOString() : new Date().toISOString(),
           lastActivity: session.last_activity ? new Date(session.last_activity).toISOString() : 
                        session.updated_at ? new Date(session.updated_at).toISOString() : new Date().toISOString(),

@@ -27,6 +27,13 @@ backend/database/*.db
 backend/database/whatsapp_bot_dev.sqlite3
 backend/database/whatsapp_bot.db
 
+# WhatsApp Web session storage (contains sensitive data)
+backend/storage/
+backend/src/services/whatsappWebClient.ts
+
+# Temporary test files
+f
+
 # Logs
 *.log
 logs/

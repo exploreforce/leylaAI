@@ -5,6 +5,8 @@ import appointmentRoutes from './appointments';
 import whatsappRoutes from './whatsapp';
 import servicesRoutes from './services';
 import authRoutes from './auth';
+import webhooksRoutes from './webhooks';
+import adminRoutes from './admin';
 
 const router = Router();
 
@@ -15,6 +17,8 @@ router.use('/appointments', appointmentRoutes);
 router.use('/whatsapp', whatsappRoutes);
 router.use('/services', servicesRoutes);
 router.use('/auth', authRoutes);
+router.use('/webhooks', webhooksRoutes);
+router.use('/admin', adminRoutes);
 
 // API info endpoint
 router.get('/', (req, res) => {

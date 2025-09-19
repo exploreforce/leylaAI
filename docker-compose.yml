@@ -24,10 +24,12 @@ services:
       - WHATSAPP_ACCESS_TOKEN=${WHATSAPP_ACCESS_TOKEN:-}
       - WHATSAPP_PHONE_NUMBER_ID=${WHATSAPP_PHONE_NUMBER_ID:-}
       - WHATSAPP_TYPING_DELAY=${WHATSAPP_TYPING_DELAY:-true}
+      - WA_SESSION_PATH=/app/storage/wa-session
     ports:
       - "5000:5000"
     volumes:
       - backend-data:/app/database
+      - whatsapp_session_data:/app/storage/wa-session
     restart: unless-stopped
 
   frontend:
@@ -47,6 +49,8 @@ services:
 
 volumes:
   backend-data:
+    driver: local
+  whatsapp_session_data:
     driver: local
 
 

@@ -1,23 +1,14 @@
 import { Router, Request, Response } from 'express';
 import { asyncHandler } from '../middleware/errorHandler';
-import { whatsappWebClient } from '../services/whatsappWebClient';
+import { WasenderApiClient } from '../services/wasenderApiClient';
+import { requireAuth } from '../middleware/auth';
+import { Database, db } from '../models/database';
 
 const router = Router();
 
-// Status of whatsapp-web client
-router.get('/status', asyncHandler(async (req: Request, res: Response) => {
-  const info = whatsappWebClient.getStatus();
-  return res.json({ success: true, data: info });
-}));
+// REMOVED: Global status endpoint - use user-specific /user/status instead
 
-// Current QR code as Data URL (only available during scanning)
-router.get('/qr', asyncHandler(async (req: Request, res: Response) => {
-  const dataUrl = await whatsappWebClient.getQrDataUrl();
-  if (!dataUrl) {
-    return res.status(404).json({ success: false, error: 'QR not available' });
-  }
-  return res.json({ success: true, data: { dataUrl } });
-}));
+// REMOVED: Global QR endpoint - use user-specific /user/qr instead
 
 // Send a test message
 router.post('/send', asyncHandler(async (req: Request, res: Response) => {
@@ -25,8 +16,81 @@ router.post('/send', asyncHandler(async (req: Request, res: Response) => {
   if (!to || !message) {
     return res.status(400).json({ success: false, error: 'to and message required' });
   }
-  await whatsappWebClient.sendMessage(to, message);
+  await WasenderApiClient.sendTextMessage(to, message);
   return res.json({ success: true });
+}));
+
+// Authenticated, per-user session management
+router.post('/user/session/ensure', requireAuth as any, asyncHandler(async (req: any, res: Response) => {
+  const userId: string | undefined = req.userId;
+  if (!userId) return res.status(401).json({ error: 'Unauthorized' });
+
+  const bodyPhone: string | undefined = (req.body?.phoneNumber || req.body?.phone || '').toString().trim() || undefined;
+  let sessionId = await Database.getUserWasenderSessionId(userId);
+  if (!sessionId) {
+    // Create new session for this user
+    // If Wasender requires a phone number on session creation, pass user's stored phone (if available)
+    let userPhone: string | undefined;
+    try {
+      const u = await db('users').select('phone').where({ id: userId }).first();
+      userPhone = u?.phone;
+    } catch {}
+    const phoneToUse = bodyPhone || userPhone;
+    if (!phoneToUse) {
+      return res.status(400).json({ success: false, error: 'phoneNumber is required to create a session' });
+    }
+    // persist phone if provided in request
+    if (bodyPhone && bodyPhone !== userPhone) {
+      try { await db('users').where({ id: userId }).update({ phone: bodyPhone, updated_at: new Date() }); } catch {}
+    }
+    sessionId = await WasenderApiClient.createSessionForUser(`user-${userId}`, phoneToUse);
+    await Database.setUserWasenderSessionId(userId, sessionId);
+    // After create, connect to get QR
+    try { await WasenderApiClient.connectSession(sessionId); } catch {}
+    const info = await WasenderApiClient.getStatusBySessionId(sessionId);
+    return res.json({ success: true, data: { sessionId, ...info } });
+  } else {
+    // If session already exists, just report current status; do not allow changing phone/number here
+    const info = await WasenderApiClient.getStatusBySessionId(sessionId);
+    // If not ready, we can attempt to connect (non-blocking)
+    if (info.status !== 'ready') {
+      try { await WasenderApiClient.connectSession(sessionId); } catch {}
+    }
+    return res.json({ success: true, data: { sessionId, ...info } });
+  }
+}));
+
+router.get('/user/status', requireAuth as any, asyncHandler(async (req: any, res: Response) => {
+  const userId: string | undefined = req.userId;
+  if (!userId) return res.status(401).json({ error: 'Unauthorized' });
+  const sessionId = await Database.getUserWasenderSessionId(userId);
+  if (!sessionId) {
+    const fallback = await WasenderApiClient.getStatus();
+    // Try to include user's stored phone for a stable display
+    let userPhone: string | undefined;
+    try { const u = await db('users').select('phone').where({ id: userId }).first(); userPhone = u?.phone; } catch {}
+    const meNumber = fallback.meNumber || userPhone || null;
+    return res.json({ success: true, data: { ...fallback, meNumber, sessionId: null } });
+  }
+  const info = await WasenderApiClient.getStatusBySessionId(sessionId);
+  // Add stable meNumber fallback from DB if API doesn't include it
+  let userPhone: string | undefined;
+  try { const u = await db('users').select('phone').where({ id: userId }).first(); userPhone = u?.phone; } catch {}
+  const meNumber = info.meNumber || userPhone || null;
+  return res.json({ success: true, data: { ...info, meNumber, sessionId } });
+}));
+
+router.get('/user/qr', requireAuth as any, asyncHandler(async (req: any, res: Response) => {
+  const userId: string | undefined = req.userId;
+  if (!userId) return res.status(401).json({ error: 'Unauthorized' });
+  const sessionId = await Database.getUserWasenderSessionId(userId);
+  if (!sessionId) {
+    return res.status(400).json({ success: false, error: 'No session for user. Call /user/session/ensure first.' });
+  }
+  try { await WasenderApiClient.connectSession(sessionId); } catch {}
+  const dataUrl = await WasenderApiClient.getQrDataUrl(sessionId);
+  if (!dataUrl) return res.status(404).json({ success: false, error: 'QR not available' });
+  return res.json({ success: true, data: { dataUrl } });
 }));
 
 export default router; 

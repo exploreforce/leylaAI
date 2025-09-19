@@ -144,6 +144,9 @@ export interface ChatSession {
   id: string;
   sessionNumber: number;
   status: 'active' | 'archived' | 'inactive';
+  sessionType?: 'test' | 'whatsapp'; // Add session type
+  whatsappNumber?: string | null; // Add WhatsApp number
+  displayName?: string | null; // Add display name
   createdAt: string;
   lastActivity: string;
   isFlagged?: boolean;

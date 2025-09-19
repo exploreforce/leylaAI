@@ -2,7 +2,7 @@ import { Database } from '../models/database';
 import { AIService } from './aiService';
 import { TestChatSession, ChatMessage, DbChatMessage } from '../types';
 import { TypingDelayService } from '../utils/typingDelay';
-import { whatsappWebClient } from './whatsappWebClient';
+import { WasenderApiClient } from './wasenderApiClient';
 
 class WhatsAppService {
   /**
@@ -14,9 +14,8 @@ class WhatsAppService {
   }
 
   async findOrCreateSession(phoneNumber: string): Promise<TestChatSession> {
-    // For now, we'll create a new session each time since the Database class
-    // doesn't have phone-specific session methods
-    const session = await Database.createTestChatSession();
+    // Create or find existing WhatsApp session for this phone number
+    const session = await Database.createWhatsAppChatSession(phoneNumber);
     return session;
   }
 
@@ -34,7 +33,7 @@ class WhatsAppService {
   }
 
   async sendMessage(to: string, message: string): Promise<void> {
-    await whatsappWebClient.sendMessage(to, message);
+    await WasenderApiClient.sendTextMessage(to, message);
     console.log(`WhatsApp message sent to ${to}`);
   }
 
@@ -135,6 +134,32 @@ class WhatsAppService {
       true, // WhatsApp senden
       from   // WhatsApp Empfänger
     );
+  }
+
+  // Multi-Customer: Handle incoming message for a specific user
+  async handleIncomingMessageForUser(userId: string, from: string, messageBody: string): Promise<void> {
+    console.log(`📱 Processing message for specific user ${userId} from ${from}`);
+    
+    // Create WhatsApp session in the context of this specific user
+    const session = await this.findOrCreateSessionForUser(userId, from);
+    await this.processMessage(
+      session.id, 
+      messageBody, 
+      `WhatsApp (${from}) → User ${userId}`, 
+      true, // WhatsApp senden
+      from   // WhatsApp Empfänger
+    );
+  }
+
+  // Multi-Customer: Find or create session for a specific user
+  async findOrCreateSessionForUser(userId: string, phoneNumber: string): Promise<TestChatSession> {
+    console.log(`👤 Finding/creating WhatsApp session for user ${userId} and phone ${phoneNumber}`);
+    
+    // For now, use the same logic as regular findOrCreateSession
+    // In a full multi-tenant setup, you'd want to link sessions to specific users
+    // TODO: Add user_id column to test_chat_sessions table for proper multi-tenancy
+    
+    return await this.findOrCreateSession(phoneNumber);
   }
 
   async handleTestMessage(sessionId: string, messageBody: string): Promise<ChatMessage | null> {

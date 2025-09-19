@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { DocumentTextIcon, TrashIcon, ClockIcon, ChatBubbleLeftRightIcon, ArchiveBoxIcon, FunnelIcon, CheckIcon, LanguageIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
+import { DocumentTextIcon, TrashIcon, ClockIcon, ChatBubbleLeftRightIcon, ArchiveBoxIcon, FunnelIcon, CheckIcon, LanguageIcon, ArrowPathIcon, PhoneIcon } from '@heroicons/react/24/outline';
 import { useTranslation } from 'react-i18next';
 import { botApi } from '@/utils/api';
 import { ChatSession } from '@/types';
@@ -31,6 +31,13 @@ export default function AllChatsPage() {
 
   useEffect(() => {
     loadSessions();
+    
+    // Auto-refresh sessions every 5 seconds for real-time WhatsApp updates
+    const interval = setInterval(() => {
+      loadSessions();
+    }, 5000);
+    
+    return () => clearInterval(interval);
   }, []);
 
   // Filter sessions based on status
@@ -115,6 +122,9 @@ export default function AllChatsPage() {
   };
 
   const getSessionTitle = (session: ChatSession) => {
+    if (session.sessionType === 'whatsapp') {
+      return session.displayName || session.whatsappNumber || `WhatsApp ${session.id}`;
+    }
     return `Chat Session ${session.sessionNumber || session.id}`;
   };
 
@@ -261,7 +271,15 @@ export default function AllChatsPage() {
             {filterStatus !== 'all' && ` (${getStatusLabel(filterStatus)} gefiltert)`}
           </div>
           
-          <div className="relative">
+          <div className="relative flex space-x-2">
+            <button
+              onClick={loadSessions}
+              className="flex items-center space-x-2 bg-dark-700 text-dark-200 px-4 py-2 rounded-lg hover:bg-dark-600 transition-colors border border-dark-600"
+              title="Refresh chats"
+            >
+              <ArrowPathIcon className="h-4 w-4" />
+              <span>Refresh</span>
+            </button>
             <button
               onClick={() => setShowFilters(!showFilters)}
               className="flex items-center space-x-2 bg-dark-700 text-dark-200 px-4 py-2 rounded-lg hover:bg-dark-600 transition-colors border border-dark-600"
@@ -345,6 +363,9 @@ export default function AllChatsPage() {
                   <div className="flex-1">
                     <div className="flex items-center mb-3">
                       <span className={`inline-block w-3 h-3 rounded-full ${getStatusColor(session.status)} mr-3 shadow-lg`}></span>
+                      {session.sessionType === 'whatsapp' && (
+                        <PhoneIcon className="w-5 h-5 text-green-400 mr-2" />
+                      )}
                       <h3 className="font-semibold text-dark-50 text-lg">
                         {getSessionTitle(session)}
                       </h3>

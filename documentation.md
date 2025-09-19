@@ -209,12 +209,13 @@ The `app` directory contains the application's routes.
 *   `chat-review/page.tsx`: The "All Chat Sessions for Review" page. This page was fully converted to the dark theme, including its layout, header, empty state, individual session cards, statistic cards, last message preview, and action buttons. It was rebranded (`alt` for logo updated from "ElysAI" to "Leyla AI", `src` updated from `/branding/ElysAI.png` to `/branding/LeylaAI.png`). Emojis were replaced with Heroicons (`DocumentTextIcon`, `ChatBubbleLeftRightIcon`, `TrashIcon`). Stats card colors were updated to `elysPink` and `elysViolet`.
 *   `chat-review/[chatId]/page.tsx`: The detailed chat review page. This page was fully converted to the dark theme, including its layout, header, conversation history, swipe card for pending replies, and custom reply interface. Its colors were updated to the Leyla AI gradient scheme. During rebranding, the `alt` attribute for the logo was updated from "ElysAI" to "Leyla AI". The `src` for the logo was updated from `/branding/ElysAI.png` to `/branding/LeylaAI.png`. The container for "Reject" and "Accept" buttons was updated to be centered. The custom reply textarea is now pre-filled with the AI's suggested response when "Reject & Write Custom Reply" is clicked.
 *   `chats/page.tsx`: The "All Chat Sessions" page. This page was fully converted to the dark theme, including its layout, header, empty state, individual session cards, statistic cards, last message preview, and action buttons. It was rebranded (`alt` for logo updated from "ElysAI" to "Leyla AI", `src` updated from `/branding/ElysAI.png` to `/branding/LeylaAI.png`). Emojis were replaced with Heroicons (`DocumentTextIcon`, `ChatBubbleLeftRightIcon`, `ClockIcon`, `TrashIcon`). Stats card colors were updated to `elysPink` and `elysViolet`. **Recently updated to navigate to the `test-chat` page with the `sessionId` as a URL parameter, allowing the Test Chat to load existing session history.**
-*   `config/page.tsx`: The bot configuration page. It displays the form for updating the bot's configuration. This page was converted to the dark theme, including its layout and header. It was rebranded (`alt` for logo and `<h1>` title updated from "ElysAI" to "Leyla AI", `src` updated from `/branding/ElysAI.png` to `/branding/LeylaAI.png`). The `CogIcon` color was updated. White containers in the configuration screen were addressed.
+*   `config/page.tsx`: The settings page. Now includes tabs: "Bot-Konfiguration" and "Whatsapp Link" (NEW). The WhatsApp tab renders the `WhatsAppLink` component to show link status and QR code. The page is themed to the dark layout and uses Leyla AI branding.
 *   `globals.css`: Global CSS styles. Defined CSS variables for `dark`, `rouge`, `luxe`, `gold` and applied overrides for DayPilot. Later, `rouge`, `luxe`, and `gold` were replaced with `elysPink`, `elysViolet`, and `elysBlue` variables. All hardcoded color values and references to old color variables were updated to the new Leyla AI palette, affecting inputs, selects, textareas, buttons, and various DayPilot calendar elements. Comments were updated for Leyla AI branding.
 *   `layout.tsx`: The root layout for the application. It includes the main HTML structure and the `Inter` font. The root layout component was updated to set the global background to the deep dark theme color and to include the new DayPilot theme. It was rebranded (`title` metadata updated from `'ElysAI Management Centre'` to `'Leyla Suite'`).
 *   `mobile/page.tsx`: The mobile-optimized main page, possibly an alternative entry point for smaller screens or specific mobile functionalities. This page was rebranded (`<h1>` title and "ElysAI Config" link text updated to "Leyla AI"). Its navigation links and colors were updated to the Leyla AI gradient scheme.
 *   `page.tsx`: The main dashboard page. It displays an overview of the application and provides links to the other pages, including a new link to the mobile-optimized view. The page was updated to use the new dark theme, rebranded (`alt` for logo, `<h1>` title updated to "Leyla AI"), and its logo size was increased. Emojis were replaced with Heroicons, and all text and button colors were updated to the Leyla AI gradient scheme. Main page containers were redesigned for fixed height, standardized button placement, and the "Configure Bot" container's detailed text was replaced with a minimalist icon badge. The logo `src` was updated from `/branding/ElysAI.png` to `/branding/LeylaAI.png`.
 *   `test-chat/page.tsx`: The test chat page. It displays the chat interface for testing the chatbot. This page was converted to the dark theme, including its layout and header. It was rebranded (`alt` for logo updated from "ElysAI" to "Leyla AI", `src` updated from `/branding/ElysAI.png` to `/branding/LeylaAI.png`). Emojis in navigation links were replaced with Heroicons (`ChatBubbleLeftRightIcon`, `DocumentTextIcon`). The header border color was updated. **Recently updated to accept a `sessionId` URL parameter and pass it to the `TestChat` component, enabling loading of existing chat sessions.**
+*   `whatsapp/link/page.tsx`: WhatsApp linking helper page. It now uses the reusable `WhatsAppLink` component to render link status and QR code.
 
 ##### `components`
 
@@ -227,7 +228,7 @@ The `components` directory contains the reusable React components that are used 
 *   `chat/MessageBubble.tsx`: The message bubble component. It displays a single chat message. **Recently updated to hide the `ToolCallDisplay` component from user view, ensuring only the AI's natural language response is shown. Also, the import for `ToolCallDisplay` was commented out.**
 *   `chat/TestChat.tsx`: The main component for the test chat interface. This component was converted to the dark theme, including its container, header, description, and loading animation. It was rebranded (`<h2>` title and `<p>` description updated from "ElysAI" to "Leyla AI"). The loading animation dots color was updated. **Recently modified to accept an `existingSessionId` prop to load previous chat messages when navigating from the "All Chat Sessions" page. It also ensures that AI responses only appear after review approval and includes robust message filtering and polling logic to handle approved and custom replies correctly, replacing pending messages.**
 *   `chat/ToolCallDisplay.tsx`: The component for displaying the AI's tool calls. **This component is now hidden from user view and is only used for internal debugging or development purposes.**
-*   `HeaderAuth.tsx`: The authentication header component. This component was updated to match the new dark theme, rebranded (`alt` for logo and `<span>` text updated from "ElysAI" to "Leyla AI", `src` updated from `/branding/ElysAI.png` to `/branding/LeylaAI.png`), and its logo size was increased. Its colors were updated to the Leyla AI gradient scheme.
+*   `HeaderAuth.tsx`: The authentication header component. This component was updated to match the new dark theme, rebranded (`alt` for logo and `<span>` text updated from "ElysAI" to "Leyla AI"), and its logo size was increased. Its colors were updated to the Leyla AI gradient scheme.
 *   `ui/Alert.tsx`: The alert component. It can display different types of messages (info, warning, error, success).
 *   `ui/Button.tsx`: The button component. It supports different styles and loading states. Updated to reflect the dark theme's primary, secondary, danger, and ghost button styles, including gradients, hover effects, and shadows. Its colors were updated to the Leyla AI gradient scheme.
 *   `ui/Card.tsx`: The card component. It provides a container with a shadow and rounded corners.
@@ -236,6 +237,7 @@ The `components` directory contains the reusable React components that are used 
 *   `ui/Spinner.tsx`: The spinner component. It displays a spinning animation to indicate loading states.
 *   `ui/Switch.tsx`: The switch/toggle component for boolean values with support for both change events and checked change callbacks.
 *   `ui/Textarea.tsx`: The textarea component. Updated to dark theme. Its colors were updated to the Leyla AI gradient scheme.
+*   `WhatsAppLink.tsx`: (NEW) Reusable component that shows WhatsApp connection status and QR code (uses `/api/whatsapp/status` and `/api/whatsapp/qr`). Used in Settings and in `/whatsapp/link` page.
 
 ##### `hooks`
 
@@ -255,6 +257,12 @@ The `utils` directory contains various utility functions that are used throughou
 
 *   `api.ts`: Contains the `axios` instances and the API service objects that are used to make API requests to the backend.
 *   `index.ts`: Contains various utility functions, including the `cn` function for conditionally joining class names and the `formatTime` function for formatting timestamps.
+
+##### `public`
+
+The `public` directory contains static assets served by the frontend.
+
+*   `themes/calendar_rouge_district.css`: Light calendar theme stylesheet referenced by `app/layout.tsx`. Provides minimal calendar overrides and relies on CSS variables in `src/app/globals.css`.
 
 ##### Deployment & Docker
 
@@ -405,6 +413,62 @@ Access:
 
 - In Docker, frontend uses `http://backend:5000` to access the API via Compose DNS.
 - For local dev outside Docker, it will fall back to `http://localhost:5000`.
+
+### 8.6.1. WhatsApp Integration via WasenderAPI
+
+The project now uses WasenderAPI instead of `whatsapp-web.js` for WhatsApp connectivity. This removes the need for local Chromium and session storage.
+
+Configuration (backend env):
+
+```
+WASENDER_API_BASE_URL=https://api.wasenderapi.com
+WASENDER_API_TOKEN=<personal-access-token>
+WASENDER_SESSION_ID=<optional: session id>
+WASENDER_WEBHOOK_SECRET=<optional: for signature verification>
+```
+
+Key backend pieces:
+
+- `backend/src/services/wasenderApiClient.ts`: minimal REST client for status, QR, send message, connect session
+- `backend/src/routes/whatsapp.ts`: proxies `status`, `qr`, and `send` to WasenderAPI
+- `backend/src/routes/webhooks.ts`: webhook endpoint `/api/webhooks/wasender` with optional signature verification
+- `backend/src/index.ts`: mounts the webhook route and retains raw request body for signature verification
+- `backend/src/services/whatsappService.ts`: uses `WasenderApiClient` to send outgoing messages
+
+Available endpoints:
+
+- `GET /api/whatsapp/status` → returns `{ status, meNumber, qrAvailable }` sourced from WasenderAPI
+- `GET /api/whatsapp/qr` → returns `{ dataUrl }` (PNG data URL of current QR, if available). Will attempt to `connectSession()` to trigger QR when needed
+- `POST /api/whatsapp/send` body `{ to: "+491701234567", message: "Hallo" }` → sends via WasenderAPI
+- `POST /api/webhooks/wasender` → configure this URL in WasenderAPI dashboard for events (e.g., `messages.upsert`, `messages.received`)
+
+Per-user session endpoints (auth required):
+
+- `POST /api/whatsapp/user/session/ensure` body `{ phoneNumber: "+491701234567" }` → creates (if missing) a Wasender session for the current user and stores its id in `users.wasender_session_id`. If `phoneNumber` is provided, it updates the user's `phone` column and sends it to Wasender when creating the session.
+- `GET /api/whatsapp/user/status` → returns current status and associated `sessionId` for the logged-in user
+- `GET /api/whatsapp/user/qr` → returns `{ dataUrl }` QR PNG for the user's session
+
+Frontend UI:
+
+- Settings → "Whatsapp Link" tab renders `WhatsAppLink` component
+- If a JWT is present, the component shows a phone number input (E.164 format) and buttons:
+  - "Create/Ensure My Session" → calls `POST /api/whatsapp/user/session/ensure`
+  - "Generate QR / Start Linking" → calls `GET /api/whatsapp/user/qr`
+
+Webhook signature verification:
+
+- If `WASENDER_WEBHOOK_SECRET` is set, the backend verifies the signature header (`x-wasender-signature` or `x-signature` or `x-hub-signature-256`) using HMAC SHA-256 over the raw request body.
+- Ensure raw body is preserved: `index.ts` attaches `req.rawBody` in the `express.json({ verify })` hook.
+- Mismatched signatures return 401.
+
+First-time setup flow with WasenderAPI:
+
+1. Start stack: `docker compose up -d`
+2. Generate a Personal Access Token in WasenderAPI and set `WASENDER_API_TOKEN`
+3. Open `http://localhost:5000/api/whatsapp/status` to see current status
+4. If status requires QR, open `http://localhost:5000/api/whatsapp/qr` and scan with WhatsApp on your phone
+5. Configure webhook URL in WasenderAPI dashboard → `https://<domain>/api/webhooks/wasender`
+6. Send a test message with `POST /api/whatsapp/send`
 
 ### 8.7. AWS EC2 Production Deployment
 
@@ -788,19 +852,19 @@ CONTENT POLICY:
 *   **Adult Entertainment**: `OPENAI_CONTENT_FILTER=false`, `OPENAI_ALLOW_EXPLICIT=true`
 *   **Personal Assistant**: Based on user preference
 
-## 7. Dark Theme & Leyla AI Branding
-The application features a professional, luxurious dark theme with the Leyla AI branding colors, providing an elegant and discreet user experience.
+## 7. Light Theme & Leyla AI Branding
+The application features a clean, trust-focused light theme with Leyla AI branding, optimized for readability and accessibility.
 
 ### 7.1. Color Scheme
 
 The application uses a sophisticated dark color palette that balances professionalism with a modern, branded aesthetic:
 
-#### Base Colors (Dark Theme)
-*   **Dark 900** (`#0a0a0b`): Deep black background for maximum elegance
-*   **Dark 800** (`#1a1a1b`): Primary dark background
-*   **Dark 700** (`#262626`): Secondary background for cards and panels
-*   **Dark 600** (`#333333`): Card backgrounds and elevated elements
-*   **Dark 500-100**: Progressive lightening for borders and text
+#### Base Colors (Light Theme)
+*   **Dark 900** (`#F8FAFC`): Page background
+*   **Dark 800** (`#F1F5F9`): Primary light background
+*   **Dark 700** (`#FFFFFF`): Card backgrounds and elevated elements
+*   **Dark 600** (`#E2E8F0`): Borders and dividers
+*   **Dark 500-50**: Progressive darkening for text (`#CBD5E1` → `#0F172A`)
 
 #### Accent Colors (Leyla AI Branding)
 *   **ElysPink** (from `#c00e9d` to `#9a0b7d`): Primary brand pink for highlights and interactive elements
@@ -811,15 +875,15 @@ The application uses a sophisticated dark color palette that balances profession
 
 #### Tailwind Configuration
 The color scheme is implemented through custom Tailwind CSS colors in `frontend/tailwind.config.js`:
-*   **Defined Colors**: dark, elysPink, elysViolet, elysBlue, updated primary and success colors
-*   **Used Throughout**: All components utilize the custom color palette
+*   **Neutral Remap**: The `dark` scale is repurposed as light neutrals (e.g., `dark.900 = #F8FAFC`, `dark.700 = #FFFFFF`, `dark.50 = #0F172A`) to avoid changing existing class names across components.
+*   **Brand Colors**: `elysBlue`, `elysViolet`, `elysPink` retained for accents and CTAs.
 
 #### Global Styles
-Enhanced styling in `frontend/src/app/globals.css` includes:
-*   **CSS Variables**: RGB color variables for consistent theming
-*   **Form Styling**: Dark theme inputs with branded focus states and hover effects
-*   **Button Variants**: Primary (elysPink/elysBlue gradient), Secondary (elysViolet borders)
-*   **Calendar Theming**: Complete dark theme for DayPilot components, relying on native CSS Custom Properties and a custom theme file (`frontend/public/themes/calendar_rouge_district.css`, now updated to Leyla AI colors).
+Updated styling in `frontend/src/app/globals.css` includes:
+*   **CSS Variables**: Light theme tokens for background and text; aliases added for legacy variables (`--rouge-*`, `--luxe-*`, `--gold-*`).
+*   **Color Scheme**: `html { color-scheme: light; }` replacing the previous forced dark.
+*   **Forms & Buttons**: Focus rings and gradients aligned to brand blue/violet for a trustful look.
+*   **Calendar Theming**: Light theme applied to DayPilot and react-big-calendar via CSS Custom Properties and theme overrides.
 
 ### 7.3. Component-Specific Styling
 

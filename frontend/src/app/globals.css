@@ -3,34 +3,40 @@
 @tailwind utilities;
 
 :root {
-  /* Dark Theme Variables for Red-Light District */
-  --foreground-rgb: 212, 212, 212; /* dark-100 */
-  --background-start-rgb: 10, 10, 11; /* dark-900 */
-  --background-end-rgb: 26, 26, 27; /* dark-800 */
-  --background-secondary-rgb: 38, 38, 38; /* dark-700 */
-  --background-card-rgb: 51, 51, 51; /* dark-600 */
-  
-  /* Leyla AI brand colors based on logo gradient (#c00e9d to #2929a6) */
-  --elysPink-primary-rgb: 192, 14, 157; /* elysPink-600 */
-  --elysPink-secondary-rgb: 165, 13, 133; /* elysPink-700 */
-  
-  /* Leyla AI violet gradient colors */
-  --elysViolet-primary-rgb: 139, 92, 246; /* elysViolet-500 */
-  --elysViolet-secondary-rgb: 124, 58, 237; /* elysViolet-600 */
-  
-  /* Leyla AI blue colors */
-  --elysBlue-primary-rgb: 41, 41, 166; /* elysBlue-800 */
-  --elysBlue-secondary-rgb: 67, 56, 202; /* elysBlue-700 */
-  
+  /* Light Theme Variables (Trust-Focused) */
+  --foreground-rgb: 15, 23, 42; /* #0F172A */
+  --background-start-rgb: 248, 250, 252; /* #F8FAFC */
+  --background-end-rgb: 255, 255, 255; /* #FFFFFF */
+  --background-secondary-rgb: 241, 245, 249; /* #F1F5F9 */
+  --background-card-rgb: 255, 255, 255; /* #FFFFFF */
+
+  /* Leyla AI brand colors */
+  --elysPink-primary-rgb: 192, 14, 157; /* #C00E9D */
+  --elysPink-secondary-rgb: 165, 13, 133; /* #A50D85 */
+
+  --elysViolet-primary-rgb: 124, 58, 237; /* #7C3AED */
+  --elysViolet-secondary-rgb: 109, 40, 217; /* #6D28D9 */
+
+  --elysBlue-primary-rgb: 79, 70, 229; /* #4F46E5 */
+  --elysBlue-secondary-rgb: 67, 56, 202; /* #4338CA */
+
   /* Text colors */
-  --text-primary-rgb: 245, 245, 245; /* dark-50 */
-  --text-secondary-rgb: 163, 163, 163; /* dark-200 */
-  --text-muted-rgb: 115, 115, 115; /* dark-300 */
+  --text-primary-rgb: 15, 23, 42;   /* #0F172A */
+  --text-secondary-rgb: 71, 85, 105;/* #475569 */
+  --text-muted-rgb: 100, 116, 139;  /* #64748B */
+
+  /* Backward-compatibility aliases for legacy variables */
+  --rouge-primary-rgb: var(--elysBlue-primary-rgb);     /* map red to brand blue */
+  --rouge-secondary-rgb: var(--elysBlue-secondary-rgb);
+  --luxe-primary-rgb: var(--elysViolet-primary-rgb);
+  --luxe-secondary-rgb: var(--elysViolet-secondary-rgb);
+  --gold-primary-rgb: 37, 99, 235;  /* #2563EB */
+  --gold-secondary-rgb: 59, 130, 246;/* #3B82F6 */
 }
 
-/* Force dark theme always */
+/* Force light theme */
 html {
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 body {

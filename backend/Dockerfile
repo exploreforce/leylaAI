@@ -1,7 +1,9 @@
 # Backend Dockerfile (Node.js + TypeScript)
 FROM node:20-alpine AS deps
 WORKDIR /app
-COPY package*.json ./
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+COPY backend/package*.json ./
+COPY whatsapp-bot /whatsapp-bot
 RUN npm install
 
 FROM node:20-alpine AS builder
@@ -13,6 +15,16 @@ RUN npm run build
 FROM node:20-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production
+# Install system Chromium and required fonts/libs for puppeteer (whatsapp-web.js)
+RUN apk add --no-cache \
+    chromium \
+    nss \
+    freetype \
+    harfbuzz \
+    ca-certificates \
+    ttf-freefont \
+    tzdata
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
 COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules ./node_modules

@@ -7,12 +7,12 @@ import helmet from 'helmet';
 import compression from 'compression';
 import http from 'http';
 import { Server } from 'socket.io';
+import path from 'path';
 
 import { errorHandler } from './middleware/errorHandler';
 import { logger } from './middleware/logger';
 import apiRoutes from './routes';
-import { whatsappWebClient } from './services/whatsappWebClient';
-import { whatsappService } from './services/whatsappService';
+import webhookRoutes from './routes/webhooks';
 
 const app = express();
 const server = http.createServer(app);
@@ -32,7 +32,13 @@ app.use(cors({
   credentials: true
 }));
 app.use(compression());
-app.use(express.json({ limit: '10mb' }));
+// Keep raw body for webhook signature verification
+app.use(express.json({
+  limit: '10mb',
+  verify: (req: any, _res, buf) => {
+    req.rawBody = buf;
+  }
+}));
 app.use(express.urlencoded({ extended: true }));
 app.use(logger);
 
@@ -47,6 +53,7 @@ app.get('/health', (req, res) => {
 
 // API Routes
 app.use('/api', apiRoutes);
+app.use('/api/webhooks', webhookRoutes);
 
 // Socket.IO for real-time communication (test chat)
 io.on('connection', (socket) => {
@@ -77,31 +84,32 @@ app.use('*', (req, res) => {
   });
 });
 
+// Serve frontend static files in production
+if (process.env.NODE_ENV === 'production') {
+  const frontendPath = path.join(__dirname, '../../frontend/build');
+  console.log(`📁 Serving frontend from: ${frontendPath}`);
+  
+  app.use(express.static(frontendPath));
+  
+  // Catch-all handler: send back React's index.html file for client-side routing
+  app.get('*', (req, res) => {
+    if (req.path.startsWith('/api/') || req.path.startsWith('/socket.io/')) {
+      return; // Skip API routes and Socket.IO
+    }
+    res.sendFile(path.join(frontendPath, 'index.html'));
+  });
+}
+
 // Start server
 server.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`📡 Socket.IO server ready`);
   console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
+  if (process.env.NODE_ENV === 'production') {
+    console.log(`🎯 Frontend served from built files`);
+  }
 });
 
-// Initialize WhatsApp Web client
-(async () => {
-  try {
-    await whatsappWebClient.init(async (msg) => {
-      try {
-        const from = (msg.from || '').split('@')[0];
-        const body = msg.body || '';
-        if (from && body) {
-          await whatsappService.handleIncomingMessage(from, body);
-        }
-      } catch (e) {
-        console.error('Error handling incoming WA message:', e);
-      }
-    });
-    console.log('📲 WhatsApp Web client initialized');
-  } catch (err) {
-    console.error('❌ Failed to initialize WhatsApp Web client:', err);
-  }
-})();
+// No local WhatsApp Web client initialization. Incoming messages arrive via WasenderAPI webhooks.
 
 export { io }; 
