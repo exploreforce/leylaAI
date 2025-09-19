@@ -1,12 +1,14 @@
 /** @type {import('next').NextConfig} */
 const { i18n } = require('./next-i18next.config');
+const isProd = process.env.NODE_ENV === 'production';
 
 const nextConfig = {
-  i18n,
+  // i18n is not compatible with static export
+  ...(isProd ? {} : { i18n }),
   reactStrictMode: true,
   swcMinify: true,
   // Use static export for production builds (served by backend)
-  ...(process.env.NODE_ENV === 'production' && { output: 'export' }),
+  ...(isProd && { output: 'export' }),
   images: { unoptimized: true },
   env: {
     CUSTOM_KEY: process.env.CUSTOM_KEY,
