@@ -88,57 +88,44 @@ app.use('*', (req, res) => {
 if (process.env.NODE_ENV === 'production') {
   const fs = require('fs');
   
-  // Check for Next.js build first
-  const nextBuildPath = path.join(__dirname, '../../frontend/.next');
-  const nextOutPath = path.join(__dirname, '../../frontend/out');
-  const reactBuildPath = path.join(__dirname, '../../frontend/build');
+  // Look for frontend build in backend/public (copied from Next.js standalone)
+  const publicPath = path.join(__dirname, '../public');
   
-  if (fs.existsSync(nextOutPath)) {
-    // Next.js static export (out directory)
-    console.log(`📁 Serving Next.js static export from: ${nextOutPath}`);
-    app.use(express.static(nextOutPath));
+  if (fs.existsSync(publicPath)) {
+    console.log(`📁 Serving Next.js standalone from: ${publicPath}`);
     
+    // Serve static files
+    app.use(express.static(publicPath));
+    app.use('/_next/static', express.static(path.join(publicPath, '.next/static')));
+    
+    // Catch-all handler for client-side routing
     app.get('*', (req, res) => {
       if (req.path.startsWith('/api/') || req.path.startsWith('/socket.io/')) {
         return;
       }
-      const indexPath = path.join(nextOutPath, 'index.html');
+      
+      const indexPath = path.join(publicPath, 'index.html');
       if (fs.existsSync(indexPath)) {
         res.sendFile(indexPath);
       } else {
-        res.status(404).json({ error: 'Next.js index.html not found', path: req.path });
+        res.status(404).json({ 
+          error: 'Frontend index.html not found', 
+          path: req.path,
+          publicPath: publicPath
+        });
       }
-    });
-  } else if (fs.existsSync(reactBuildPath)) {
-    // Regular React build
-    console.log(`📁 Serving React build from: ${reactBuildPath}`);
-    app.use(express.static(reactBuildPath));
-    
-    app.get('*', (req, res) => {
-      if (req.path.startsWith('/api/') || req.path.startsWith('/socket.io/')) {
-        return;
-      }
-      res.sendFile(path.join(reactBuildPath, 'index.html'));
     });
   } else {
-    // Fallback: try to serve Next.js .next directory directly (not ideal)
-    console.log(`⚠️ Trying to serve Next.js .next directory directly: ${nextBuildPath}`);
-    const nextStaticPath = path.join(nextBuildPath, 'static');
-    
-    if (fs.existsSync(nextStaticPath)) {
-      app.use('/_next/static', express.static(nextStaticPath));
-    }
-    
+    console.log(`❌ Frontend public directory not found: ${publicPath}`);
     app.get('*', (req, res) => {
       if (req.path.startsWith('/api/') || req.path.startsWith('/socket.io/')) {
         return;
       }
-      // For now, return a simple message that explains the issue
       res.status(503).json({ 
-        error: 'Frontend needs static export', 
-        message: 'Next.js needs to be built with static export for this deployment method',
+        error: 'Frontend not available', 
+        message: 'Frontend build not found in public directory',
         path: req.path,
-        solution: 'Add "output: \'export\'" to next.config.js and rebuild'
+        expectedPath: publicPath
       });
     });
   }

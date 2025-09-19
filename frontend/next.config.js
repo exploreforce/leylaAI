@@ -2,16 +2,11 @@
 const { i18n } = require('./next-i18next.config');
 
 const nextConfig = {
-  // Disable i18n for static export (not supported)
-  ...(process.env.NODE_ENV !== 'production' && { i18n }),
+  i18n,
   reactStrictMode: true,
   swcMinify: true,
-  // Use static export for production builds (required for static hosting)
-  ...(process.env.NODE_ENV === 'production' && { 
-    output: 'export',
-    trailingSlash: true,
-    images: { unoptimized: true }
-  }),
+  // Use standalone for production builds
+  ...(process.env.NODE_ENV === 'production' && { output: 'standalone' }),
   env: {
     CUSTOM_KEY: process.env.CUSTOM_KEY,
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
