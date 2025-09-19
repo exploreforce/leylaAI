@@ -5,9 +5,9 @@ set -e
 cd /app/backend
 npm run production &
 
-# Start Next.js standalone
-cd /app/frontend-standalone
-NODE_ENV=production PORT=3000 node server.js &
+# Start Next.js (built) server from frontend
+cd /app/frontend
+NODE_ENV=production PORT=3000 npm run start &
 
 wait -n
 
