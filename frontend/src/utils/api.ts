@@ -2,7 +2,19 @@ import axios from 'axios';
 import { getToken } from './auth';
 import { ApiResponse, BotConfig, Appointment, AvailabilityConfig, CreateAppointmentRequest, ChatMessage, TestChatSession, Service, CreateServiceRequest } from '@/types';
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+// Determine API base URL. Prefer env; fallback to current origin at runtime.
+const resolveBaseUrl = () => {
+  const envBase = (process.env.NEXT_PUBLIC_API_URL || '').trim();
+  if (envBase) {
+    return envBase.replace(/\/$/, '');
+  }
+  if (typeof window !== 'undefined') {
+    return window.location.origin.replace(/\/$/, '');
+  }
+  return 'http://localhost:5000';
+};
+
+const BASE_URL = resolveBaseUrl();
 
 // Create axios instance with default config
 const api = axios.create({
