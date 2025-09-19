@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: whatsapp-bot
+    env: node
+    plan: free
+    buildCommand: cd backend && npm ci && npm run build && cd ../frontend && npm ci && npm run build
+    startCommand: cd backend && npm run production
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: DATABASE_URL
+        value: file:./whatsapp_bot.db
+      - key: WASENDER_API_BASE_URL
+        value: https://wasenderapi.com
+      # Add your secrets via Render Dashboard
+    disk:
+      name: data
+      mountPath: /app/backend/database
+      sizeGB: 1
