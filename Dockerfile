@@ -35,4 +35,4 @@ EXPOSE 5000
 
 # Start backend (which serves frontend static files)
 WORKDIR /app/backend
-CMD ["npm", "run", "start"]
+CMD ["npm", "run", "production"]
