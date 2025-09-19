@@ -8,6 +8,7 @@ import compression from 'compression';
 import http from 'http';
 import { Server } from 'socket.io';
 import path from 'path';
+import { createProxyMiddleware } from 'http-proxy-middleware';
 
 import { errorHandler } from './middleware/errorHandler';
 import { logger } from './middleware/logger';
@@ -60,50 +61,26 @@ app.head('/', (_req, res) => {
 app.use('/api', apiRoutes);
 app.use('/api/webhooks', webhookRoutes);
 
-// Serve frontend static files in production BEFORE 404 handler
-if (process.env.NODE_ENV === 'production') {
-  const fs = require('fs');
-  const publicPath = path.join(__dirname, '../public');
-
-  if (fs.existsSync(publicPath)) {
-    console.log(`📁 Serving Next.js standalone from: ${publicPath}`);
-
-    // Serve static files
-    app.use(express.static(publicPath));
-    app.use('/_next/static', express.static(path.join(publicPath, '_next/static')));
-
-    // Catch-all handler for client-side routing (non-API routes)
-    app.get('*', (req, res, next) => {
-      if (req.path.startsWith('/api/') || req.path.startsWith('/socket.io/')) {
-        return next();
-      }
-
-      const indexPath = path.join(publicPath, 'index.html');
-      if (fs.existsSync(indexPath)) {
-        res.sendFile(indexPath);
-      } else {
-        res.status(404).json({ 
-          error: 'Frontend index.html not found', 
-          path: req.path,
-          publicPath: publicPath
-        });
-      }
-    });
-  } else {
-    console.log(`❌ Frontend public directory not found: ${publicPath}`);
-    app.get('*', (req, res, next) => {
-      if (req.path.startsWith('/api/') || req.path.startsWith('/socket.io/')) {
-        return next();
-      }
-      res.status(503).json({ 
-        error: 'Frontend not available', 
-        message: 'Frontend build not found in public directory',
-        path: req.path,
-        expectedPath: publicPath
-      });
-    });
-  }
-}
+// If frontend static build is missing, proxy app routes to Next server
+const nextServerUrl = process.env.NEXT_SERVER_URL || 'http://localhost:3000';
+app.use(
+  [
+    '/',
+    '/_next',
+    '/favicon.ico',
+    '/branding',
+    '/themes',
+    '/locales',
+  ],
+  createProxyMiddleware({
+    target: nextServerUrl,
+    changeOrigin: true,
+    ws: true,
+    logLevel: 'warn',
+    proxyTimeout: 30000,
+    pathRewrite: (pathStr) => pathStr,
+  })
+);
 
 // Socket.IO for real-time communication (test chat)
 io.on('connection', (socket) => {
@@ -131,52 +108,7 @@ app.use('*', (req, res) => {
   });
 });
 
-// Serve frontend static files in production
-if (process.env.NODE_ENV === 'production') {
-  const fs = require('fs');
-  
-  // Look for frontend build in backend/public (copied from Next.js standalone)
-  const publicPath = path.join(__dirname, '../public');
-  
-  if (fs.existsSync(publicPath)) {
-    console.log(`📁 Serving Next.js standalone from: ${publicPath}`);
-    
-    // Serve static files
-    app.use(express.static(publicPath));
-    app.use('/_next/static', express.static(path.join(publicPath, '.next/static')));
-    
-    // Catch-all handler for client-side routing
-    app.get('*', (req, res) => {
-      if (req.path.startsWith('/api/') || req.path.startsWith('/socket.io/')) {
-        return;
-      }
-      
-      const indexPath = path.join(publicPath, 'index.html');
-      if (fs.existsSync(indexPath)) {
-        res.sendFile(indexPath);
-      } else {
-        res.status(404).json({ 
-          error: 'Frontend index.html not found', 
-          path: req.path,
-          publicPath: publicPath
-        });
-      }
-    });
-  } else {
-    console.log(`❌ Frontend public directory not found: ${publicPath}`);
-    app.get('*', (req, res) => {
-      if (req.path.startsWith('/api/') || req.path.startsWith('/socket.io/')) {
-        return;
-      }
-      res.status(503).json({ 
-        error: 'Frontend not available', 
-        message: 'Frontend build not found in public directory',
-        path: req.path,
-        expectedPath: publicPath
-      });
-    });
-  }
-}
+// Note: If you later add a static export to backend/public, serve it here instead of proxying
 
 // Error handling middleware (must be last)
 app.use(errorHandler);
