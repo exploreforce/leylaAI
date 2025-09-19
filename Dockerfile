@@ -6,17 +6,20 @@ WORKDIR /app
 # Copy source code first (simpler approach)
 COPY . .
 
-# Install backend dependencies
+# Install backend dependencies (including dev dependencies for build)
 WORKDIR /app/backend
-RUN npm install --production
+RUN npm install
+
+# Build backend TypeScript first
+RUN npm run build
 
 # Install frontend dependencies and build
 WORKDIR /app/frontend
 RUN npm install && npm run build
 
-# Build backend TypeScript
+# Clean up backend dev dependencies (optional, saves space)
 WORKDIR /app/backend
-RUN npm run build
+RUN npm prune --production
 
 # Create database directory
 RUN mkdir -p /app/backend/database
