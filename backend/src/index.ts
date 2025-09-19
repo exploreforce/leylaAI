@@ -76,7 +76,6 @@ app.use(
     target: nextServerUrl,
     changeOrigin: true,
     ws: true,
-    logLevel: 'warn',
     proxyTimeout: 30000,
     pathRewrite: (pathStr) => pathStr,
   })
