@@ -3,25 +3,16 @@ FROM node:18-alpine
 # Install dependencies for both backend and frontend
 WORKDIR /app
 
-# Copy package files
-COPY backend/package*.json ./backend/
-COPY frontend/package*.json ./frontend/
+# Copy source code first (simpler approach)
+COPY . .
 
 # Install backend dependencies
 WORKDIR /app/backend
-RUN npm ci --only=production
+RUN npm install --production
 
-# Install frontend dependencies
+# Install frontend dependencies and build
 WORKDIR /app/frontend
-RUN npm ci --only=production
-
-# Copy source code
-WORKDIR /app
-COPY . .
-
-# Build frontend
-WORKDIR /app/frontend
-RUN npm run build
+RUN npm install && npm run build
 
 # Build backend TypeScript
 WORKDIR /app/backend
