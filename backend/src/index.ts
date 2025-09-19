@@ -51,9 +51,59 @@ app.get('/health', (req, res) => {
   });
 });
 
+// Render.com and load balancers often probe HEAD /
+app.head('/', (_req, res) => {
+  res.status(200).end();
+});
+
 // API Routes
 app.use('/api', apiRoutes);
 app.use('/api/webhooks', webhookRoutes);
+
+// Serve frontend static files in production BEFORE 404 handler
+if (process.env.NODE_ENV === 'production') {
+  const fs = require('fs');
+  const publicPath = path.join(__dirname, '../public');
+
+  if (fs.existsSync(publicPath)) {
+    console.log(`📁 Serving Next.js standalone from: ${publicPath}`);
+
+    // Serve static files
+    app.use(express.static(publicPath));
+    app.use('/_next/static', express.static(path.join(publicPath, '_next/static')));
+
+    // Catch-all handler for client-side routing (non-API routes)
+    app.get('*', (req, res, next) => {
+      if (req.path.startsWith('/api/') || req.path.startsWith('/socket.io/')) {
+        return next();
+      }
+
+      const indexPath = path.join(publicPath, 'index.html');
+      if (fs.existsSync(indexPath)) {
+        res.sendFile(indexPath);
+      } else {
+        res.status(404).json({ 
+          error: 'Frontend index.html not found', 
+          path: req.path,
+          publicPath: publicPath
+        });
+      }
+    });
+  } else {
+    console.log(`❌ Frontend public directory not found: ${publicPath}`);
+    app.get('*', (req, res, next) => {
+      if (req.path.startsWith('/api/') || req.path.startsWith('/socket.io/')) {
+        return next();
+      }
+      res.status(503).json({ 
+        error: 'Frontend not available', 
+        message: 'Frontend build not found in public directory',
+        path: req.path,
+        expectedPath: publicPath
+      });
+    });
+  }
+}
 
 // Socket.IO for real-time communication (test chat)
 io.on('connection', (socket) => {
@@ -73,10 +123,7 @@ io.on('connection', (socket) => {
   });
 });
 
-// Error handling middleware (must be last)
-app.use(errorHandler);
-
-// 404 handler
+// 404 handler (after static/frontend handlers)
 app.use('*', (req, res) => {
   res.status(404).json({ 
     error: 'Route not found',
@@ -130,6 +177,9 @@ if (process.env.NODE_ENV === 'production') {
     });
   }
 }
+
+// Error handling middleware (must be last)
+app.use(errorHandler);
 
 // Start server
 server.listen(PORT, () => {

@@ -5,8 +5,9 @@ const nextConfig = {
   i18n,
   reactStrictMode: true,
   swcMinify: true,
-  // Use standalone for production builds
-  ...(process.env.NODE_ENV === 'production' && { output: 'standalone' }),
+  // Use static export for production builds (served by backend)
+  ...(process.env.NODE_ENV === 'production' && { output: 'export' }),
+  images: { unoptimized: true },
   env: {
     CUSTOM_KEY: process.env.CUSTOM_KEY,
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,

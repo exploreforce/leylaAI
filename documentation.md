@@ -266,7 +266,7 @@ The `public` directory contains static assets served by the frontend.
 
 ##### Deployment & Docker
 
-*   `Dockerfile` (root): Multi-stage Next.js build producing a standalone server that listens on port 3000. Build args `NEXT_PUBLIC_API_URL` and `NEXT_PUBLIC_SOCKET_URL` can be provided at build time; defaults point to `http://backend:5000` for Compose networks.
+*   `Dockerfile` (root): Builds Next.js with static export (`next export`) and copies the generated files from `frontend/out/` into `backend/public/` so the Express backend can serve the frontend directly. Build args `NEXT_PUBLIC_API_URL` and `NEXT_PUBLIC_SOCKET_URL` can be provided at build time; defaults point to `http://backend:5000` for Compose networks.
 *   `frontend/.dockerignore`: Excludes `node_modules`, `.next`, logs, and local env files from the Docker build context.
 *   `deploy/docker-compose.prod.yml`: Production Compose stack for EC2 with `backend`, `frontend`, and `reverse-proxy` (Caddy with HTTPS).
 *   `deploy/Caddyfile`: Reverse proxy config routing `/` to `frontend:3000` and `/api`, `/health` to `backend:5000` with automatic TLS.
@@ -405,6 +405,14 @@ Access:
 - Frontend: http://localhost:3000
 - Backend health: http://localhost:5000/health
 
+### 8.4.1. Render Deployment (Single Service)
+
+When deploying as a single service on Render:
+- The backend serves the static frontend from `backend/public/`.
+- Make sure the build creates `frontend/out/` and copies it to `backend/public/` (handled by root `Dockerfile`).
+- Health check: `GET /health` (HEAD / also returns 200 for probes).
+- API base URL in the frontend must be set via `NEXT_PUBLIC_API_URL` (e.g., `https://<your-service>.onrender.com`).
+
 ### 8.5. Volumes & Data
 
 - `backend-data` volume stores the SQLite DB under `/app/database` inside the backend container.
@@ -413,6 +421,7 @@ Access:
 
 - In Docker, frontend uses `http://backend:5000` to access the API via Compose DNS.
 - For local dev outside Docker, it will fall back to `http://localhost:5000`.
+- Production (single service like Render): Frontend is statically exported and served by Express from `backend/public/`. Ensure `/app/backend/public/index.html` exists at runtime.
 
 ### 8.6.1. WhatsApp Integration via WasenderAPI
 
