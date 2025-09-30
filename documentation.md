@@ -378,7 +378,7 @@ PORT=5000
 NODE_ENV=production
 FRONTEND_URL=http://localhost:3000
 OPENAI_API_KEY=your-openai-api-key
-OPENAI_MODEL=gpt-4o-mini
+OPENAI_MODEL=gpt-4o-mini (WICHTIG: Muss ein gültiges OpenAI Modell sein, z.B. gpt-4o-mini, gpt-4-turbo, gpt-4o)
 WHATSAPP_VERIFY_TOKEN=
 WHATSAPP_ACCESS_TOKEN=
 WHATSAPP_PHONE_NUMBER_ID=
@@ -438,7 +438,7 @@ WASENDER_WEBHOOK_SECRET=<optional: for signature verification>
 
 Key backend pieces:
 
-- `backend/src/services/wasenderApiClient.ts`: minimal REST client for status, QR, send message, connect session
+- `backend/src/services/wasenderApiClient.ts`: minimal REST client for status, QR, send message, connect session, delete session
 - `backend/src/routes/whatsapp.ts`: proxies `status`, `qr`, and `send` to WasenderAPI
 - `backend/src/routes/webhooks.ts`: webhook endpoint `/api/webhooks/wasender` with optional signature verification
 - `backend/src/index.ts`: mounts the webhook route and retains raw request body for signature verification
@@ -456,6 +456,7 @@ Per-user session endpoints (auth required):
 - `POST /api/whatsapp/user/session/ensure` body `{ phoneNumber: "+491701234567" }` → creates (if missing) a Wasender session for the current user and stores its id in `users.wasender_session_id`. If `phoneNumber` is provided, it updates the user's `phone` column and sends it to Wasender when creating the session.
 - `GET /api/whatsapp/user/status` → returns current status and associated `sessionId` for the logged-in user
 - `GET /api/whatsapp/user/qr` → returns `{ dataUrl }` QR PNG for the user's session
+- `DELETE /api/whatsapp/user/session` → deletes the user's Wasender session from both WasenderAPI and local database. Clears the stored `wasender_session_id` and forces creation of a new session on next `/ensure` call.
 
 Frontend UI:
 
@@ -463,6 +464,9 @@ Frontend UI:
 - If a JWT is present, the component shows a phone number input (E.164 format) and buttons:
   - "Create/Ensure My Session" → calls `POST /api/whatsapp/user/session/ensure`
   - "Generate QR / Start Linking" → calls `GET /api/whatsapp/user/qr`
+  - "Delete Session" → calls `DELETE /api/whatsapp/user/session` (appears when session exists, with confirmation dialog)
+- Success and error messages are displayed with color-coded styling
+- The delete button removes the session from both WasenderAPI and local database
 
 Webhook signature verification:
 
@@ -734,13 +738,26 @@ The AI bot seamlessly integrates with the calendar system through tool functions
 #### Available Tools
 *   **`checkAvailability`**: Bot can query available appointment slots
     *   Parameters: date, duration
-    *   Returns: Array of available time slots
+    *   Returns: **Continuous time blocks** instead of individual slots (e.g., "09:00 bis 12:00, 14:00 bis 17:00")
+    *   **Smart Merging**: Automatically merges adjacent time slots into readable blocks
     *   Respects weekly schedule and blackout dates (uses active bot config)
+    *   Includes a formatted message for the bot to use directly
 *   **`bookAppointment`**: Bot can create new appointments
     *   Parameters: customerName, customerPhone, customerEmail, datetime, duration, appointmentType, notes
     *   Returns: Created appointment with confirmation
     *   Automatic status setting to 'booked' and validation (uses active bot config)
     *   **Enhanced Data Collection**: Now captures customer email and appointment service type
+    *   **Multi-Tenant Support**: Automatically assigns appointments to the default account (first account in system)
+*   **`findAppointments`**: Bot can search for existing appointments by customer phone number
+    *   Parameters: customerPhone
+    *   Returns: Array of active appointments for the customer
+    *   Filters out cancelled and no-show appointments automatically
+    *   **Smart Phone Matching**: Handles different phone number formats (+49, 0049, etc.)
+*   **`cancelAppointment`**: Bot can cancel existing appointments
+    *   Parameters: appointmentId, reason (optional)
+    *   Returns: Confirmation with cancelled appointment details
+    *   Updates appointment status to 'cancelled' and optionally adds cancellation reason to notes
+    *   **Safety Check**: Prevents cancelling already-cancelled appointments
 
 #### Integration Benefits
 *   **Seamless Booking**: Customers can book directly through WhatsApp
@@ -974,6 +991,51 @@ docker compose up -d
 *   **Modal System**: Overlay interface for appointment management  
 *   **State Management**: React hooks for data synchronization
 *   **Error Handling**: Comprehensive error states and user feedback
+
+---
+
+## 🆕 Neuerungen - September 2025
+
+### 🤖 Erweiterte Terminverwaltungs-Tools
+**Neue Bot-Funktionen für Terminmanagement:**
+- **`findAppointments`**: Bot kann bestehende Termine eines Kunden über Telefonnummer suchen
+  - Automatisches Filtern von stornierten und No-Show-Terminen
+  - Smart Phone Matching für verschiedene Nummernformate
+  - Vollständige Termindetails (ID, Name, Datum, Dauer, Status, Typ, Notizen)
+  
+- **`cancelAppointment`**: Bot kann Termine stornieren
+  - Stornierung via Termin-ID mit optionalem Grund
+  - Safety Check gegen doppelte Stornierung
+  - Automatisches Hinzufügen des Grundes zu den Notizen
+
+**System-Prompt Integration:**
+- Alle verfügbaren Tools werden jetzt im generierten System-Prompt dokumentiert
+- Workflow-Beispiele für typische Kundenanfragen
+- Klare Anweisungen wann welches Tool zu nutzen ist
+- Multi-Tenant Support: Bot-Termine werden automatisch dem richtigen Account zugeordnet
+
+**Technische Verbesserungen:**
+- **Multi-Tenant Isolation**: Alle Tools nutzen jetzt die `account_id` aus der Chat-Session
+- **Session-Account Verknüpfung**: Neue Migration fügt `account_id` zu `test_chat_sessions` hinzu
+- **Account-basiertes Filtern**: `checkAvailability`, `bookAppointment`, `findAppointments`, `cancelAppointment` arbeiten nur mit Terminen des aktuellen Accounts
+- **WhatsApp-Nummer im Kontext**: Bei WhatsApp-Chats wird die Telefonnummer automatisch an die KI übergeben
+  - KI kennt die Telefonnummer des Chatpartners automatisch
+  - Kein erneutes Abfragen der Nummer nötig
+  - `findAppointments` nutzt automatisch die WhatsApp-Nummer
+- Erweiterte Logging für besseres Debugging
+- Automatische Account-ID Zuweisung bei Session-Erstellung
+- Sichtbarkeit von Bot-Terminen im Frontend-Kalender garantiert
+- **Aktuelles Datum im System-Prompt**: KI erhält jetzt das korrekte aktuelle Datum (`currentDate` und `currentDateTime`) für präzise Terminberechnungen
+- **Smart Time Block Merging**: `calculateFreeTimeBlocks()` berechnet freie Zeitblöcke direkt ohne überlappende Slots
+- **Week View Fix**: Kalender lädt Termine basierend auf der tatsächlichen Woche statt Monat
+
+**Verbessertes Availability-Display:**
+- **Vorher**: "10:00, 10:15, 10:30, 10:45, 11:00, 11:15, 14:00, 14:15..." (unübersichtlich & inkorrekt)
+- **Nachher**: "09:00 bis 12:00, 14:00 bis 17:00" (klar, übersichtlich & korrekt)
+- **Neue Algorithmus**: `calculateFreeTimeBlocks()` berechnet freie Zeitblöcke direkt aus Geschäftszeiten und gebuchten Terminen
+- **Keine überlappenden Slots mehr**: Alte Methode generierte überlappende Slots die nicht gemerged werden konnten
+- Automatische Erkennung von Lücken zwischen gebuchten Terminen
+- **100% akkurat**: Zeigt nur tatsächlich freie Zeiten an (keine bereits gebuchten Slots mehr!)
 
 ---
 

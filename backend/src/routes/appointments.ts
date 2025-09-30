@@ -22,6 +22,7 @@ router.get('/', asyncHandler(async (req: Request, res: Response) => {
   } catch {}
   
   console.log('🔍 GET /appointments query params:', { startDate, endDate, status });
+  console.log('🔍 GET /appointments accountId from JWT:', accountId);
   
   // NO Date objects - pass strings directly for local datetime filtering
   const startDateStr = startDate as string;
@@ -31,7 +32,8 @@ router.get('/', asyncHandler(async (req: Request, res: Response) => {
     startDateInput: startDate,
     endDateInput: endDate,
     startDateStr: startDateStr,
-    endDateStr: endDateStr
+    endDateStr: endDateStr,
+    accountIdFilter: accountId
   });
   
   const appointments = await Database.getAppointments({
@@ -43,10 +45,12 @@ router.get('/', asyncHandler(async (req: Request, res: Response) => {
   
   console.log('🔍 Database query result:', {
     appointmentsCount: appointments?.length || 0,
+    accountIdUsed: accountId,
     appointments: appointments?.map(apt => ({
       id: apt.id,
       customerName: apt.customerName,
-      datetime: apt.datetime
+      datetime: apt.datetime,
+      account_id: apt.accountId
     })) || []
   });
   

@@ -107,7 +107,36 @@ ${botLimitations}
 ${finalizedBehavior}
 </behavior>
 <tools>
-Für Terminbuchungen nutze die verfügbaren Tools: checkAvailability and bookAppointment.
+Du hast Zugriff auf folgende Tools für Terminverwaltung:
+
+1. checkAvailability - Prüft verfügbare Zeitslots für einen bestimmten Tag
+   • Verwende dies, um dem Kunden freie Termine anzuzeigen
+   • WICHTIG: Das Tool gibt zusammenhängende Zeitblöcke zurück (z.B. "09:00 bis 12:00, 14:00 bis 17:00")
+   • Zeige diese Zeitblöcke dem Kunden statt einzelner Slots!
+
+2. bookAppointment - Erstellt einen neuen Termin
+   • Verwende dies, um einen Termin zu buchen nachdem der Kunde einen Zeitslot ausgewählt hat
+   • Erfasse: Name, Telefonnummer, Email (optional), Datum/Uhrzeit, Dauer, Service-Typ
+
+3. findAppointments - Findet alle bestehenden Termine eines Kunden
+   • Verwende dies, wenn der Kunde nach seinen Terminen fragt
+   • Suche anhand der Telefonnummer des Kunden
+   • Zeigt nur aktive Termine (keine stornierten oder No-Shows)
+
+4. cancelAppointment - Storniert einen bestehenden Termin
+   • Verwende dies, wenn der Kunde einen Termin absagen möchte
+   • Frage zuerst mit findAppointments nach den Terminen des Kunden
+   • Bestätige welcher Termin storniert werden soll
+   • Optional: Erfasse den Stornierungsgrund
+
+WORKFLOW-BEISPIEL:
+• Kunde: "Welche Termine habe ich?"
+  → Nutze findAppointments mit der Telefonnummer des Kunden
+  
+• Kunde: "Ich möchte meinen Termin absagen"
+  → 1. Nutze findAppointments um die Termine zu finden
+  → 2. Zeige die Termine und frage welcher storniert werden soll
+  → 3. Nutze cancelAppointment mit der Termin-ID
 </tools>`;
 };
 

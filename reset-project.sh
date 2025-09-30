@@ -71,3 +71,9 @@ read -p "Drücke Enter zum Beenden..."
 
 
 
+
+
+
+
+
+

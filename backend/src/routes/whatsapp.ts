@@ -93,4 +93,39 @@ router.get('/user/qr', requireAuth as any, asyncHandler(async (req: any, res: Re
   return res.json({ success: true, data: { dataUrl } });
 }));
 
+// Reset user's Wasender session (forces creation of new session on next ensure call)
+router.delete('/user/session', requireAuth as any, asyncHandler(async (req: any, res: Response) => {
+  const userId: string | undefined = req.userId;
+  if (!userId) return res.status(401).json({ error: 'Unauthorized' });
+  
+  const sessionId = await Database.getUserWasenderSessionId(userId);
+  
+  // If there's a sessionId, try to delete it from WasenderAPI first
+  let deletedFromWasender = false;
+  if (sessionId) {
+    try {
+      await WasenderApiClient.deleteSession(sessionId);
+      deletedFromWasender = true;
+      console.log(`✅ Session ${sessionId} deleted from WasenderAPI`);
+    } catch (error) {
+      console.error(`⚠️ Could not delete session ${sessionId} from WasenderAPI:`, error);
+      // Continue anyway - we still want to clear it from our database
+    }
+  }
+  
+  // Clear session ID from database
+  await db('users')
+    .where({ id: userId })
+    .update({ wasender_session_id: null, wasender_session_updated_at: new Date() });
+  
+  console.log(`🔄 Wasender session reset for user ${userId}. Previous sessionId: ${sessionId}`);
+  
+  return res.json({ 
+    success: true, 
+    message: 'Wasender session deleted successfully. Create a new session via /user/session/ensure',
+    previousSessionId: sessionId,
+    deletedFromWasenderAPI: deletedFromWasender
+  });
+}));
+
 export default router; 

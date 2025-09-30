@@ -479,13 +479,34 @@ const CalendarPro: React.FC<CalendarProProps> = ({ className = '' }) => {
         return Promise.resolve({ success: true, data: [] as Appointment[] });
       }
       
-      const startDateStr = startDate.firstDayOfMonth().toString('yyyy-MM-dd');
-      const endDateStr = startDate.lastDayOfMonth().toString('yyyy-MM-dd');
+      // For Month view: load entire month
+      // For Week/Day view: load a wider range to include appointments in adjacent months
+      let startDateStr: string;
+      let endDateStr: string;
+      
+      if (view === 'Month') {
+        // Month view: load only the current month
+        startDateStr = startDate.firstDayOfMonth().toString('yyyy-MM-dd');
+        endDateStr = startDate.lastDayOfMonth().toString('yyyy-MM-dd');
+      } else if (view === 'Week') {
+        // Week view: load from start of week to end of week (including adjacent months)
+        const weekStart = startDate.firstDayOfWeek(1); // 1 = Monday
+        const weekEnd = weekStart.addDays(6);
+        startDateStr = weekStart.toString('yyyy-MM-dd');
+        endDateStr = weekEnd.toString('yyyy-MM-dd');
+      } else {
+        // Day view: load just the current day (but add some buffer for context)
+        startDateStr = startDate.toString('yyyy-MM-dd');
+        endDateStr = startDate.toString('yyyy-MM-dd');
+      }
       
       console.log('🔍 Fetching appointments for date range:', {
+        view: view,
         startDate: startDateStr,
         endDate: endDateStr,
-        currentMonth: startDate.toString('MMMM yyyy')
+        currentDisplay: view === 'Month' ? startDate.toString('MMMM yyyy') : 
+                       view === 'Week' ? `Week of ${startDate.toString('MMM dd, yyyy')}` :
+                       startDate.toString('MMM dd, yyyy')
       });
       
       return appointmentsApi.getAll({
@@ -493,7 +514,7 @@ const CalendarPro: React.FC<CalendarProProps> = ({ className = '' }) => {
         endDate: endDateStr,
       });
     },
-    [startDate]
+    [startDate, view]
   );
 
   const { data: botConfig, isLoading: botConfigLoading, error: botConfigError } = useFetch(() => botApi.getConfig(), []);

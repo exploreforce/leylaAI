@@ -17,6 +17,7 @@ export default function WhatsAppLink() {
   const [status, setStatus] = useState<WaStatus | null>(null);
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [jwt, setJwt] = useState<string | null>(null);
   const [phoneNumber, setPhoneNumber] = useState<string>("");
@@ -24,6 +25,7 @@ export default function WhatsAppLink() {
   const loadStatus = async () => {
     try {
       setError(null);
+      setSuccessMessage(null);
       
       // Always use user-specific endpoint if we have a token
       const token = jwt || getToken();
@@ -85,6 +87,7 @@ export default function WhatsAppLink() {
     if (!jwt) return;
     try {
       setError(null);
+      setSuccessMessage(null);
       setLoading(true);
       const response = await fetch(`${API}/api/whatsapp/user/session/ensure`, {
         method: 'POST',
@@ -119,6 +122,54 @@ export default function WhatsAppLink() {
     }
   };
 
+  const deleteSession = async () => {
+    if (!jwt) return;
+    
+    // Show confirmation dialog
+    if (!confirm('Are you sure you want to delete the current WhatsApp session? This will disconnect the bot from WhatsApp and you will need to create a new session.')) {
+      return;
+    }
+    
+    try {
+      setError(null);
+      setSuccessMessage(null);
+      setLoading(true);
+      const response = await fetch(`${API}/api/whatsapp/user/session`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${jwt}`,
+        },
+      });
+      setLoading(false);
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || 'Failed to delete session');
+      }
+      
+      const result = await response.json();
+      if (result.success) {
+        // Reset all status to force user to create new session
+        setStatus({
+          status: 'unknown',
+          meNumber: null,
+          qrAvailable: false,
+          qrGeneratedAt: null
+        });
+        setQrDataUrl(null);
+        setPhoneNumber(""); // Clear phone number input
+        
+        // Show success message temporarily
+        setSuccessMessage(`Session deleted successfully. ${result.deletedFromWasenderAPI ? 'Removed from WasenderAPI and database.' : 'Removed from database only.'}`);
+        setTimeout(() => setSuccessMessage(null), 5000);
+      }
+    } catch (e: any) {
+      setLoading(false);
+      setError(e.message || 'Failed to delete session');
+    }
+  };
+
   useEffect(() => {
     const token = getToken();
     if (token) setJwt(token);
@@ -149,7 +200,10 @@ export default function WhatsAppLink() {
   return (
     <div className="space-y-4">
       {error && (
-        <div className="mb-3 text-red-400">{error}</div>
+        <div className="mb-3 p-3 rounded-lg bg-red-900/20 border border-red-600 text-red-400">{error}</div>
+      )}
+      {successMessage && (
+        <div className="mb-3 p-3 rounded-lg bg-green-900/20 border border-green-600 text-green-400">{successMessage}</div>
       )}
 
       <div className="p-4 rounded-lg bg-dark-800 border border-dark-600">
@@ -223,6 +277,42 @@ export default function WhatsAppLink() {
         <div className="p-4 rounded-lg bg-dark-800 border border-dark-600">
           <div className="text-elysPink-400 font-medium">Connected</div>
           <div className="text-sm text-dark-300">The bot can now receive and send WhatsApp messages.</div>
+        </div>
+      )}
+
+      {/* Session Management - Show delete button when user is logged in */}
+      {jwt && (
+        <div className="p-4 rounded-lg bg-dark-800 border border-dark-600">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="text-sm text-dark-300">Session Management</div>
+              <div className="text-xs text-dark-400 mt-1">
+                {status?.meNumber ? `Session for ${status.meNumber}` : 
+                 status?.status === 'unknown' ? 'Reset broken session' : 
+                 'Manage your WhatsApp bot session'}
+              </div>
+            </div>
+            <button
+              onClick={deleteSession}
+              disabled={loading}
+              className="px-3 py-1.5 rounded-md bg-red-600 text-white hover:bg-red-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
+            >
+              <svg 
+                className="w-4 h-4" 
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24"
+              >
+                <path 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round" 
+                  strokeWidth={2} 
+                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" 
+                />
+              </svg>
+              {loading ? 'Deleting...' : 'Delete Session'}
+            </button>
+          </div>
         </div>
       )}
       

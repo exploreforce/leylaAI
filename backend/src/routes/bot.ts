@@ -55,22 +55,47 @@ router.post(
   asyncHandler(async (req: Request, res: Response) => {
     const { sessionId } = req.body as { sessionId: string };
     if (!sessionId) return res.status(400).json({ error: 'sessionId required' });
-    // In real WhatsApp flow, we would pass the recipient phone; for test we just mark last assistant msg as sent
+    // Find last assistant message (prefer draft)
     const dbModule = await import('../models/database');
     const rows = await dbModule.db('chat_messages')
       .where('session_id', parseInt(sessionId, 10))
       .orderBy('timestamp', 'desc');
-    const candidate = rows.find((m: any) => m.role === 'assistant');
+    const candidate = rows.find((m: any) => m.role === 'assistant' && String(m?.metadata || '').includes('"status":"draft"'))
+      || rows.find((m: any) => m.role === 'assistant');
     if (!candidate) return res.json({ success: false, message: 'No assistant message found' });
+
+    // Determine if this session is a WhatsApp session
+    const session = await dbModule.db('test_chat_sessions')
+      .where('id', parseInt(sessionId, 10))
+      .first();
+
     let metadata: any = candidate.metadata;
-    try {
-      if (typeof metadata === 'string') metadata = JSON.parse(metadata);
-    } catch {}
-    metadata = { ...(metadata || {}), status: 'approved', approved: true };
-    await dbModule.db('chat_messages')
-      .where('id', candidate.id)
-      .update({ metadata: JSON.stringify(metadata) });
-    return res.json({ success: true });
+    try { if (typeof metadata === 'string') metadata = JSON.parse(metadata); } catch {}
+
+    const isWhatsApp = session?.session_type === 'whatsapp' && !!session?.whatsapp_number;
+
+    if (isWhatsApp) {
+      // Send over WhatsApp, then mark as sent
+      try {
+        await whatsappService.sendMessage(session.whatsapp_number, candidate.content);
+      } catch (err: any) {
+        console.error('❌ Failed to send WhatsApp message on approve:', err);
+        return res.status(500).json({ success: false, error: 'Failed to send WhatsApp message' });
+      }
+
+      const updatedMeta = { ...(metadata || {}), approved: true, status: 'sent', channel: 'whatsapp' };
+      await dbModule.db('chat_messages')
+        .where('id', candidate.id)
+        .update({ metadata: JSON.stringify(updatedMeta) });
+      return res.json({ success: true });
+    } else {
+      // Test flow: just approve
+      const updatedMeta = { ...(metadata || {}), approved: true, status: 'approved' };
+      await dbModule.db('chat_messages')
+        .where('id', candidate.id)
+        .update({ metadata: JSON.stringify(updatedMeta) });
+      return res.json({ success: true });
+    }
   })
 );
 
@@ -87,14 +112,39 @@ router.post(
     if (!candidate) return res.json({ success: false, message: 'No assistant message found' });
     let metadata: any = candidate.metadata;
     try { if (typeof metadata === 'string') metadata = JSON.parse(metadata); } catch {}
-    metadata = { ...(metadata || {}), status: 'approved', approved: true, isCustomReply: true };
-    await db('chat_messages')
-      .where('id', candidate.id)
-      .update({
-        content,
-        metadata: JSON.stringify(metadata)
-      });
-    return res.json({ success: true });
+
+    // Determine if this session is a WhatsApp session
+    const session = await db('test_chat_sessions')
+      .where('id', parseInt(sessionId, 10))
+      .first();
+    const isWhatsApp = session?.session_type === 'whatsapp' && !!session?.whatsapp_number;
+
+    if (isWhatsApp) {
+      // First try to send over WhatsApp, then persist as sent
+      try {
+        await whatsappService.sendMessage(session.whatsapp_number, content);
+      } catch (err: any) {
+        console.error('❌ Failed to send WhatsApp custom reply:', err);
+        return res.status(500).json({ success: false, error: 'Failed to send WhatsApp message' });
+      }
+      const updatedMeta = { ...(metadata || {}), status: 'sent', approved: true, isCustomReply: true, channel: 'whatsapp' };
+      await db('chat_messages')
+        .where('id', candidate.id)
+        .update({
+          content,
+          metadata: JSON.stringify(updatedMeta)
+        });
+      return res.json({ success: true });
+    } else {
+      const updatedMeta = { ...(metadata || {}), status: 'approved', approved: true, isCustomReply: true };
+      await db('chat_messages')
+        .where('id', candidate.id)
+        .update({
+          content,
+          metadata: JSON.stringify(updatedMeta)
+        });
+      return res.json({ success: true });
+    }
   })
 );
 
@@ -290,10 +340,14 @@ router.get(
           try { if (typeof metadata === 'string') metadata = JSON.parse(metadata); } catch {}
           
           if (metadata?.status === 'draft' || aiMessage.role === 'assistant') {
+            const isWhatsApp = session.session_type === 'whatsapp';
+            const type = isWhatsApp ? 'whatsapp' : 'test';
+            const title = isWhatsApp ? `WhatsApp ${session.display_name || session.whatsapp_number || ''}` : 'Test Chat';
+            const idPrefix = isWhatsApp ? 'whatsapp' : 'test';
             chats.push({
-              id: `test-${session.id}`,
-              type: 'test',
-              title: 'Test Chat',
+              id: `${idPrefix}-${session.id}`,
+              type,
+              title,
               lastUserMessage: userMessage.content,
               pendingReply: aiMessage.content,
               timestamp: session.last_activity || session.updated_at,
@@ -324,10 +378,18 @@ router.get(
     console.log('🔍 Getting chat for review:', chatId);
     
     try {
-      if (chatId.startsWith('test-')) {
-        const sessionId = chatId.replace('test-', '');
-        
-        // Get all messages for this test session
+      const isTest = chatId.startsWith('test-');
+      const isWhatsApp = chatId.startsWith('whatsapp-');
+      if (isTest || isWhatsApp) {
+        const sessionId = chatId.replace(isTest ? 'test-' : 'whatsapp-', '');
+
+        // Get session to determine metadata for title
+        const session = await db('test_chat_sessions')
+          .where('id', parseInt(sessionId, 10))
+          .first();
+        const title = isWhatsApp ? `WhatsApp ${session?.display_name || session?.whatsapp_number || ''}` : 'Test Chat';
+
+        // Get all messages for this session
         const messages = await db('chat_messages')
           .where('session_id', parseInt(sessionId, 10))
           .orderBy('timestamp', 'asc');
@@ -353,8 +415,8 @@ router.get(
         return res.json({
           data: {
             id: chatId,
-            type: 'test',
-            title: 'Test Chat',
+            type: isWhatsApp ? 'whatsapp' : 'test',
+            title,
             messages: parsedMessages,
             lastUserMessage: lastUserMessage?.content || '',
             pendingReply: pendingReply?.content || '',
@@ -363,8 +425,7 @@ router.get(
           }
         });
       }
-      
-      // TODO: Handle WhatsApp chats
+
       return res.status(404).json({ error: 'Chat not found' });
     } catch (error) {
       console.error('Error getting chat for review:', error);

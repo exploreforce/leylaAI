@@ -70,6 +70,7 @@ export interface Appointment {
   status: 'pending' | 'booked' | 'confirmed' | 'cancelled' | 'completed' | 'noshow';
   notes?: string;
   appointmentType?: string;
+  accountId?: string; // Multi-tenant support: which account this appointment belongs to
   createdAt: Date;
   updatedAt: Date;
 }

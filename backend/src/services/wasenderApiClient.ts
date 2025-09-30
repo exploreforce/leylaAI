@@ -363,6 +363,25 @@ export const WasenderApiClient = {
       console.error(`❌ Error ensuring webhooks for all sessions:`, error);
     }
   },
+
+  // Delete session from WasenderAPI
+  async deleteSession(sessionId: string): Promise<void> {
+    const http = getClient();
+    console.log(`🗑️ Deleting session ${sessionId} from WasenderAPI...`);
+    
+    try {
+      await http.delete(`/api/whatsapp-sessions/${sessionId}`);
+      console.log(`✅ Session ${sessionId} deleted successfully from WasenderAPI`);
+    } catch (error: any) {
+      // If session doesn't exist on wasenderapi (404), that's actually fine
+      if (error.response?.status === 404) {
+        console.log(`ℹ️ Session ${sessionId} was already deleted from WasenderAPI (404)`);
+        return;
+      }
+      console.error(`❌ Failed to delete session ${sessionId} from WasenderAPI:`, error.message);
+      throw error;
+    }
+  },
 };
 
 export type { InternalStatus as WasenderClientStatus };

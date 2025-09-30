@@ -1,7 +1,7 @@
 import OpenAI from 'openai';
 import { ChatCompletionTool } from 'openai/resources/chat/completions';
 import { ChatMessage } from '../types';
-import { Database } from '../models/database';
+import { Database, db } from '../models/database';
 import { getBusinessDaySlots, isTimeSlotAvailable } from '../utils';
 
 // Initialize OpenAI client
@@ -53,6 +53,53 @@ interface BotResponse {
   user_language: string;
 }
 
+// --- Helper Functions ---
+
+/**
+ * Calculates free time blocks from business hours and booked appointments.
+ * Returns continuous free time blocks (e.g., "09:00 - 12:00, 14:00 - 17:00").
+ */
+const calculateFreeTimeBlocks = (
+  businessHours: Array<{ start: string; end: string }>,
+  bookedSlots: Array<{ start: string; end: string }>
+): Array<{ start: string; end: string }> => {
+  if (!businessHours || businessHours.length === 0) return [];
+  
+  const freeBlocks: Array<{ start: string; end: string }> = [];
+  
+  for (const businessPeriod of businessHours) {
+    let currentStart = businessPeriod.start;
+    const periodEnd = businessPeriod.end;
+    
+    // Get all booked slots that overlap with this business period, sorted by start time
+    const relevantBookings = bookedSlots
+      .filter(booking => {
+        return booking.start < periodEnd && booking.end > currentStart;
+      })
+      .sort((a, b) => a.start.localeCompare(b.start));
+    
+    // Build free blocks by finding gaps between bookings
+    for (const booking of relevantBookings) {
+      // If there's a gap before this booking, that's a free block
+      if (currentStart < booking.start) {
+        freeBlocks.push({ start: currentStart, end: booking.start });
+      }
+      
+      // Move current start to end of this booking
+      if (booking.end > currentStart) {
+        currentStart = booking.end;
+      }
+    }
+    
+    // If there's time left after all bookings, that's also a free block
+    if (currentStart < periodEnd) {
+      freeBlocks.push({ start: currentStart, end: periodEnd });
+    }
+  }
+  
+  return freeBlocks;
+};
+
 // --- Tool Definitions for OpenAI Function Calling ---
 
 const tools: ChatCompletionTool[] = [
@@ -60,7 +107,7 @@ const tools: ChatCompletionTool[] = [
     type: 'function',
     function: {
       name: 'checkAvailability',
-      description: 'Checks for available appointment slots on a given date.',
+      description: 'Checks for available appointment slots on a given date. Returns continuous time blocks (e.g., "09:00 bis 12:00") instead of individual slots.',
       parameters: {
         type: 'object',
         properties: {
@@ -109,15 +156,56 @@ const tools: ChatCompletionTool[] = [
       },
     },
   },
+  {
+    type: 'function',
+    function: {
+      name: 'findAppointments',
+      description: 'Finds all existing appointments for a specific customer by their phone number.',
+      parameters: {
+        type: 'object',
+        properties: {
+          customerPhone: {
+            type: 'string',
+            description: "The customer's phone number to search for appointments.",
+          },
+        },
+        required: ['customerPhone'],
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'cancelAppointment',
+      description: 'Cancels an existing appointment by its ID.',
+      parameters: {
+        type: 'object',
+        properties: {
+          appointmentId: {
+            type: 'string',
+            description: 'The ID of the appointment to cancel.',
+          },
+          reason: {
+            type: 'string',
+            description: 'Optional reason for cancellation.',
+          },
+        },
+        required: ['appointmentId'],
+      },
+    },
+  },
 ];
 
 // --- Tool Implementation ---
 
-const executeTool = async (toolCall: OpenAI.Chat.Completions.ChatCompletionMessageToolCall) => {
+const executeTool = async (
+  toolCall: OpenAI.Chat.Completions.ChatCompletionMessageToolCall,
+  accountId: string | null = null
+) => {
   const toolName = toolCall.function.name;
   const args = JSON.parse(toolCall.function.arguments);
 
-  console.log(`🤖 Executing tool: ${toolName}`, args);
+  console.log(`🤖 Executing tool: ${toolName} for account: ${accountId}`, args);
 
   switch (toolName) {
     case 'checkAvailability':
@@ -156,9 +244,13 @@ const executeTool = async (toolCall: OpenAI.Chat.Completions.ChatCompletionMessa
           console.error('❌ Failed to create default config:', error);
         }
         
-        // Use default business hours if no config
-        const allSlots = getBusinessDaySlots('09:00', '17:00', duration, 0, 1);
-        const booked = await Database.getAppointments({ startDateStr: date, endDateStr: date });
+        // Use default business hours if no config (09:00 - 17:00)
+        const businessHours = [{ start: '09:00', end: '17:00' }];
+        const booked = await Database.getAppointments({ 
+          startDateStr: date, 
+          endDateStr: date,
+          accountId: accountId || undefined
+        });
         
         // Helper functions for default case
         const toHHmm = (dt: string): string => {
@@ -181,9 +273,19 @@ const executeTool = async (toolCall: OpenAI.Chat.Completions.ChatCompletionMessa
           const end = addMinutesToHHmm(start, appt.duration || 0);
           return { start, end };
         });
-        const availableSlots = allSlots.filter(slot => isTimeSlotAvailable(slot.start, slot.end, bookedSlots));
-        console.log(`✅ Found ${availableSlots.length} available slots (default hours)`);
-        return { availableSlots };
+        
+        console.log(`📅 Found ${bookedSlots.length} booked appointments on ${date} (default hours)`);
+        
+        // Calculate free time blocks directly from business hours and bookings
+        const freeBlocks = calculateFreeTimeBlocks(businessHours, bookedSlots);
+        console.log(`✅ Calculated ${freeBlocks.length} free time blocks (default hours)`);
+        
+        return { 
+          availableSlots: freeBlocks,
+          message: freeBlocks.length > 0 
+            ? `Ich habe folgende freie Zeitfenster: ${freeBlocks.map((block: { start: string; end: string }) => `${block.start} bis ${block.end}`).join(', ')}`
+            : 'Leider habe ich an diesem Tag keine freien Zeiten.'
+        };
       }
       
       const dayOfWeek = new Date(date).getDay();
@@ -191,26 +293,20 @@ const executeTool = async (toolCall: OpenAI.Chat.Completions.ChatCompletionMessa
 
       if (!daySchedule || !daySchedule.isAvailable) {
         console.log(`❌ Day ${dayOfWeek} is not available according to schedule`);
-        return { availableSlots: [] };
+        return { 
+          availableSlots: [],
+          message: 'An diesem Tag ist leider geschlossen.'
+        };
       }
 
-      console.log(`✅ Day ${dayOfWeek} is available, generating slots from schedule`);
+      console.log(`✅ Day ${dayOfWeek} is available, checking for free time blocks`);
       
-      // Use the actual time slots from the day schedule
-      let allSlots: Array<{ start: string; end: string }> = [];
+      // Get business hours for the day
+      const businessHours = daySchedule.timeSlots && daySchedule.timeSlots.length > 0
+        ? daySchedule.timeSlots
+        : [{ start: '09:00', end: '17:00' }];
       
-      if (daySchedule.timeSlots && daySchedule.timeSlots.length > 0) {
-        // Generate slots for each time range in the day
-        for (const timeSlot of daySchedule.timeSlots) {
-          const slotsForRange = getBusinessDaySlots(timeSlot.start, timeSlot.end, duration, 0, 1);
-          allSlots.push(...slotsForRange);
-        }
-        console.log(`📅 Generated ${allSlots.length} slots from ${daySchedule.timeSlots.length} time ranges`);
-      } else {
-        // Fallback to default if no time slots defined
-        allSlots = getBusinessDaySlots('09:00', '17:00', duration, 0, 1);
-        console.log(`📅 Generated ${allSlots.length} slots from fallback hours 9-17`);
-      }
+      console.log(`📅 Business hours:`, businessHours);
       // Helper to normalize 'YYYY-MM-DD HH:mm' or ISO to 'HH:mm'
       const toHHmm = (dt: string): string => {
         const s = (dt || '').replace('T', ' ').replace('Z', ' ');
@@ -228,17 +324,30 @@ const executeTool = async (toolCall: OpenAI.Chat.Completions.ChatCompletionMessa
         return `${hh}:${mm}`;
       };
 
-      // Use string-only filters (no Date objects)
-      const booked = await Database.getAppointments({ startDateStr: date, endDateStr: date });
+      // Get booked appointments for the day (filtered by account)
+      const booked = await Database.getAppointments({ 
+        startDateStr: date, 
+        endDateStr: date,
+        accountId: accountId || undefined
+      });
       const bookedSlots = booked.map(appt => {
         const start = toHHmm(String(appt.datetime));
         const end = addMinutesToHHmm(start, appt.duration || 0);
         return { start, end };
       });
       
-      const availableSlots = allSlots.filter(slot => isTimeSlotAvailable(slot.start, slot.end, bookedSlots));
+      console.log(`📅 Found ${bookedSlots.length} booked appointments on ${date}`);
+      
+      // Calculate free time blocks directly from business hours and bookings
+      const freeBlocks = calculateFreeTimeBlocks(businessHours, bookedSlots);
+      console.log(`✅ Calculated ${freeBlocks.length} free time blocks`);
 
-      return { availableSlots };
+      return { 
+        availableSlots: freeBlocks,
+        message: freeBlocks.length > 0 
+          ? `Ich habe folgende freie Zeitfenster: ${freeBlocks.map((block: { start: string; end: string }) => `${block.start} bis ${block.end}`).join(', ')}`
+          : 'Leider habe ich an diesem Tag keine freien Zeiten.'
+      };
 
     case 'bookAppointment':
       const { customerName, customerPhone, customerEmail, datetime, duration: apptDuration, appointmentType, notes } = args;
@@ -249,6 +358,13 @@ const executeTool = async (toolCall: OpenAI.Chat.Completions.ChatCompletionMessa
       console.log(`📅 Normalized datetime: ${datetime} → ${localDatetime}`);
       
       try {
+        // Use the account ID from the current session
+        if (!accountId) {
+          console.warn('⚠️ No account found in session - creating appointment without account_id');
+        } else {
+          console.log(`✅ Using session account ID: ${accountId}`);
+        }
+        
         const newAppointment = await Database.createAppointment({
           customer_name: customerName,
           customer_phone: customerPhone,
@@ -258,12 +374,107 @@ const executeTool = async (toolCall: OpenAI.Chat.Completions.ChatCompletionMessa
           appointment_type: appointmentType,
           notes,
           status: 'booked',
+          account_id: accountId, // Use session's account_id for multi-tenant isolation
         });
         console.log(`✅ Appointment created successfully:`, newAppointment.id);
         return { success: true, appointment: newAppointment };
       } catch (error) {
         console.error(`❌ Failed to create appointment:`, error);
         return { error: 'Failed to create appointment. Please try again.' };
+      }
+
+    case 'findAppointments':
+      const { customerPhone: searchPhone } = args;
+      console.log(`🔍 Finding appointments for phone: ${searchPhone} in account: ${accountId}`);
+      
+      try {
+        // Get appointments filtered by account
+        const allAppointments = await Database.getAppointments({
+          accountId: accountId || undefined
+        });
+        
+        // Filter by phone number (handle different formats)
+        const normalizedSearchPhone = searchPhone.replace(/[^0-9+]/g, '');
+        const customerAppointments = allAppointments.filter(apt => {
+          const aptPhone = (apt.customerPhone || '').replace(/[^0-9+]/g, '');
+          return aptPhone === normalizedSearchPhone || 
+                 aptPhone === `+${normalizedSearchPhone}` ||
+                 `+${aptPhone}` === normalizedSearchPhone;
+        });
+        
+        // Filter out cancelled appointments for cleaner results
+        const activeAppointments = customerAppointments.filter(apt => 
+          apt.status !== 'cancelled' && apt.status !== 'noshow'
+        );
+        
+        console.log(`✅ Found ${activeAppointments.length} active appointments for ${searchPhone}`);
+        
+        // Return formatted appointment data
+        const formattedAppointments = activeAppointments.map(apt => ({
+          id: apt.id,
+          customerName: apt.customerName,
+          datetime: apt.datetime,
+          duration: apt.duration,
+          status: apt.status,
+          appointmentType: apt.appointmentType,
+          notes: apt.notes,
+        }));
+        
+        return { 
+          success: true, 
+          appointments: formattedAppointments,
+          count: formattedAppointments.length 
+        };
+      } catch (error) {
+        console.error(`❌ Failed to find appointments:`, error);
+        return { error: 'Failed to find appointments. Please try again.' };
+      }
+
+    case 'cancelAppointment':
+      const { appointmentId, reason } = args;
+      console.log(`🗑️ Cancelling appointment: ${appointmentId} for account: ${accountId}`, reason ? `Reason: ${reason}` : '');
+      
+      try {
+        // First, get the appointment to verify it exists and belongs to this account
+        const allAppointmentsForCancel = await Database.getAppointments({
+          accountId: accountId || undefined
+        });
+        const appointmentToCancel = allAppointmentsForCancel.find(apt => apt.id === appointmentId);
+        
+        if (!appointmentToCancel) {
+          console.log(`❌ Appointment ${appointmentId} not found`);
+          return { error: 'Appointment not found.' };
+        }
+        
+        if (appointmentToCancel.status === 'cancelled') {
+          console.log(`⚠️ Appointment ${appointmentId} is already cancelled`);
+          return { error: 'This appointment is already cancelled.' };
+        }
+        
+        // Update appointment to cancelled status
+        const updatedNotes = reason 
+          ? `${appointmentToCancel.notes || ''}\n[Cancelled: ${reason}]`.trim()
+          : appointmentToCancel.notes;
+        
+        await Database.updateAppointment(appointmentId, {
+          status: 'cancelled',
+          notes: updatedNotes,
+        });
+        
+        console.log(`✅ Appointment ${appointmentId} cancelled successfully`);
+        return { 
+          success: true, 
+          message: 'Appointment cancelled successfully.',
+          appointment: {
+            id: appointmentToCancel.id,
+            customerName: appointmentToCancel.customerName,
+            datetime: appointmentToCancel.datetime,
+            status: 'cancelled',
+          }
+        };
+      } catch (error) {
+        console.error(`❌ Failed to cancel appointment:`, error);
+        return { error: 'Failed to cancel appointment. Please try again.' };
       }
 
     default:
@@ -278,6 +489,21 @@ export class AIService {
     messages: ChatMessage[],
     sessionId: string
   ): Promise<ChatMessage> {
+    // Get session to determine which account this chat belongs to
+    const session = await db('test_chat_sessions')
+      .where('id', parseInt(sessionId, 10))
+      .first();
+    
+    const accountId = session?.account_id || null;
+    const whatsappNumber = session?.whatsapp_number || null;
+    const sessionType = session?.session_type || 'test';
+    
+    console.log(`🔍 Chat session ${sessionId}:`, {
+      accountId,
+      whatsappNumber,
+      sessionType
+    });
+    
     const botConfig = await Database.getBotConfig();
     if (!botConfig) {
       throw new Error('Bot configuration not found.');
@@ -315,9 +541,27 @@ export class AIService {
     const previousUserLanguage = lastMeta?.userLanguage || lastMeta?.user_language || '';
     const previousIsFlagged = (lastMeta?.isFlagged ?? lastMeta?.is_flagged) || false;
 
+    // Add customer context for WhatsApp chats
+    let customerContext = '';
+    if (whatsappNumber && sessionType === 'whatsapp') {
+      customerContext = `
+CUSTOMER INFORMATION (WhatsApp Chat)
+- Customer Phone Number: ${whatsappNumber}
+- Communication Channel: WhatsApp
+- WICHTIG: Du kennst bereits die Telefonnummer dieses Kunden! Nutze ${whatsappNumber} automatisch für findAppointments und andere Tools.
+- Der Kunde muss seine Nummer NICHT erneut angeben - du hast sie bereits!
+
+`;
+    }
+
     let extendedSystemPrompt = activeSystemPrompt + `
     
-SESSION MEMORY
+CURRENT DATE & TIME
+- Heute ist: ${currentDateTime}
+- Aktuelles Datum: ${currentDate}
+- WICHTIG: Nutze dieses Datum für alle Terminberechnungen und -prüfungen!
+
+${customerContext}SESSION MEMORY
 - Known user info: ${previousUserInformation || 'None'}
 - Last user language: ${previousUserLanguage || 'unknown'}
 - Last safety flag: ${previousIsFlagged ? 'true' : 'false'}
@@ -378,8 +622,8 @@ GUIDELINES
     const toolCalls = responseMessage.tool_calls;
 
     if (toolCalls) {
-      // Execute tools and continue conversation
-      const toolResults = await Promise.all(toolCalls.map(executeTool));
+      // Execute tools and continue conversation (pass accountId for multi-tenancy)
+      const toolResults = await Promise.all(toolCalls.map(tc => executeTool(tc, accountId)));
       
       const toolResponseMessage: OpenAI.Chat.ChatCompletionMessageParam = {
         role: 'assistant',

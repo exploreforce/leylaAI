@@ -165,6 +165,7 @@ export class Database {
         status: row.status,
         notes: row.notes,
         appointmentType: row.appointment_type,
+        accountId: row.account_id, // Include account_id for multi-tenant support
         createdAt: new Date(row.created_at),
         updatedAt: new Date(row.updated_at)
       }));
@@ -412,13 +413,21 @@ export class Database {
     }
   }
 
-  static async createTestChatSession(): Promise<TestChatSession> {
+  static async createTestChatSession(accountId?: string): Promise<TestChatSession> {
     console.log('💾 Database: Creating test chat session...');
     
     try {
+      // Get default account if not provided
+      if (!accountId) {
+        const firstAccount = await db('accounts').select('id').orderBy('created_at', 'asc').first();
+        accountId = firstAccount?.id;
+        console.log('💾 Using default account for test chat:', accountId);
+      }
+      
       const [insertResult] = await db('test_chat_sessions')
         .insert({
-          session_type: 'test'
+          session_type: 'test',
+          account_id: accountId
         })
         .returning('id');
       
