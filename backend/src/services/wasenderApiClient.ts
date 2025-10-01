@@ -382,6 +382,84 @@ export const WasenderApiClient = {
       throw error;
     }
   },
+
+  // Get message history for a session (if supported by WasenderAPI)
+  async getMessageHistory(sessionId: string, limit: number = 50, offset: number = 0): Promise<any[]> {
+    const http = getClient();
+    console.log(`📜 Attempting to fetch message history for session ${sessionId}...`);
+    
+    // Try different possible endpoint patterns
+    const possibleEndpoints = [
+      `/api/whatsapp-sessions/${sessionId}/messages`,
+      `/api/messages?sessionId=${sessionId}&limit=${limit}&offset=${offset}`,
+      `/api/messages/${sessionId}`,
+      `/api/chats/${sessionId}/messages`,
+    ];
+
+    for (const endpoint of possibleEndpoints) {
+      try {
+        console.log(`🔍 Trying endpoint: ${endpoint}`);
+        const response = await http.get(endpoint);
+        console.log(`✅ SUCCESS! Messages found via ${endpoint}`);
+        console.log(`📊 Response structure:`, JSON.stringify(response.data, null, 2).substring(0, 500));
+        
+        // Extract messages from different possible response formats
+        const messages = response.data?.data || response.data?.messages || response.data || [];
+        console.log(`📬 Found ${Array.isArray(messages) ? messages.length : 0} messages`);
+        
+        return Array.isArray(messages) ? messages : [];
+      } catch (error: any) {
+        const status = error?.response?.status;
+        if (status === 404) {
+          console.log(`❌ Endpoint ${endpoint} not found (404), trying next...`);
+          continue;
+        } else if (status === 403 || status === 401) {
+          console.log(`❌ Endpoint ${endpoint} forbidden/unauthorized (${status}), trying next...`);
+          continue;
+        } else {
+          console.log(`❌ Error with ${endpoint} (${status}):`, error.message);
+          continue;
+        }
+      }
+    }
+
+    // If all endpoints failed
+    console.log(`❌ No working message history endpoint found. WasenderAPI might not support message history retrieval.`);
+    console.log(`💡 Alternative: Use webhooks to store incoming messages in real-time.`);
+    return [];
+  },
+
+  // Get all chats/conversations for a session (if supported)
+  async getChatList(sessionId: string): Promise<any[]> {
+    const http = getClient();
+    console.log(`💬 Attempting to fetch chat list for session ${sessionId}...`);
+    
+    const possibleEndpoints = [
+      `/api/whatsapp-sessions/${sessionId}/chats`,
+      `/api/chats?sessionId=${sessionId}`,
+      `/api/conversations/${sessionId}`,
+    ];
+
+    for (const endpoint of possibleEndpoints) {
+      try {
+        console.log(`🔍 Trying endpoint: ${endpoint}`);
+        const response = await http.get(endpoint);
+        console.log(`✅ SUCCESS! Chats found via ${endpoint}`);
+        
+        const chats = response.data?.data || response.data?.chats || response.data || [];
+        console.log(`💬 Found ${Array.isArray(chats) ? chats.length : 0} chats`);
+        
+        return Array.isArray(chats) ? chats : [];
+      } catch (error: any) {
+        const status = error?.response?.status;
+        console.log(`❌ Endpoint ${endpoint} failed (${status}), trying next...`);
+        continue;
+      }
+    }
+
+    console.log(`❌ No working chat list endpoint found.`);
+    return [];
+  },
 };
 
 export type { InternalStatus as WasenderClientStatus };

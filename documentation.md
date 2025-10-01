@@ -1,5 +1,61 @@
 # WhatsApp Bot Documentation
 
+## 📋 Changelog
+
+### 2025-10-01 (Latest) - Mobile Optimization & Internationalization
+
+**🌍 Internationalization (i18n):**
+- ✨ Implemented lazy-loading translation system with localStorage persistence
+  - App starts instantly without loading screen (default: German)
+  - Dynamic language switching without page reload
+  - Only loads translation files for selected language on-demand
+  - User preference saved in localStorage
+- ✨ Added 11 complete language translations (55 translation files):
+  - 🇩🇪 German, 🇬🇧 English, 🇪🇸 Spanish, 🇫🇷 French, 🇮🇹 Italian
+  - 🇵🇱 Polish, 🇷🇺 Russian, 🇨🇿 Czech, 🇸🇰 Slovak, 🇭🇺 Hungarian, 🇷🇴 Romanian
+- ✨ Created 5 translation namespaces per language (common, settings, dashboard, chat, calendar)
+- ✨ Language settings moved from backend to client-side (localStorage)
+
+**📱 Mobile Optimization:**
+- ✨ Responsive dashboard header
+  - Logo size reduced on mobile (48px → 40px)
+  - Dashboard title hidden on mobile devices (< 768px)
+  - Compact button labels for mobile ("Chat", "Review")
+  - Reduced padding and spacing for mobile
+- ✨ Responsive dashboard cards
+  - Fluid grid layout: 1 column (mobile) → 2 (tablet) → 4 (desktop)
+  - Optimized card padding, icon sizes, and text sizes for mobile
+  - Touch-friendly interface with proper spacing
+- ✨ Performance improvements through lazy loading
+
+**Files Modified:**
+- `frontend/src/components/providers/DynamicTranslationProvider.tsx` - Lazy loading
+- `frontend/src/components/BotConfigForm.tsx` - localStorage integration
+- `frontend/src/app/page.tsx` - Mobile-responsive dashboard
+- `frontend/public/locales/*/` - 55 new translation files (11 languages × 5 namespaces)
+
+---
+
+### 2025-10-01 (Earlier) - Bug Fixes & WasenderAPI Enhancement
+
+**Bug Fixes:**
+- 🐛 Fixed React Strict Mode causing duplicate chat sessions to be created on component mount
+- 🐛 Fixed auto-scroll behavior interrupting users when reading older messages - now only scrolls when user is near bottom
+- 🐛 Fixed database schema issue after GitHub pull - ran migration to add `account_id` column to `test_chat_sessions` table
+
+**New Features:**
+- ✨ Added WasenderAPI message history exploration endpoints (experimental)
+  - `GET /api/whatsapp/test/list-sessions` - List all sessions with IDs
+  - `GET /api/whatsapp/test/message-history/:sessionId` - Test message history retrieval
+  - `GET /api/whatsapp/test/chat-list/:sessionId` - Test chat list retrieval
+- ✨ Implemented `getMessageHistory()` and `getChatList()` functions in `wasenderApiClient.ts` that intelligently test multiple endpoint patterns
+
+**Improvements:**
+- 📚 Updated documentation with all recent changes
+- 🔄 Synced with latest GitHub repository (commit: 7e963dc)
+
+---
+
 ## 0. Quick Start (für Nooby-freundlichen Betrieb)
 
 Für einen einfachen und idiotensicheren Start des Projekts wurden spezielle Batch-Scripts erstellt:
@@ -61,6 +117,9 @@ Falls es Probleme gibt oder das Projekt "kaputt" ist, einfach das entsprechende 
 | Frontend startet nicht | `reset-project.bat` ausführen, dann neu starten |
 | Port bereits belegt | Andere Anwendungen auf Port 3000/5000 beenden |
 | Dependencies-Fehler | `reset-project.bat` ausführen für kompletten Neustart |
+| **Database error: "no column named account_id"** (nach GitHub Pull) | Backend-Migrations ausführen: `cd backend` dann `npm run db:migrate` |
+| **Zwei Chat-Sessions werden erstellt** (Development) | ✅ FIXED (2025-10-01): React Strict Mode-Problem wurde behoben |
+| **Auto-Scroll stört beim Lesen alter Nachrichten** | ✅ FIXED (2025-10-01): Intelligentes Scrolling implementiert |
 
 ### 0.5. Manuelle Alternative
 
@@ -92,7 +151,83 @@ npm run dev
 
 **⚠️ Wichtig:** Der `.next` Ordner muss vor jedem Start gelöscht werden, sonst gibt es Probleme!
 
-### 0.6. Production Build (Deployment)
+---
+
+## 0.6. Key Features Overview
+
+### 🌍 Internationalization (i18n)
+
+**Supported Languages (100% Interface Coverage):**
+- 🇩🇪 German (Deutsch) - Default language
+- 🇬🇧 English
+- 🇪🇸 Spanish (Español)
+- 🇫🇷 French (Français)
+- 🇮🇹 Italian (Italiano)
+- 🇵🇱 Polish (Polski)
+- 🇷🇺 Russian (Русский)
+- 🇨🇿 Czech (Čeština)
+- 🇸🇰 Slovak (Slovenčina)
+- 🇭🇺 Hungarian (Magyar)
+- 🇷🇴 Romanian (Română)
+
+**How it works:**
+- **Lazy Loading**: Only the selected language is loaded on-demand
+- **No Loading Screen**: App starts instantly in default language (German)
+- **Dynamic Switching**: Change language without page reload
+- **Persistent**: User preference saved in localStorage
+- **5 Namespaces**: common, settings, dashboard, chat, calendar
+
+**How to change language:**
+1. Go to Settings (⚙️ icon in dashboard)
+2. Scroll to "Language" / "Sprache" section
+3. Select your preferred language
+4. Click "Save" / "Speichern"
+5. Interface switches immediately ✨
+
+**Translation Files Location:**
+```
+frontend/public/locales/
+├── de/  (German)
+├── en/  (English)
+├── es/  (Spanish)
+├── fr/  (French)
+├── it/  (Italian)
+├── pl/  (Polish)
+├── ru/  (Russian)
+├── cs/  (Czech)
+├── sk/  (Slovak)
+├── hu/  (Hungarian)
+└── ro/  (Romanian)
+    ├── common.json      # Actions, navigation, status, time
+    ├── settings.json    # Bot config, language settings
+    ├── dashboard.json   # Dashboard UI, quick actions
+    ├── chat.json        # Chat interface, test chat
+    └── calendar.json    # Calendar, appointments
+```
+
+### 📱 Mobile Responsive Design
+
+**Optimized for:**
+- 📱 **Mobile Phones**: iPhone SE (375px), Standard smartphones (390px)
+- 📱 **Tablets**: iPad (768px), Android tablets
+- 💻 **Desktop**: Standard (1280px+), Large screens (1920px+)
+
+**Features:**
+- Responsive header with compact mobile layout
+- Fluid dashboard grid (1/2/4 columns)
+- Touch-friendly interface
+- Optimized text and icon sizes
+- Reduced padding and spacing on mobile
+- Hidden non-essential elements on small screens
+
+**Testing Mobile View:**
+- Firefox: `Ctrl + Shift + M` (Responsive Design Mode)
+- Chrome: `F12` → Toggle device toolbar
+- Or resize browser window
+
+---
+
+### 0.7. Production Build (Deployment)
 
 Für Production/Deployment gibt es optimierte Build-Scripts:
 
@@ -187,6 +322,9 @@ The `database` directory contains the Knex.js database schema, migrations, and s
     *   `20240723120000_create_initial_tables.ts`: Creates the initial database tables, including `bot_configs`, `appointments`, `availability_configs`, and `blackout_dates`.
     *   `20240723140000_create_chat_tables.ts`: Creates the tables for managing chat sessions and messages, including `test_chat_sessions` and `chat_messages`.
     *   `20250724144050_extend_bot_configs_table.js`: Extends the `bot_configs` table with advanced configuration fields including bot identity, personality settings, character traits, services offered, escalation rules, limitations, and generated system prompt storage.
+    *   `20250815090000_create_accounts_and_users.js`: Creates multi-tenant support with `accounts`, `users`, and `account_members` tables for user authentication and account management.
+    *   `20250815091000_add_account_id_to_existing_tables.js`: Adds `account_id` column to existing tables (`bot_configs`, `appointments`, `availability_configs`, `blackout_dates`, `services`) for multi-tenancy.
+    *   `20250930000000_add_account_id_to_test_chat_sessions.js`: **NEW (2025-10-01)** Adds `account_id` column to `test_chat_sessions` table with foreign key to `accounts` table, enabling multi-tenant chat session management.
 *   `seeds/`: This directory contains the database seed files. Each file contains data that can be used to populate the database.
     *   `01_bot_config.ts`: Populates the `bot_configs` table with initial configuration data.
 
@@ -227,6 +365,8 @@ The `components` directory contains the reusable React components that are used 
 *   `chat/ChatInput.tsx`: The chat input component. It contains the input field and the send button.
 *   `chat/MessageBubble.tsx`: The message bubble component. It displays a single chat message. **Recently updated to hide the `ToolCallDisplay` component from user view, ensuring only the AI's natural language response is shown. Also, the import for `ToolCallDisplay` was commented out.**
 *   `chat/TestChat.tsx`: The main component for the test chat interface. This component was converted to the dark theme, including its container, header, description, and loading animation. It was rebranded (`<h2>` title and `<p>` description updated from "ElysAI" to "Leyla AI"). The loading animation dots color was updated. **Recently modified to accept an `existingSessionId` prop to load previous chat messages when navigating from the "All Chat Sessions" page. It also ensures that AI responses only appear after review approval and includes robust message filtering and polling logic to handle approved and custom replies correctly, replacing pending messages.**
+    - ✨ **NEW (2025-10-01):** Implemented intelligent auto-scroll behavior that only scrolls to new messages when the user is near the bottom of the chat (within 100px), preventing interruption when reading older messages.
+    - 🐛 **FIXED (2025-10-01):** Resolved React Strict Mode double-initialization issue that caused duplicate chat sessions to be created. Added `sessionInitializedRef` and `lastSessionIdRef` flags to prevent multiple session creations during development.
 *   `chat/ToolCallDisplay.tsx`: The component for displaying the AI's tool calls. **This component is now hidden from user view and is only used for internal debugging or development purposes.**
 *   `HeaderAuth.tsx`: The authentication header component. This component was updated to match the new dark theme, rebranded (`alt` for logo and `<span>` text updated from "ElysAI" to "Leyla AI"), and its logo size was increased. Its colors were updated to the Leyla AI gradient scheme.
 *   `ui/Alert.tsx`: The alert component. It can display different types of messages (info, warning, error, success).
@@ -439,7 +579,13 @@ WASENDER_WEBHOOK_SECRET=<optional: for signature verification>
 Key backend pieces:
 
 - `backend/src/services/wasenderApiClient.ts`: minimal REST client for status, QR, send message, connect session, delete session
+    - ✨ **NEW (2025-10-01):** Added `getMessageHistory(sessionId, limit, offset)` function that attempts to retrieve historical messages from WasenderAPI by trying multiple possible endpoint patterns (`/api/whatsapp-sessions/{sessionId}/messages`, `/api/messages`, etc.)
+    - ✨ **NEW (2025-10-01):** Added `getChatList(sessionId)` function that attempts to retrieve chat/conversation lists from WasenderAPI by trying multiple possible endpoint patterns
 - `backend/src/routes/whatsapp.ts`: proxies `status`, `qr`, and `send` to WasenderAPI
+    - ✨ **NEW (2025-10-01):** Added experimental test endpoints for WasenderAPI capability discovery:
+        - `GET /api/whatsapp/test/list-sessions` → lists all WasenderAPI sessions with their IDs, status, and phone numbers
+        - `GET /api/whatsapp/test/message-history/:sessionId?limit=50&offset=0` → tests if WasenderAPI supports message history retrieval
+        - `GET /api/whatsapp/test/chat-list/:sessionId` → tests if WasenderAPI supports chat list retrieval
 - `backend/src/routes/webhooks.ts`: webhook endpoint `/api/webhooks/wasender` with optional signature verification
 - `backend/src/index.ts`: mounts the webhook route and retains raw request body for signature verification
 - `backend/src/services/whatsappService.ts`: uses `WasenderApiClient` to send outgoing messages
@@ -457,6 +603,12 @@ Per-user session endpoints (auth required):
 - `GET /api/whatsapp/user/status` → returns current status and associated `sessionId` for the logged-in user
 - `GET /api/whatsapp/user/qr` → returns `{ dataUrl }` QR PNG for the user's session
 - `DELETE /api/whatsapp/user/session` → deletes the user's Wasender session from both WasenderAPI and local database. Clears the stored `wasender_session_id` and forces creation of a new session on next `/ensure` call.
+
+**Experimental test endpoints (2025-10-01):**
+
+- `GET /api/whatsapp/test/list-sessions` → lists all available WasenderAPI sessions to help identify session IDs for testing
+- `GET /api/whatsapp/test/message-history/:sessionId` → attempts to retrieve message history from WasenderAPI (tests multiple endpoint patterns to discover if supported)
+- `GET /api/whatsapp/test/chat-list/:sessionId` → attempts to retrieve chat lists from WasenderAPI (tests multiple endpoint patterns to discover if supported)
 
 Frontend UI:
 

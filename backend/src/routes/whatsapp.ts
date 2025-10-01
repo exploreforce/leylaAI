@@ -128,4 +128,128 @@ router.delete('/user/session', requireAuth as any, asyncHandler(async (req: any,
   });
 }));
 
+// TEST: List all sessions to find session IDs
+router.get('/test/list-sessions', asyncHandler(async (req: Request, res: Response) => {
+  console.log(`🧪 TEST: Listing all WasenderAPI sessions...`);
+  
+  try {
+    const sessions = await WasenderApiClient.listSessions();
+    
+    return res.json({
+      success: true,
+      message: `Found ${sessions.length} session(s)`,
+      data: {
+        sessionCount: sessions.length,
+        sessions: sessions.map((s: any) => ({
+          sessionId: s.id || s.whatsappSession || s.sessionId,
+          name: s.name || s.label || 'Unnamed',
+          status: s.status,
+          phoneNumber: s.phoneNumber || s.phone_number || s.phone || 'N/A',
+          apiKey: s.apiKey || s.api_key ? '✓ Present' : '✗ Missing',
+          fullData: s
+        }))
+      },
+      instructions: sessions.length > 0 
+        ? 'Use one of the sessionId values above to test message history.'
+        : 'No sessions found. Create a session first via the frontend WhatsApp Link page.'
+    });
+  } catch (error: any) {
+    console.error('🧪 TEST ERROR:', error);
+    return res.status(500).json({
+      success: false,
+      error: error.message,
+      message: 'Error listing sessions'
+    });
+  }
+}));
+
+// TEST: Get message history for a session (experimental)
+router.get('/test/message-history/:sessionId', asyncHandler(async (req: Request, res: Response) => {
+  const { sessionId } = req.params;
+  const limit = parseInt(req.query.limit as string) || 50;
+  const offset = parseInt(req.query.offset as string) || 0;
+  
+  console.log(`🧪 TEST: Attempting to retrieve message history for session ${sessionId}`);
+  
+  try {
+    const messages = await WasenderApiClient.getMessageHistory(sessionId, limit, offset);
+    
+    if (messages.length > 0) {
+      return res.json({
+        success: true,
+        supported: true,
+        message: '✅ WasenderAPI supports message history retrieval!',
+        data: {
+          sessionId,
+          messageCount: messages.length,
+          messages,
+          limit,
+          offset
+        }
+      });
+    } else {
+      return res.json({
+        success: false,
+        supported: false,
+        message: '❌ WasenderAPI does not appear to support message history retrieval. Check console logs for details.',
+        data: {
+          sessionId,
+          messageCount: 0,
+          messages: [],
+          suggestion: 'Use webhooks (messages.received) to store incoming messages in real-time instead.'
+        }
+      });
+    }
+  } catch (error: any) {
+    console.error('🧪 TEST ERROR:', error);
+    return res.status(500).json({
+      success: false,
+      error: error.message,
+      message: 'Error testing message history endpoint'
+    });
+  }
+}));
+
+// TEST: Get chat list for a session (experimental)
+router.get('/test/chat-list/:sessionId', asyncHandler(async (req: Request, res: Response) => {
+  const { sessionId } = req.params;
+  
+  console.log(`🧪 TEST: Attempting to retrieve chat list for session ${sessionId}`);
+  
+  try {
+    const chats = await WasenderApiClient.getChatList(sessionId);
+    
+    if (chats.length > 0) {
+      return res.json({
+        success: true,
+        supported: true,
+        message: '✅ WasenderAPI supports chat list retrieval!',
+        data: {
+          sessionId,
+          chatCount: chats.length,
+          chats
+        }
+      });
+    } else {
+      return res.json({
+        success: false,
+        supported: false,
+        message: '❌ WasenderAPI does not appear to support chat list retrieval. Check console logs for details.',
+        data: {
+          sessionId,
+          chatCount: 0,
+          chats: []
+        }
+      });
+    }
+  } catch (error: any) {
+    console.error('🧪 TEST ERROR:', error);
+    return res.status(500).json({
+      success: false,
+      error: error.message,
+      message: 'Error testing chat list endpoint'
+    });
+  }
+}));
+
 export default router; 

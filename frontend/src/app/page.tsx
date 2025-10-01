@@ -81,24 +81,26 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-dark-900">
       <header className="bg-dark-800 shadow-2xl border-b border-elysPink-600">
-        <div className="max-w-7xl mx-auto px-4 py-6">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 py-3 sm:py-6">
           <div className="flex justify-between items-center">
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2 sm:space-x-4">
               <Image 
                 src="/branding/LeylaAI.png" 
                 alt="Leyla AI Logo" 
                 width={48} 
                 height={48}
-                className="h-12 w-auto"
+                className="h-10 sm:h-12 w-auto"
               />
-              <h1 className="text-2xl font-bold text-transparent bg-gradient-to-r from-elysPink-600 to-elysBlue-800 bg-clip-text">{t('title')}</h1>
+              <h1 className="hidden md:block text-2xl font-bold text-transparent bg-gradient-to-r from-elysPink-600 to-elysBlue-800 bg-clip-text">{t('title')}</h1>
             </div>
-            <nav className="flex space-x-4">
-              <Link href="/test-chat" className="text-elysViolet-400 hover:text-elysViolet-300 px-3 py-2 rounded-lg transition-all duration-300 hover:bg-dark-700">
-                {t('quick_actions.start_chat')}
+            <nav className="flex space-x-1 sm:space-x-4">
+              <Link href="/test-chat" className="text-elysViolet-400 hover:text-elysViolet-300 px-2 sm:px-3 py-2 rounded-lg transition-all duration-300 hover:bg-dark-700 text-sm sm:text-base">
+                <span className="hidden sm:inline">{t('quick_actions.start_chat')}</span>
+                <span className="sm:hidden">Chat</span>
               </Link>
-              <Link href="/chat-review" className="text-elysPink-400 hover:text-elysPink-300 px-3 py-2 rounded-lg flex items-center transition-all duration-300 hover:bg-dark-700">
-                {t('reviews.title')}
+              <Link href="/chat-review" className="text-elysPink-400 hover:text-elysPink-300 px-2 sm:px-3 py-2 rounded-lg flex items-center transition-all duration-300 hover:bg-dark-700 text-sm sm:text-base">
+                <span className="hidden sm:inline">{t('reviews.title')}</span>
+                <span className="sm:hidden">Review</span>
                 {stats.reviews.needsReview > 0 && (
                   <span className="ml-1 bg-elysPink-600 text-white text-xs rounded-full px-2 py-1 shadow-lg">
                     {stats.reviews.needsReview}
@@ -110,28 +112,28 @@ const Dashboard = () => {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto py-8 px-4">
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-6">
+      <main className="max-w-7xl mx-auto py-4 sm:py-8 px-3 sm:px-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6">
           
           {/* Appointments Container */}
           <div className="bg-dark-700 rounded-xl shadow-2xl border border-dark-500 hover:border-elysPink-400 transition-all duration-300 flex flex-col h-64">
-            <div className="flex items-center mb-4 space-x-3 p-6 pb-0">
-              <CalendarDaysIcon className="h-6 w-6 text-elysPink-500" />
-              <h2 className="text-lg font-semibold text-elysPink-400">{t('appointments.title')}</h2>
+            <div className="flex items-center mb-3 sm:mb-4 space-x-2 sm:space-x-3 p-4 sm:p-6 pb-0">
+              <CalendarDaysIcon className="h-5 sm:h-6 w-5 sm:w-6 text-elysPink-500" />
+              <h2 className="text-base sm:text-lg font-semibold text-elysPink-400">{t('appointments.title')}</h2>
             </div>
-            <div className="flex-1 flex items-center justify-center px-6">
-              <div className="grid grid-cols-2 gap-8 w-full text-center">
+            <div className="flex-1 flex items-center justify-center px-4 sm:px-6">
+              <div className="grid grid-cols-2 gap-4 sm:gap-8 w-full text-center">
                 <div>
-                  <div className="text-2xl font-bold text-elysPink-500 mb-1">{stats.appointments.today}</div>
+                  <div className="text-2xl sm:text-2xl font-bold text-elysPink-500 mb-1">{stats.appointments.today}</div>
                   <div className="text-xs text-dark-300">{t('appointments.today')}</div>
                 </div>
                 <div>
-                  <div className="text-2xl font-bold text-elysViolet-400 mb-1">{stats.appointments.thisWeek}</div>
+                  <div className="text-2xl sm:text-2xl font-bold text-elysViolet-400 mb-1">{stats.appointments.thisWeek}</div>
                   <div className="text-xs text-dark-300">{t('appointments.this_week')}</div>
                 </div>
               </div>
             </div>
-            <div className="p-6 pt-0">
+            <div className="p-4 sm:p-6 pt-0">
               <Link href="/calendar-new" className="block bg-gradient-to-r from-elysPink-600 to-elysViolet-600 text-white px-4 py-2.5 rounded-lg hover:from-elysPink-500 hover:to-elysBlue-700 text-center text-sm font-medium transition-all duration-300 shadow-lg hover:shadow-elysPink-500/25 hover:-translate-y-0.5">
                 {t('appointments.manage_calendar')}
               </Link>
@@ -140,15 +142,15 @@ const Dashboard = () => {
 
           {/* Current Chats Container */}
           <div className="bg-dark-700 rounded-xl shadow-2xl border border-dark-500 hover:border-elysViolet-400 transition-all duration-300 flex flex-col h-64">
-            <div className="flex items-center mb-4 space-x-3 p-6 pb-0">
-              <ChatBubbleLeftRightIcon className="h-6 w-6 text-elysViolet-500" />
-              <h2 className="text-lg font-semibold text-elysViolet-400">{t('chats.title')}</h2>
+            <div className="flex items-center mb-3 sm:mb-4 space-x-2 sm:space-x-3 p-4 sm:p-6 pb-0">
+              <ChatBubbleLeftRightIcon className="h-5 sm:h-6 w-5 sm:w-6 text-elysViolet-500" />
+              <h2 className="text-base sm:text-lg font-semibold text-elysViolet-400">{t('chats.title')}</h2>
             </div>
-            <div className="flex-1 flex flex-col items-center justify-center px-6">
-              <div className="text-4xl font-bold text-elysViolet-500 mb-2">{stats.chats.current}</div>
+            <div className="flex-1 flex flex-col items-center justify-center px-4 sm:px-6">
+              <div className="text-3xl sm:text-4xl font-bold text-elysViolet-500 mb-2">{stats.chats.current}</div>
               <div className="text-xs text-dark-300">{t('chats.active_conversations')}</div>
             </div>
-            <div className="p-6 pt-0">
+            <div className="p-4 sm:p-6 pt-0">
               <Link href="/chats" className="block bg-gradient-to-r from-elysViolet-600 to-elysBlue-700 text-white px-4 py-2.5 rounded-lg hover:from-elysViolet-500 hover:to-elysBlue-600 text-center text-sm font-medium transition-all duration-300 shadow-lg hover:shadow-elysViolet-500/25 hover:-translate-y-0.5">
                 {t('chats.view_all')}
               </Link>
@@ -157,17 +159,17 @@ const Dashboard = () => {
 
           {/* Needs Review Container */}
           <div className="bg-dark-700 rounded-xl shadow-2xl border border-dark-500 hover:border-elysPink-400 transition-all duration-300 flex flex-col h-64">
-            <div className="flex items-center mb-4 space-x-3 p-6 pb-0">
-              <ExclamationTriangleIcon className="h-6 w-6 text-elysPink-500" />
-              <h2 className="text-lg font-semibold text-elysPink-400">{t('reviews.title')}</h2>
+            <div className="flex items-center mb-3 sm:mb-4 space-x-2 sm:space-x-3 p-4 sm:p-6 pb-0">
+              <ExclamationTriangleIcon className="h-5 sm:h-6 w-5 sm:w-6 text-elysPink-500" />
+              <h2 className="text-base sm:text-lg font-semibold text-elysPink-400">{t('reviews.title')}</h2>
             </div>
-            <div className="flex-1 flex flex-col items-center justify-center px-6">
-              <div className={`text-4xl font-bold mb-2 ${stats.reviews.needsReview > 0 ? 'text-elysPink-600' : 'text-dark-400'}`}>
+            <div className="flex-1 flex flex-col items-center justify-center px-4 sm:px-6">
+              <div className={`text-3xl sm:text-4xl font-bold mb-2 ${stats.reviews.needsReview > 0 ? 'text-elysPink-600' : 'text-dark-400'}`}>
                 {stats.reviews.needsReview}
               </div>
               <div className="text-xs text-dark-300">{t('reviews.pending_approvals')}</div>
             </div>
-            <div className="p-6 pt-0">
+            <div className="p-4 sm:p-6 pt-0">
               <Link 
                 href="/chat-review" 
                 className={`block px-4 py-2.5 rounded-lg text-center text-sm font-medium transition-all duration-300 ${
@@ -183,19 +185,19 @@ const Dashboard = () => {
 
           {/* Settings Container */}
           <div className="bg-dark-700 rounded-xl shadow-2xl border border-dark-500 hover:border-elysBlue-400 transition-all duration-300 flex flex-col h-64">
-            <div className="flex items-center mb-4 space-x-3 p-6 pb-0">
-              <CogIcon className="h-6 w-6 text-elysBlue-500" />
-              <h2 className="text-lg font-semibold text-elysBlue-400">{t('settings.title')}</h2>
+            <div className="flex items-center mb-3 sm:mb-4 space-x-2 sm:space-x-3 p-4 sm:p-6 pb-0">
+              <CogIcon className="h-5 sm:h-6 w-5 sm:w-6 text-elysBlue-500" />
+              <h2 className="text-base sm:text-lg font-semibold text-elysBlue-400">{t('settings.title')}</h2>
             </div>
-            <div className="flex-1 flex items-center justify-center px-6">
+            <div className="flex-1 flex items-center justify-center px-4 sm:px-6">
               <div className="text-center">
-                <div className="w-12 h-12 bg-elysBlue-500/20 rounded-lg flex items-center justify-center mx-auto mb-3">
-                  <CogIcon className="h-6 w-6 text-elysBlue-400" />
+                <div className="w-10 sm:w-12 h-10 sm:h-12 bg-elysBlue-500/20 rounded-lg flex items-center justify-center mx-auto mb-3">
+                  <CogIcon className="h-5 sm:h-6 w-5 sm:w-6 text-elysBlue-400" />
                 </div>
                 <div className="text-xs text-dark-300">{t('settings.description')}</div>
               </div>
             </div>
-            <div className="p-6 pt-0">
+            <div className="p-4 sm:p-6 pt-0">
               <Link href="/config" className="block bg-gradient-to-r from-elysBlue-700 to-elysViolet-700 text-white px-4 py-2.5 rounded-lg hover:from-elysBlue-600 hover:to-elysViolet-600 text-center text-sm font-medium transition-all duration-300 shadow-lg hover:shadow-elysBlue-600/25 hover:-translate-y-0.5">
                 {t('settings.button')}
               </Link>

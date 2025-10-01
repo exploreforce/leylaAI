@@ -4,11 +4,9 @@ import { ReactNode, useEffect, useState } from 'react';
 import { I18nextProvider } from 'react-i18next';
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
-import { useFetch } from '@/hooks/useApi';
-import { botApi } from '@/utils/api';
 
-// Supported languages (matching our database + popular additions)
-const supportedLanguages = [
+// Supported languages - all available translations
+export const supportedLanguages = [
   // Core Languages
   'de', 'en',
   // Eastern European Languages
@@ -17,72 +15,62 @@ const supportedLanguages = [
   // Western & Southern European Languages
   'es', 'it', 'fr', 'pt', 'nl', 'el',
   // Asian Languages
-  'th', 'tl', 'vi', 'zh', 'ja', 'ko', 'hi',
+  'th', 'tl', 'vi',
   // Middle Eastern & Other
-  'tr', 'ar'
+  'tr'
 ];
 
-// Dynamic resource loader
-const loadTranslationResources = async () => {
-  const resources: any = {};
-
-  // Load core languages first (German and English)
-  const coreLanguages = ['de', 'en'];
-  
-  for (const lang of coreLanguages) {
-    resources[lang] = {};
-    try {
-      const base = `/locales/${lang}`;
-      const [common, dashboard, settings, chat, calendar] = await Promise.all([
-        fetch(`${base}/common.json`).then(r => r.json()),
-        fetch(`${base}/dashboard.json`).then(r => r.json()),
-        fetch(`${base}/settings.json`).then(r => r.json()),
-        fetch(`${base}/chat.json`).then(r => r.json()),
-        fetch(`${base}/calendar.json`).then(r => r.json()),
-      ]);
-      resources[lang] = { common, dashboard, settings, chat, calendar };
-    } catch (error) {
-      console.error(`Failed to load core translations for ${lang}:`, error);
-    }
+// Lazy load a language's translations
+const loadLanguageResources = async (lang: string) => {
+  try {
+    const base = `/locales/${lang}`;
+    const [common, dashboard, settings, chat, calendar] = await Promise.all([
+      fetch(`${base}/common.json`).then(r => r.json()),
+      fetch(`${base}/dashboard.json`).then(r => r.json()),
+      fetch(`${base}/settings.json`).then(r => r.json()),
+      fetch(`${base}/chat.json`).then(r => r.json()),
+      fetch(`${base}/calendar.json`).then(r => r.json()),
+    ]);
+    return { common, dashboard, settings, chat, calendar };
+  } catch (error) {
+    console.error(`Failed to load translations for ${lang}:`, error);
+    throw error;
   }
+};
 
-  // Load other languages asynchronously
-  for (const lang of supportedLanguages) {
-    if (!coreLanguages.includes(lang)) {
-      try {
-        const base = `/locales/${lang}`;
-        const [common, dashboard, settings, chat, calendar] = await Promise.all([
-          fetch(`${base}/common.json`).then(r => r.json()),
-          fetch(`${base}/dashboard.json`).then(r => r.json()),
-          fetch(`${base}/settings.json`).then(r => r.json()),
-          fetch(`${base}/chat.json`).then(r => r.json()),
-          fetch(`${base}/calendar.json`).then(r => r.json()),
-        ]);
-        resources[lang] = { common, dashboard, settings, chat, calendar };
-      } catch (error) {
-        console.warn(`Failed to load translations for ${lang}, using fallback:`, error);
-        resources[lang] = resources['en'];
-      }
-    }
+// Load only the default language initially (German)
+const loadInitialResources = async () => {
+  const defaultLang = 'de';
+  const resources: any = {};
+  
+  try {
+    console.log(`🌍 Loading initial language: ${defaultLang}`);
+    resources[defaultLang] = await loadLanguageResources(defaultLang);
+    console.log(`✅ Initial language loaded: ${defaultLang}`);
+  } catch (error) {
+    console.error('Failed to load initial language, app may not work correctly');
   }
 
   return resources;
 };
 
-// Initialize i18n
+// Initialize i18n with only German
 const initI18n = async () => {
   if (i18n.isInitialized) {
     return;
   }
 
-  const resources = await loadTranslationResources();
+  // Get user's preferred language from localStorage, default to 'de'
+  const preferredLanguage = localStorage.getItem('preferredLanguage') || 'de';
+  
+  const resources = await loadInitialResources();
 
   i18n
     .use(initReactI18next)
     .init({
       fallbackLng: 'de',
-      lng: 'de',
-      debug: process.env.NODE_ENV === 'development',
+      lng: preferredLanguage,
+      debug: false,
       
       interpolation: {
         escapeValue: false,
@@ -93,6 +81,8 @@ const initI18n = async () => {
       defaultNS: 'common',
       ns: ['common', 'dashboard', 'settings', 'chat', 'calendar'],
     });
+
+  console.log(`🌍 i18n initialized with language: ${preferredLanguage}`);
 };
 
 interface DynamicTranslationProviderProps {
@@ -101,74 +91,88 @@ interface DynamicTranslationProviderProps {
 
 export const DynamicTranslationProvider = ({ children }: DynamicTranslationProviderProps) => {
   const [isInitialized, setIsInitialized] = useState(false);
-  const [currentLanguage, setCurrentLanguage] = useState<string>('de');
-  const [refreshTrigger, setRefreshTrigger] = useState(0);
-  
-  // Fetch current language from backend
-  const { data: languageData, refetch } = useFetch(
-    () => botApi.getCurrentLanguage(),
-    [refreshTrigger], // Re-run when refresh is triggered
-    {
-      onSuccess: (data) => {
-        if (data?.data?.language_code && data.data.language_code !== currentLanguage) {
-          console.log(`🔄 Language updated from backend: ${currentLanguage} → ${data.data.language_code}`);
-          setCurrentLanguage(data.data.language_code);
-        }
-      }
-    }
+  const [currentLanguage, setCurrentLanguage] = useState<string>(
+    typeof window !== 'undefined' ? (localStorage.getItem('preferredLanguage') || 'de') : 'de'
   );
+  const [isChangingLanguage, setIsChangingLanguage] = useState(false);
 
-  // Initialize i18n
+  // Initialize i18n on mount
   useEffect(() => {
     initI18n().then(() => {
       setIsInitialized(true);
+      console.log('✅ i18n initialized');
     }).catch((error) => {
       console.error('Failed to initialize i18n:', error);
       setIsInitialized(true); // Still render, might work with fallbacks
     });
   }, []);
 
-  // Update i18n language when current language changes
-  useEffect(() => {
-    if (isInitialized && i18n.isInitialized && currentLanguage !== i18n.language) {
-      console.log(`🌍 Changing UI language from ${i18n.language} to ${currentLanguage}`);
-      i18n.changeLanguage(currentLanguage).then(() => {
-        console.log(`✅ Language changed to ${currentLanguage}`);
-        // Force a re-render by dispatching a custom event
-        window.dispatchEvent(new CustomEvent('languageChanged', { detail: currentLanguage }));
-      });
+  // Lazy load and change language
+  const changeLanguage = async (newLang: string) => {
+    if (!i18n.isInitialized || newLang === currentLanguage) {
+      return;
     }
-  }, [currentLanguage, isInitialized]);
 
-  // Set initial language from backend data
-  useEffect(() => {
-    if (languageData?.data?.language_code) {
-      setCurrentLanguage(languageData.data.language_code);
+    setIsChangingLanguage(true);
+    console.log(`🌍 Changing language to: ${newLang}`);
+
+    try {
+      // Check if language is already loaded
+      if (!i18n.hasResourceBundle(newLang, 'common')) {
+        console.log(`📦 Lazy loading translations for: ${newLang}`);
+        const resources = await loadLanguageResources(newLang);
+        
+        // Add resources to i18n
+        Object.keys(resources).forEach((ns) => {
+          i18n.addResourceBundle(newLang, ns, resources[ns as keyof typeof resources], true, true);
+        });
+        
+        console.log(`✅ Translations loaded for: ${newLang}`);
+      }
+
+      // Change language
+      await i18n.changeLanguage(newLang);
+      setCurrentLanguage(newLang);
+      
+      // Save to localStorage
+      localStorage.setItem('preferredLanguage', newLang);
+      
+      console.log(`✅ Language changed to: ${newLang}`);
+    } catch (error) {
+      console.error(`Failed to change language to ${newLang}:`, error);
+      // Fallback to German if loading fails
+      await i18n.changeLanguage('de');
+    } finally {
+      setIsChangingLanguage(false);
     }
-  }, [languageData]);
+  };
 
-  // Listen for manual language refresh events
+  // Listen for language change events
   useEffect(() => {
-    const handleLanguageRefresh = () => {
-      console.log('🔄 Manual language refresh triggered');
-      setRefreshTrigger(prev => prev + 1);
+    const handleLanguageChange = (event: CustomEvent<string>) => {
+      const newLang = event.detail;
+      if (newLang && newLang !== currentLanguage) {
+        changeLanguage(newLang);
+      }
     };
 
-    window.addEventListener('refreshLanguage', handleLanguageRefresh);
-    return () => window.removeEventListener('refreshLanguage', handleLanguageRefresh);
-  }, []);
+    window.addEventListener('changeLanguage', handleLanguageChange as EventListener);
+    return () => window.removeEventListener('changeLanguage', handleLanguageChange as EventListener);
+  }, [currentLanguage]);
 
+  // No loading screen - render immediately!
   if (!isInitialized) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-elysPink-600"></div>
-        <span className="ml-2 text-dark-200">Loading translations...</span>
-      </div>
-    );
+    return <div className="min-h-screen bg-dark-900">{children}</div>;
   }
 
   return (
-    <I18nextProvider i18n={i18n} key={currentLanguage}>
+    <I18nextProvider i18n={i18n}>
+      {isChangingLanguage && (
+        <div className="fixed top-4 right-4 z-50 bg-dark-700 text-dark-50 px-4 py-2 rounded-lg shadow-lg border border-dark-600 flex items-center space-x-2">
+          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-elysPink-600"></div>
+          <span className="text-sm">Loading language...</span>
+        </div>
+      )}
       {children}
     </I18nextProvider>
   );

@@ -442,63 +442,96 @@ const ServicesManagement = ({
   );
 };
 
-// Language Settings Component
+// Language name mapping
+const languageNames: Record<string, string> = {
+  // Core Languages
+  'de': 'Deutsch',
+  'en': 'English',
+  // Eastern European Languages
+  'ru': 'Русский',
+  'pl': 'Polski',
+  'cs': 'Čeština',
+  'sk': 'Slovenčina',
+  'hu': 'Magyar',
+  'ro': 'Română',
+  'bg': 'български език',
+  'sr': 'српски језик',
+  'hr': 'Hrvatski',
+  'sl': 'Slovenski',
+  'bs': 'Bosanski',
+  'mk': 'македонски јазик',
+  'sq': 'Shqip',
+  'lv': 'Latviešu',
+  'lt': 'Lietuvių',
+  'et': 'Eesti',
+  'uk': 'українська',
+  'be': 'беларуская',
+  // Western & Southern European Languages
+  'es': 'Español',
+  'it': 'Italiano',
+  'fr': 'Français',
+  'pt': 'Português',
+  'nl': 'Nederlands',
+  'el': 'Ελληνικά',
+  // Asian Languages
+  'th': 'ไทย',
+  'tl': 'Filipino',
+  'vi': 'Tiếng Việt',
+  // Middle Eastern & Other
+  'tr': 'Türkçe',
+};
+
+// Language Settings Component (NEW - No Backend, uses localStorage + lazy loading)
 const LanguageSettings = () => {
-  const { t } = useTranslation('settings');
-  const { t: tCommon } = useTranslation('common');
-  const { data: languages, isLoading: languagesLoading } = useFetch(() => botApi.getLanguages(), []);
-  const { data: currentLanguage, isLoading: currentLoading, refetch: refetchCurrent } = useFetch(() => botApi.getCurrentLanguage(), []);
-  const { execute: updateLanguage, isLoading: isUpdating } = useApi();
-  
-  const [selectedLanguage, setSelectedLanguage] = useState<string>('de');
+  const { t, i18n } = useTranslation('settings');
+  const [selectedLanguage, setSelectedLanguage] = useState<string>(
+    typeof window !== 'undefined' ? (localStorage.getItem('preferredLanguage') || 'de') : 'de'
+  );
   const [saveSuccess, setSaveSuccess] = useState(false);
 
-  // Update selected language when current language loads
-  useEffect(() => {
-    if (currentLanguage?.data?.language_code) {
-      setSelectedLanguage(currentLanguage.data.language_code);
-    }
-  }, [currentLanguage]);
+  // Get available languages from provider
+  // ✅ Vollständig übersetzte Sprachen (100% Interface)
+  const availableLanguages = [
+    { code: 'de', name: 'Deutsch' },
+    { code: 'en', name: 'English' },
+    { code: 'es', name: 'Español' },
+    { code: 'fr', name: 'Français' },
+    { code: 'it', name: 'Italiano' },
+    { code: 'pl', name: 'Polski' },
+    { code: 'ru', name: 'Русский' },
+    { code: 'cs', name: 'Čeština' },
+    { code: 'sk', name: 'Slovenčina' },
+    { code: 'hu', name: 'Magyar' },
+    { code: 'ro', name: 'Română' },
+    // ⚠️ Teilweise übersetzt (nur Language Names, ~5% Interface)
+    { code: 'bg', name: 'Български' },
+    { code: 'sr', name: 'Српски' },
+    { code: 'hr', name: 'Hrvatski' },
+    { code: 'sl', name: 'Slovenski' },
+    { code: 'bs', name: 'Bosanski' },
+    { code: 'pt', name: 'Português' },
+    { code: 'nl', name: 'Nederlands' },
+    { code: 'el', name: 'Ελληνικά' },
+    { code: 'th', name: 'ไทย' },
+    { code: 'tl', name: 'Filipino' },
+    { code: 'vi', name: 'Tiếng Việt' },
+    { code: 'tr', name: 'Türkçe' },
+  ];
 
   const handleLanguageChange = (languageCode: string) => {
     setSelectedLanguage(languageCode);
   };
 
-  const handleSave = async () => {
-    try {
-      await updateLanguage(() => botApi.updateLanguage(selectedLanguage));
-      setSaveSuccess(true);
-      setTimeout(() => setSaveSuccess(false), 3000);
-      refetchCurrent();
-      
-      // Trigger immediate language refresh in the provider
-      console.log('🔄 Triggering language refresh event...');
-      window.dispatchEvent(new CustomEvent('refreshLanguage'));
-      
-      // Also trigger delayed refreshes to ensure UI updates
-      setTimeout(() => {
-        window.dispatchEvent(new CustomEvent('refreshLanguage'));
-        console.log('🔄 Second language refresh triggered');
-      }, 500);
-      
-      setTimeout(() => {
-        window.dispatchEvent(new CustomEvent('refreshLanguage'));
-        console.log('🔄 Third language refresh triggered');
-      }, 1500);
-      
-    } catch (error) {
-      console.error('Failed to update language:', error);
-    }
+  const handleSave = () => {
+    // Trigger language change in the provider
+    console.log(`🌍 Changing language to: ${selectedLanguage}`);
+    window.dispatchEvent(new CustomEvent('changeLanguage', { detail: selectedLanguage }));
+    
+    setSaveSuccess(true);
+    setTimeout(() => setSaveSuccess(false), 3000);
   };
 
-  if (languagesLoading || currentLoading) {
-    return (
-      <div className="flex items-center justify-center p-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-elysPink-600"></div>
-        <span className="ml-2">{t('language.loading')}</span>
-      </div>
-    );
-  }
+  const currentLanguageName = languageNames[i18n.language] || 'Deutsch';
 
   return (
     <div className="space-y-6">
@@ -523,31 +556,31 @@ const LanguageSettings = () => {
                 {t('language.select_language')}
               </label>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                {languages?.data?.map((language: any) => (
+                {availableLanguages.map((language) => (
                   <button
-                    key={language.language_code}
+                    key={language.code}
                     type="button"
-                    onClick={() => handleLanguageChange(language.language_code)}
+                    onClick={() => handleLanguageChange(language.code)}
                     className={`p-3 text-left rounded-lg border-2 transition-all duration-200 relative ${
-                      selectedLanguage === language.language_code
+                      selectedLanguage === language.code
                         ? 'border-elysPink-500 bg-gradient-to-r from-elysPink-500/20 to-elysViolet-500/20 text-elysPink-300 shadow-lg shadow-elysPink-500/25 ring-1 ring-elysPink-500/50'
                         : 'border-dark-600 bg-dark-700 text-dark-200 hover:border-dark-500 hover:text-dark-100 hover:bg-dark-600'
                     }`}
                   >
-                    {selectedLanguage === language.language_code && (
+                    {selectedLanguage === language.code && (
                       <div className="absolute top-2 right-2">
                         <CheckIcon className="h-5 w-5 text-elysPink-400" />
                       </div>
                     )}
                     <div className={`font-medium pr-6 ${
-                      selectedLanguage === language.language_code ? 'text-elysPink-200' : ''
+                      selectedLanguage === language.code ? 'text-elysPink-200' : ''
                     }`}>
-                      {language.language_name}
+                      {language.name}
                     </div>
                     <div className={`text-xs uppercase mt-1 ${
-                      selectedLanguage === language.language_code ? 'text-elysPink-400' : 'text-dark-400'
+                      selectedLanguage === language.code ? 'text-elysPink-400' : 'text-dark-400'
                     }`}>
-                      {language.language_code}
+                      {language.code}
                     </div>
                   </button>
                 ))}
@@ -556,24 +589,15 @@ const LanguageSettings = () => {
 
             <div className="flex items-center justify-between pt-4 border-t border-dark-600">
               <div className="text-sm text-dark-400">
-                Aktuelle Sprache: {currentLanguage?.data?.language_name || 'Deutsch (German)'}
+                Current language: {currentLanguageName}
               </div>
               <Button
                 onClick={handleSave}
-                disabled={isUpdating || selectedLanguage === currentLanguage?.data?.language_code}
+                disabled={selectedLanguage === i18n.language}
                 className="flex items-center space-x-2"
               >
-                {isUpdating ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                    <span>Speichere...</span>
-                  </>
-                ) : (
-                  <>
-                    <CheckIcon className="h-4 w-4" />
-                    <span>Speichern</span>
-                  </>
-                )}
+                <CheckIcon className="h-4 w-4" />
+                <span>{t('common.save')}</span>
               </Button>
             </div>
           </div>

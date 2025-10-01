@@ -15,9 +15,26 @@ const TestChat = ({ existingSessionId }: TestChatProps) => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const previousMessageCountRef = useRef<number>(0);
+  const sessionInitializedRef = useRef<boolean>(false);
+  const lastSessionIdRef = useRef<string | null>(null);
 
   useEffect(() => {
+    // Reset flag if sessionId changed (navigating to different session)
+    if (lastSessionIdRef.current !== existingSessionId) {
+      sessionInitializedRef.current = false;
+      lastSessionIdRef.current = existingSessionId || null;
+    }
+
+    // Prevent double initialization in React StrictMode (Development)
+    if (sessionInitializedRef.current) {
+      console.log('⏭️ Session already initialized, skipping...');
+      return;
+    }
+
     const initializeSession = async () => {
+      sessionInitializedRef.current = true;
       setIsLoading(true);
       try {
         if (existingSessionId) {
@@ -67,8 +84,32 @@ const TestChat = ({ existingSessionId }: TestChatProps) => {
     initializeSession();
   }, [existingSessionId]);
 
+  // Intelligent auto-scroll: Only scroll when new messages arrive AND user is near bottom
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    const hasNewMessages = messages.length > previousMessageCountRef.current;
+    
+    if (!hasNewMessages) {
+      previousMessageCountRef.current = messages.length;
+      return;
+    }
+
+    // Check if user is near the bottom of the chat (within 100px)
+    const container = messagesContainerRef.current;
+    if (container) {
+      const isNearBottom = 
+        container.scrollHeight - container.scrollTop - container.clientHeight < 100;
+      
+      if (isNearBottom) {
+        // User is at the bottom, auto-scroll to new message
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+      }
+      // If user is scrolling up to read old messages, don't interrupt them
+    } else {
+      // No container ref (initial load), always scroll
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    previousMessageCountRef.current = messages.length;
   }, [messages]);
 
   // Refresh session messages every 5 seconds to get approved messages
@@ -269,7 +310,7 @@ const TestChat = ({ existingSessionId }: TestChatProps) => {
         <h2 className="text-lg font-semibold text-dark-50">Leyla AI Chat</h2>
         <p className="text-sm text-dark-300">Experience intelligent conversation with Leyla AI.</p>
       </div>
-      <div className="flex-1 p-4 overflow-y-auto">
+      <div ref={messagesContainerRef} className="flex-1 p-4 overflow-y-auto">
         {messages.map((msg) => (
           <MessageBubbleWithTranslation 
             key={msg.id} 
