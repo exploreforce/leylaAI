@@ -194,32 +194,32 @@ export default function ChatDetailReview() {
     <div className="min-h-screen bg-dark-900">
       {/* Header */}
       <header className="bg-dark-800 shadow-2xl border-b border-elysPink-600">
-        <div className="max-w-4xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
+        <div className="max-w-4xl mx-auto px-3 sm:px-4 py-3 sm:py-4">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center space-x-2 sm:space-x-3 min-w-0">
               <Image 
                 src="/branding/LeylaAI.png" 
                 alt="Leyla AI Logo" 
                 width={32} 
                 height={32}
-                className="h-8 w-auto"
+                className="h-7 sm:h-8 w-auto flex-shrink-0"
               />
               <button 
                 onClick={() => router.push('/chat-review')}
-                className="text-elysViolet-400 hover:text-elysViolet-300 transition-colors"
+                className="text-elysViolet-400 hover:text-elysViolet-300 transition-colors text-sm sm:text-base px-2 py-2 min-h-[44px] flex items-center flex-shrink-0"
               >
-                ← Back
+                ← <span className="hidden sm:inline ml-1">Back</span>
               </button>
-              <h1 className="text-xl font-bold text-dark-50">{chat.title}</h1>
+              <h1 className="text-sm sm:text-xl font-bold text-dark-50 truncate">{chat.title}</h1>
             </div>
           </div>
         </div>
       </header>
 
-      <div className="max-w-4xl mx-auto py-8 px-4">
+      <div className="max-w-4xl mx-auto py-4 sm:py-8 px-3 sm:px-4">
         {/* Chat Messages History */}
-        <div className="bg-dark-700 rounded-xl shadow-2xl p-4 mb-6 max-h-60 overflow-y-auto border border-dark-600">
-          <h3 className="font-medium text-dark-50 mb-3">Conversation History</h3>
+        <div className="bg-dark-700 rounded-xl shadow-2xl p-3 sm:p-4 mb-4 sm:mb-6 max-h-60 overflow-y-auto border border-dark-600">
+          <h3 className="font-medium text-dark-50 mb-3 text-sm sm:text-base">Conversation History</h3>
           <div className="space-y-2">
             {chat.messages.slice(0, -1).map((message) => (
               <MessageBubbleWithTranslation
@@ -236,9 +236,9 @@ export default function ChatDetailReview() {
         {/* Swipe Card for Pending Reply */}
         {!showCustomReply && (
           <div className="relative">
-            <div className="text-center mb-4">
-              <div className="text-sm text-dark-200 mb-2">Swipe to review AI response</div>
-              <div className="flex justify-center space-x-8 text-xs">
+            <div className="text-center mb-3 sm:mb-4">
+              <div className="text-xs sm:text-sm text-dark-200 mb-2">Swipe to review AI response</div>
+              <div className="flex justify-center space-x-4 sm:space-x-8 text-xs">
                 <span className="text-elysPink-400">← Reject</span>
                 <span className="text-success-400">Accept →</span>
               </div>

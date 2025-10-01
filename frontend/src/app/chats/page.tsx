@@ -233,30 +233,35 @@ export default function AllChatsPage() {
     <div className="min-h-screen bg-dark-900">
       {/* Header */}
       <header className="bg-dark-800 shadow-2xl border-b border-rouge-600">
-        <div className="max-w-7xl mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 py-3 sm:py-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
+            <div className="flex items-center space-x-2 sm:space-x-3">
               <Image 
                 src="/branding/LeylaAI.png" 
                 alt="Leyla AI Logo" 
                 width={40} 
                 height={40}
-                className="h-10 w-auto"
+                className="h-8 sm:h-10 w-auto"
               />
-              <h1 className="text-2xl font-bold text-dark-50">Conversation History</h1>
+              <h1 className="text-base sm:text-2xl font-bold text-dark-50">
+                <span className="hidden sm:inline">Conversation History</span>
+                <span className="sm:hidden">Chats</span>
+              </h1>
             </div>
-            <div className="flex space-x-3">
+            <div className="flex space-x-2 sm:space-x-3 w-full sm:w-auto">
               <Link 
                 href="/test-chat" 
-                className="bg-gradient-to-r from-luxe-500 to-luxe-600 text-white px-4 py-2 rounded-lg hover:from-luxe-600 hover:to-rouge-600 transition-all duration-300 shadow-lg"
+                className="flex-1 sm:flex-initial bg-gradient-to-r from-luxe-500 to-luxe-600 text-white px-3 sm:px-4 py-2.5 rounded-lg hover:from-luxe-600 hover:to-rouge-600 transition-all duration-300 shadow-lg text-center text-sm sm:text-base min-h-[44px] flex items-center justify-center"
               >
-                + New AI Chat
+                <span className="hidden sm:inline">+ New AI Chat</span>
+                <span className="sm:hidden">+ New Chat</span>
               </Link>
               <Link 
                 href="/" 
-                className="text-elysViolet-400 hover:text-elysViolet-300 px-3 py-2 rounded transition-colors"
+                className="text-elysViolet-400 hover:text-elysViolet-300 px-3 py-2.5 rounded transition-colors text-sm sm:text-base min-h-[44px] flex items-center"
               >
-                {t('common.back_to_dashboard')}
+                <span className="hidden sm:inline">{t('common.back_to_dashboard')}</span>
+                <span className="sm:hidden">←</span>
               </Link>
             </div>
           </div>
@@ -264,32 +269,32 @@ export default function AllChatsPage() {
       </header>
 
       {/* Filters and Stats */}
-      <div className="max-w-7xl mx-auto px-4 py-4">
-        <div className="flex items-center justify-between mb-6">
-          <div className="text-sm text-dark-200">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 py-3 sm:py-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0 mb-4 sm:mb-6">
+          <div className="text-xs sm:text-sm text-dark-200">
             {filteredSessions.length} von {sessions.length} Chat Session{filteredSessions.length !== 1 ? 's' : ''}
             {filterStatus !== 'all' && ` (${getStatusLabel(filterStatus)} gefiltert)`}
           </div>
           
-          <div className="relative flex space-x-2">
+          <div className="relative flex space-x-2 w-full sm:w-auto">
             <button
               onClick={loadSessions}
-              className="flex items-center space-x-2 bg-dark-700 text-dark-200 px-4 py-2 rounded-lg hover:bg-dark-600 transition-colors border border-dark-600"
+              className="flex-1 sm:flex-initial flex items-center justify-center space-x-1.5 sm:space-x-2 bg-dark-700 text-dark-200 px-3 sm:px-4 py-2.5 rounded-lg hover:bg-dark-600 transition-colors border border-dark-600 min-h-[44px]"
               title="Refresh chats"
             >
               <ArrowPathIcon className="h-4 w-4" />
-              <span>Refresh</span>
+              <span className="text-sm sm:text-base">Refresh</span>
             </button>
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className="flex items-center space-x-2 bg-dark-700 text-dark-200 px-4 py-2 rounded-lg hover:bg-dark-600 transition-colors border border-dark-600"
+              className="flex-1 sm:flex-initial flex items-center justify-center space-x-1.5 sm:space-x-2 bg-dark-700 text-dark-200 px-3 sm:px-4 py-2.5 rounded-lg hover:bg-dark-600 transition-colors border border-dark-600 min-h-[44px]"
             >
               <FunnelIcon className="h-4 w-4" />
-              <span>Filter</span>
+              <span className="text-sm sm:text-base">Filter</span>
             </button>
             
             {showFilters && (
-              <div className="absolute right-0 mt-2 w-48 bg-dark-700 border border-dark-600 rounded-lg shadow-xl z-10">
+              <div className="absolute right-0 top-full mt-2 w-full sm:w-48 bg-dark-700 border border-dark-600 rounded-lg shadow-xl z-10">
                 {[
                   {key: 'all', label: t('chat_list.filters.all')}, 
                   {key: 'active', label: t('chat_list.filters.active')}, 
@@ -302,12 +307,12 @@ export default function AllChatsPage() {
                       setFilterStatus(key as FilterStatus);
                       setShowFilters(false);
                     }}
-                    className={`w-full text-left px-4 py-2 hover:bg-dark-600 transition-colors first:rounded-t-lg last:rounded-b-lg ${
+                    className={`w-full text-left px-4 py-3 hover:bg-dark-600 transition-colors first:rounded-t-lg last:rounded-b-lg min-h-[44px] ${
                       filterStatus === key ? 'text-luxe-400' : 'text-dark-200'
                     }`}
                   >
                     <div className="flex items-center justify-between">
-                      <span>{label}</span>
+                      <span className="text-sm sm:text-base">{label}</span>
                       {filterStatus === key && <CheckIcon className="h-4 w-4" />}
                     </div>
                   </button>
@@ -319,7 +324,7 @@ export default function AllChatsPage() {
       </div>
 
       {/* Chat Sessions List */}
-      <main className="max-w-7xl mx-auto py-0 px-4">
+      <main className="max-w-7xl mx-auto py-0 px-3 sm:px-4">
         {filteredSessions.length === 0 ? (
           sessions.length === 0 ? (
             <div className="bg-dark-700 rounded-xl shadow-2xl p-8 text-center border border-dark-600">
@@ -356,54 +361,58 @@ export default function AllChatsPage() {
             </div>
           )
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             {filteredSessions.map((session) => (
-              <div key={session.id} className="bg-dark-700 rounded-xl shadow-2xl hover:shadow-rouge-500/20 transition-all duration-300 p-6 border border-dark-600 hover:border-rouge-500">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center mb-3">
-                      <span className={`inline-block w-3 h-3 rounded-full ${getStatusColor(session.status)} mr-3 shadow-lg`}></span>
-                      {session.sessionType === 'whatsapp' && (
-                        <PhoneIcon className="w-5 h-5 text-green-400 mr-2" />
-                      )}
-                      <h3 className="font-semibold text-dark-50 text-lg">
-                        {getSessionTitle(session)}
-                      </h3>
-                      <span className={`ml-3 text-xs px-2 py-1 rounded-full ${
-                        session.status === 'active' ? 'bg-success-500/20 text-success-300 border border-success-500/30' :
-                        session.status === 'archived' ? 'bg-dark-500/20 text-dark-300 border border-dark-500/30' :
-                        'bg-orange-500/20 text-orange-300 border border-orange-500/30'
-                      }`}>
-                        {getStatusLabel(session.status)}
-                      </span>
-                      {session.isFlagged && (
-                        <span className="ml-2 text-xs bg-red-600/20 text-red-300 border border-red-600/30 px-2 py-1 rounded-full shadow-lg">
-                          RED FLAG
+              <div key={session.id} className="bg-dark-700 rounded-xl shadow-2xl hover:shadow-rouge-500/20 transition-all duration-300 p-4 sm:p-6 border border-dark-600 hover:border-rouge-500">
+                <div className="flex flex-col sm:flex-row items-start justify-between gap-3 sm:gap-0">
+                  <div className="flex-1 w-full">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-0 mb-3">
+                      <div className="flex items-center flex-wrap gap-2">
+                        <span className={`inline-block w-3 h-3 rounded-full ${getStatusColor(session.status)} shadow-lg flex-shrink-0`}></span>
+                        {session.sessionType === 'whatsapp' && (
+                          <PhoneIcon className="w-4 sm:w-5 h-4 sm:h-5 text-green-400 flex-shrink-0" />
+                        )}
+                        <h3 className="font-semibold text-dark-50 text-base sm:text-lg">
+                          {getSessionTitle(session)}
+                        </h3>
+                      </div>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className={`text-xs px-2 py-1 rounded-full ${
+                          session.status === 'active' ? 'bg-success-500/20 text-success-300 border border-success-500/30' :
+                          session.status === 'archived' ? 'bg-dark-500/20 text-dark-300 border border-dark-500/30' :
+                          'bg-orange-500/20 text-orange-300 border border-orange-500/30'
+                        }`}>
+                          {getStatusLabel(session.status)}
                         </span>
-                      )}
-                      {session.stats.draftMessages > 0 && (
-                        <span className="ml-2 text-xs bg-rouge-500 text-white px-2 py-1 rounded-full shadow-lg">
-                          {session.stats.draftMessages} Draft{session.stats.draftMessages !== 1 ? 's' : ''}
-                        </span>
-                      )}
+                        {session.isFlagged && (
+                          <span className="text-xs bg-red-600/20 text-red-300 border border-red-600/30 px-2 py-1 rounded-full shadow-lg">
+                            RED FLAG
+                          </span>
+                        )}
+                        {session.stats.draftMessages > 0 && (
+                          <span className="text-xs bg-rouge-500 text-white px-2 py-1 rounded-full shadow-lg">
+                            {session.stats.draftMessages} Draft{session.stats.draftMessages !== 1 ? 's' : ''}
+                          </span>
+                        )}
+                      </div>
                     </div>
                     
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                      <div className="text-center p-3 bg-dark-600 rounded-lg border border-elysPink-400/20">
-                        <div className="text-2xl font-bold text-elysPink-400">{session.stats.totalMessages}</div>
-                        <div className="text-xs text-elysPink-300">Total Messages</div>
+                    <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4 mb-4">
+                      <div className="text-center p-2 sm:p-3 bg-dark-600 rounded-lg border border-elysPink-400/20">
+                        <div className="text-lg sm:text-2xl font-bold text-elysPink-400">{session.stats.totalMessages}</div>
+                        <div className="text-xs text-elysPink-300">Total</div>
                       </div>
-                      <div className="text-center p-3 bg-dark-600 rounded-lg border border-success-500/20">
-                        <div className="text-2xl font-bold text-success-400">{session.stats.userMessages}</div>
-                        <div className="text-xs text-success-300">User Messages</div>
+                      <div className="text-center p-2 sm:p-3 bg-dark-600 rounded-lg border border-success-500/20">
+                        <div className="text-lg sm:text-2xl font-bold text-success-400">{session.stats.userMessages}</div>
+                        <div className="text-xs text-success-300">User</div>
                       </div>
-                      <div className="text-center p-3 bg-dark-600 rounded-lg border border-elysViolet-500/20">
-                        <div className="text-2xl font-bold text-elysViolet-400">{session.stats.assistantMessages}</div>
-                        <div className="text-xs text-elysViolet-300">AI Messages</div>
+                      <div className="text-center p-2 sm:p-3 bg-dark-600 rounded-lg border border-elysViolet-500/20">
+                        <div className="text-lg sm:text-2xl font-bold text-elysViolet-400">{session.stats.assistantMessages}</div>
+                        <div className="text-xs text-elysViolet-300">AI</div>
                       </div>
-                      <div className="text-center p-3 bg-dark-600 rounded-lg border border-elysPink-500/20">
-                        <div className="text-2xl font-bold text-elysPink-400">{session.stats.draftMessages}</div>
-                        <div className="text-xs text-elysPink-300">Pending Drafts</div>
+                      <div className="text-center p-2 sm:p-3 bg-dark-600 rounded-lg border border-elysPink-500/20">
+                        <div className="text-lg sm:text-2xl font-bold text-elysPink-400">{session.stats.draftMessages}</div>
+                        <div className="text-xs text-elysPink-300">Drafts</div>
                       </div>
                     </div>
 
@@ -467,49 +476,53 @@ export default function AllChatsPage() {
                     </div>
                   </div>
                   
-                  <div className="ml-6 flex flex-col space-y-2">
+                  <div className="w-full sm:w-auto sm:ml-6 flex flex-row sm:flex-col gap-2 mt-3 sm:mt-0">
                     <button
                       onClick={() => handleOpenSession(session.id)}
-                      className="bg-dark-600 text-elysViolet-400 px-4 py-2 rounded-lg hover:bg-elysViolet-600 hover:text-white text-sm font-semibold border border-elysViolet-500/30 hover:border-elysViolet-500 transition-all duration-300 flex items-center justify-center"
+                      className="flex-1 sm:flex-initial bg-dark-600 text-elysViolet-400 px-3 sm:px-4 py-2.5 rounded-lg hover:bg-elysViolet-600 hover:text-white text-xs sm:text-sm font-semibold border border-elysViolet-500/30 hover:border-elysViolet-500 transition-all duration-300 flex items-center justify-center min-h-[44px]"
                     >
-                      <ChatBubbleLeftRightIcon className="h-4 w-4 mr-2" />
-                      {t('chat_list.actions.open')}
+                      <ChatBubbleLeftRightIcon className="h-4 w-4 mr-1.5 sm:mr-2" />
+                      <span className="hidden sm:inline">{t('chat_list.actions.open')}</span>
+                      <span className="sm:hidden">Open</span>
                     </button>
                     
                     {session.stats.draftMessages > 0 && (
                       <Link
                         href={`/chat-review/test-${session.id}`}
-                        className="bg-gradient-to-r from-elysPink-500 to-elysViolet-600 text-white px-4 py-2 rounded-lg hover:from-elysPink-600 hover:to-elysBlue-700 text-sm text-center font-semibold transition-all duration-300 shadow-lg flex items-center justify-center"
+                        className="flex-1 sm:flex-initial bg-gradient-to-r from-elysPink-500 to-elysViolet-600 text-white px-3 sm:px-4 py-2.5 rounded-lg hover:from-elysPink-600 hover:to-elysBlue-700 text-xs sm:text-sm text-center font-semibold transition-all duration-300 shadow-lg flex items-center justify-center min-h-[44px]"
                       >
-                        <DocumentTextIcon className="h-4 w-4 mr-2" />
-                        Review Drafts
+                        <DocumentTextIcon className="h-4 w-4 mr-1.5 sm:mr-2" />
+                        <span className="hidden sm:inline">Review Drafts</span>
+                        <span className="sm:hidden">Review</span>
                       </Link>
                     )}
                     
                     <button
                       onClick={() => handleArchiveSession(session.id, session.status)}
                       disabled={archivingId === session.id}
-                      className="bg-dark-600 text-elysViolet-400 px-4 py-2 rounded-lg hover:bg-elysViolet-600 hover:text-white disabled:opacity-50 text-sm font-semibold border border-elysViolet-500/30 hover:border-elysViolet-500 transition-all duration-300 flex items-center justify-center"
+                      className="flex-1 sm:flex-initial bg-dark-600 text-elysViolet-400 px-3 sm:px-4 py-2.5 rounded-lg hover:bg-elysViolet-600 hover:text-white disabled:opacity-50 text-xs sm:text-sm font-semibold border border-elysViolet-500/30 hover:border-elysViolet-500 transition-all duration-300 flex items-center justify-center min-h-[44px]"
                     >
                       {archivingId === session.id ? (
-                        <ClockIcon className="h-4 w-4 mr-2" />
+                        <ClockIcon className="h-4 w-4 mr-1.5 sm:mr-2" />
                       ) : (
-                        <ArchiveBoxIcon className="h-4 w-4 mr-2" />
+                        <ArchiveBoxIcon className="h-4 w-4 mr-1.5 sm:mr-2" />
                       )}
-                      {session.status === 'archived' ? t('chat_list.actions.activate') : t('chat_list.actions.archive')}
+                      <span className="hidden sm:inline">{session.status === 'archived' ? t('chat_list.actions.activate') : t('chat_list.actions.archive')}</span>
+                      <span className="sm:hidden">{session.status === 'archived' ? 'Activate' : 'Archive'}</span>
                     </button>
                     
                     <button
                       onClick={() => handleDeleteSession(session.id)}
                       disabled={deletingId === session.id}
-                      className="bg-dark-600 text-elysPink-400 px-4 py-2 rounded-lg hover:bg-elysPink-600 hover:text-white disabled:opacity-50 text-sm font-semibold border border-elysPink-500/30 hover:border-elysPink-500 transition-all duration-300 flex items-center justify-center"
+                      className="flex-1 sm:flex-initial bg-dark-600 text-elysPink-400 px-3 sm:px-4 py-2.5 rounded-lg hover:bg-elysPink-600 hover:text-white disabled:opacity-50 text-xs sm:text-sm font-semibold border border-elysPink-500/30 hover:border-elysPink-500 transition-all duration-300 flex items-center justify-center min-h-[44px]"
                     >
                       {deletingId === session.id ? (
-                        <ClockIcon className="h-4 w-4 mr-2" />
+                        <ClockIcon className="h-4 w-4 mr-1.5 sm:mr-2" />
                       ) : (
-                        <TrashIcon className="h-4 w-4 mr-2" />
+                        <TrashIcon className="h-4 w-4 mr-1.5 sm:mr-2" />
                       )}
-                      {t('chat_list.actions.delete')}
+                      <span className="hidden sm:inline">{t('chat_list.actions.delete')}</span>
+                      <span className="sm:hidden">Delete</span>
                     </button>
                   </div>
                 </div>

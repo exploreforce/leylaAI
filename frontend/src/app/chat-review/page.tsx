@@ -64,30 +64,34 @@ export default function ChatReviewPage() {
     <div className="min-h-screen bg-dark-900">
       {/* Header */}
       <header className="bg-dark-800 shadow-2xl border-b border-elysPink-600">
-        <div className="max-w-7xl mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 py-3 sm:py-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
+            <div className="flex items-center space-x-2 sm:space-x-3">
               <Image 
                 src="/branding/LeylaAI.png" 
                 alt="Leyla AI Logo" 
                 width={40} 
                 height={40}
-                className="h-10 w-auto"
+                className="h-8 sm:h-10 w-auto"
               />
-              <h1 className="text-2xl font-bold text-dark-50">{t('chat_review.title')}</h1>
+              <h1 className="text-base sm:text-2xl font-bold text-dark-50">
+                <span className="hidden sm:inline">{t('chat_review.title')}</span>
+                <span className="sm:hidden">Review</span>
+              </h1>
             </div>
             <Link 
               href="/" 
-              className="text-elysViolet-400 hover:text-elysViolet-300 px-3 py-2 rounded transition-colors"
+              className="text-elysViolet-400 hover:text-elysViolet-300 px-3 py-2.5 rounded transition-colors text-sm sm:text-base min-h-[44px] flex items-center"
             >
-              {t('common.back_to_dashboard')}
+              <span className="hidden sm:inline">{t('common.back_to_dashboard')}</span>
+              <span className="sm:hidden">← Dashboard</span>
             </Link>
           </div>
         </div>
       </header>
 
       {/* Chat List */}
-      <main className="max-w-4xl mx-auto py-8 px-4">
+      <main className="max-w-4xl mx-auto py-4 sm:py-8 px-3 sm:px-4">
         {chats.length === 0 ? (
           <div className="bg-dark-700 rounded-xl shadow-2xl p-8 text-center border border-dark-600">
             <div className="flex items-center justify-center text-elysPink-400 text-lg mb-4">

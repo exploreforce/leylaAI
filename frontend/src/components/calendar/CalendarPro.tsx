@@ -239,59 +239,61 @@ const AvailabilitySettings = () => {
     <div className="space-y-6">
       {/* Weekly Schedule */}
       <Card>
-        <div className="p-6">
-          <div className="flex items-center mb-6">
-            <ClockIcon className="h-6 w-6 text-elysViolet-500 mr-2" />
-            <h3 className="text-lg font-semibold text-dark-50">Wöchentliche Verfügbarkeit</h3>
+        <div className="p-4 sm:p-6">
+          <div className="flex items-center mb-4 sm:mb-6">
+            <ClockIcon className="h-5 sm:h-6 w-5 sm:w-6 text-elysViolet-500 mr-2" />
+            <h3 className="text-base sm:text-lg font-semibold text-dark-50">Wöchentliche Verfügbarkeit</h3>
           </div>
           
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             {weekDays.map(({ key, label }) => (
-              <div key={key} className="border border-gray-200 rounded-lg p-4">
+              <div key={key} className="border border-gray-200 rounded-lg p-3 sm:p-4">
                 <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center">
+                  <label className="flex items-center min-h-[44px] cursor-pointer">
                     <input
                       type="checkbox"
                       checked={schedule[key]?.isAvailable || false}
                       onChange={(e) => updateDayAvailability(key, e.target.checked)}
-                      className="h-4 w-4 text-elysViolet-500 focus:ring-elysViolet-500 border-gray-300 rounded"
+                      className="h-5 w-5 text-elysViolet-500 focus:ring-elysViolet-500 border-gray-300 rounded cursor-pointer"
                     />
-                    <label className="ml-2 text-sm font-medium text-dark-100">
+                    <span className="ml-3 text-sm font-medium text-dark-100">
                       {label}
-                    </label>
-                  </div>
+                    </span>
+                  </label>
                 </div>
 
                 {schedule[key]?.isAvailable && (
-                  <div className="space-y-2">
+                  <div className="space-y-3">
                     {schedule[key].timeSlots.map((slot, index) => (
-                      <div key={index} className="flex items-center space-x-2">
-                        <Input
-                          type="time"
-                          value={slot.start}
-                          onChange={(e) => updateTimeSlot(key, index, 'start', e.target.value)}
-                          className="w-32"
-                        />
-                        <span className="text-dark-300">bis</span>
-                        <Input
-                          type="time"
-                          value={slot.end}
-                          onChange={(e) => updateTimeSlot(key, index, 'end', e.target.value)}
-                          className="w-32"
-                        />
+                      <div key={index} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                        <div className="flex items-center gap-2 flex-1">
+                          <Input
+                            type="time"
+                            value={slot.start}
+                            onChange={(e) => updateTimeSlot(key, index, 'start', e.target.value)}
+                            className="flex-1 sm:w-32 min-h-[44px]"
+                          />
+                          <span className="text-dark-300 text-sm flex-shrink-0">bis</span>
+                          <Input
+                            type="time"
+                            value={slot.end}
+                            onChange={(e) => updateTimeSlot(key, index, 'end', e.target.value)}
+                            className="flex-1 sm:w-32 min-h-[44px]"
+                          />
+                        </div>
                         <Button
                           onClick={() => removeTimeSlot(key, index)}
                           variant="secondary"
-                          className="p-2"
+                          className="p-2.5 min-h-[44px] min-w-[44px] flex items-center justify-center"
                         >
-                          <TrashIcon className="h-4 w-4" />
+                          <TrashIcon className="h-5 w-5" />
                         </Button>
                       </div>
                     ))}
                     <Button
                       onClick={() => addTimeSlot(key)}
                       variant="secondary"
-                      className="flex items-center space-x-1 text-sm"
+                      className="flex items-center justify-center space-x-2 text-sm w-full sm:w-auto min-h-[44px] px-4"
                     >
                       <PlusIcon className="h-4 w-4" />
                       <span>Zeitfenster hinzufügen</span>
@@ -306,15 +308,15 @@ const AvailabilitySettings = () => {
 
       {/* Blackout Dates */}
       <Card>
-        <div className="p-6">
-          <div className="flex items-center justify-between mb-4">
+        <div className="p-4 sm:p-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0 mb-4">
             <div className="flex items-center">
-              <CalendarIcon className="h-6 w-6 text-elysPink-500 mr-2" />
-              <h3 className="text-lg font-semibold text-dark-50">Gesperrte Termine</h3>
+              <CalendarIcon className="h-5 sm:h-6 w-5 sm:w-6 text-elysPink-500 mr-2" />
+              <h3 className="text-base sm:text-lg font-semibold text-dark-50">Gesperrte Termine</h3>
             </div>
             <Button
               onClick={addBlackoutDate}
-              className="flex items-center space-x-1"
+              className="flex items-center justify-center space-x-2 min-h-[44px] w-full sm:w-auto"
             >
               <PlusIcon className="h-4 w-4" />
               <span>Datum hinzufügen</span>
@@ -323,28 +325,28 @@ const AvailabilitySettings = () => {
           
           <div className="space-y-3">
             {blackoutDates.length === 0 ? (
-              <p className="text-dark-300 text-center py-4">Keine gesperrten Termine</p>
+              <p className="text-dark-300 text-center py-4 text-sm">Keine gesperrten Termine</p>
             ) : (
               blackoutDates.map((blackout, index) => (
-                <div key={index} className="flex items-center space-x-3">
+                <div key={index} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
                   <Input
                     type="date"
                     value={blackout.date}
                     onChange={(e) => updateBlackoutDate(index, 'date', e.target.value)}
-                    className="flex-1"
+                    className="flex-1 min-h-[44px]"
                   />
                   <Input
                     placeholder="Grund (optional)"
                     value={blackout.reason}
                     onChange={(e) => updateBlackoutDate(index, 'reason', e.target.value)}
-                    className="flex-2"
+                    className="flex-1 sm:flex-2 min-h-[44px]"
                   />
                   <Button
                     onClick={() => removeBlackoutDate(index)}
                     variant="secondary"
-                    className="p-2"
+                    className="p-2.5 min-h-[44px] min-w-[44px] flex items-center justify-center"
                   >
-                    <TrashIcon className="h-4 w-4" />
+                    <TrashIcon className="h-5 w-5" />
                   </Button>
                 </div>
               ))
@@ -370,7 +372,7 @@ const AvailabilitySettings = () => {
         <Button
           onClick={handleSave}
           disabled={isUpdating}
-          className="min-w-[200px]"
+          className="min-w-[200px] w-full sm:w-auto min-h-[44px]"
         >
           {isUpdating ? 'Speichere...' : 'Verfügbarkeiten speichern'}
         </Button>
@@ -1363,16 +1365,16 @@ END:VCALENDAR`;
           
           {/* Right side controls - stacked */}
           {view !== 'Availability' && (
-            <div className="flex flex-col items-end space-y-2">
-              {/* Zoom Controls - top row */}
-              <div className="flex items-center space-x-1">
+            <div className="flex flex-col sm:flex-col items-stretch sm:items-end space-y-2 w-full sm:w-auto">
+              {/* Zoom Controls - hidden on mobile, visible on desktop */}
+              <div className="hidden md:flex items-center space-x-1">
                 <span className="text-xs text-dark-200 mr-2">Ansicht:</span>
                 {(['compact', 'normal', 'spacious'] as const).map((zoom) => (
                   <Button
                     key={zoom}
                     onClick={() => setZoomLevel(zoom)}
                     variant={zoomLevel === zoom ? 'primary' : 'secondary'}
-                    className="text-xs px-3 py-1.5 min-w-[60px]"
+                    className="text-xs px-3 py-2 min-w-[60px] min-h-[44px]"
                     title={zoom === 'compact' ? '24h kompakt - weniger Scrollen' : zoom === 'normal' ? 'Normal' : 'Geräumig'}
                   >
                     {zoom === 'compact' ? '24h' : zoom === 'normal' ? 'Normal' : 'Groß'}
@@ -1380,36 +1382,40 @@ END:VCALENDAR`;
                 ))}
               </div>
               
-              {/* Action buttons - bottom row */}
-              <div className="flex items-center space-x-2">
-              <Button
-                onClick={() => openAppointmentModal(null, 'create')}
-                variant="primary"
-                className="flex items-center space-x-2 px-4 py-2 text-sm font-medium min-w-[140px] justify-center"
-              >
-                <PlusIcon className="h-4 w-4" />
-                <span>New Appointment</span>
-              </Button>
-              
-              <Button
-                onClick={exportAllToICS}
-                variant="secondary"
-                className="flex items-center space-x-2 px-4 py-2 text-sm font-medium min-w-[120px] justify-center"
-              >
-                <ArrowDownTrayIcon className="h-4 w-4" />
-                <span>Export ICS</span>
-              </Button>
+              {/* Action buttons - responsive layout */}
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
+                <Button
+                  onClick={() => openAppointmentModal(null, 'create')}
+                  variant="primary"
+                  className="flex items-center justify-center space-x-2 px-3 sm:px-4 py-2.5 text-sm font-medium min-h-[44px] w-full sm:w-auto"
+                >
+                  <PlusIcon className="h-4 w-4" />
+                  <span className="hidden sm:inline">New Appointment</span>
+                  <span className="sm:hidden">New</span>
+                </Button>
+                
+                <div className="flex gap-2">
+                  <Button
+                    onClick={exportAllToICS}
+                    variant="secondary"
+                    className="flex-1 sm:flex-initial flex items-center justify-center space-x-1.5 sm:space-x-2 px-3 sm:px-4 py-2.5 text-sm font-medium min-h-[44px]"
+                  >
+                    <ArrowDownTrayIcon className="h-4 w-4" />
+                    <span className="hidden sm:inline">Export ICS</span>
+                    <span className="sm:hidden">Export</span>
+                  </Button>
 
-              <Button
-                onClick={copyIcsFeedUrl}
-                variant="secondary"
-                className="flex items-center space-x-2 px-4 py-2 text-sm font-medium min-w-[120px] justify-center"
-                title="Copy ICS Feed URL"
-              >
-                <LinkIcon className="h-4 w-4" />
-                <span>ICS Feed URL</span>
-              </Button>
-
+                  <Button
+                    onClick={copyIcsFeedUrl}
+                    variant="secondary"
+                    className="flex-1 sm:flex-initial flex items-center justify-center space-x-1.5 sm:space-x-2 px-3 sm:px-4 py-2.5 text-sm font-medium min-h-[44px]"
+                    title="Copy ICS Feed URL"
+                  >
+                    <LinkIcon className="h-4 w-4" />
+                    <span className="hidden sm:inline">ICS Feed URL</span>
+                    <span className="sm:hidden">Feed</span>
+                  </Button>
+                </div>
               </div>
             </div>
           )}
@@ -1452,12 +1458,13 @@ END:VCALENDAR`;
         )}
         
         {view === 'Availability' && (
-          <div className="mt-4">
-            <h2 className="text-lg font-semibold text-dark-50 flex items-center">
+          <div className="mt-3 sm:mt-4">
+            <h2 className="text-base sm:text-lg font-semibold text-dark-50 flex items-center">
               <Cog6ToothIcon className="h-5 w-5 mr-2 text-elysBlue-500" />
-              Verfügbarkeiten konfigurieren
+              <span className="hidden sm:inline">Verfügbarkeiten konfigurieren</span>
+              <span className="sm:hidden">Verfügbarkeiten</span>
             </h2>
-            <p className="text-sm text-dark-200 mt-1">
+            <p className="text-xs sm:text-sm text-dark-200 mt-1">
               Definiere deine wöchentlichen Arbeitszeiten und gesperrte Termine
             </p>
           </div>
@@ -1465,7 +1472,7 @@ END:VCALENDAR`;
       </div>
 
       {/* Main calendar area - full width */}
-      <div className="p-4">
+      <div className="p-3 sm:p-4">
         {view === 'Availability' ? (
           <AvailabilitySettings />
         ) : (
@@ -1603,18 +1610,18 @@ const AppointmentModal: React.FC<{
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-3 sm:p-4">
       <div className="bg-dark-700 rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-dark-600">
-        <div className="p-6">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-xl font-bold text-dark-50 flex items-center">
-              {mode === 'create' && <><PlusIcon className="h-5 w-5 mr-2 text-elysPink-500" />Create Appointment</>}
-              {mode === 'edit' && <><PencilIcon className="h-5 w-5 mr-2 text-elysViolet-500" />Edit Appointment</>}
-              {mode === 'view' && <><EyeIcon className="h-5 w-5 mr-2 text-elysBlue-500" />View Appointment</>}
+        <div className="p-4 sm:p-6">
+          <div className="flex justify-between items-center mb-4 sm:mb-6">
+            <h2 className="text-lg sm:text-xl font-bold text-dark-50 flex items-center">
+              {mode === 'create' && <><PlusIcon className="h-5 w-5 mr-2 text-elysPink-500" /><span className="hidden sm:inline">Create Appointment</span><span className="sm:hidden">New</span></>}
+              {mode === 'edit' && <><PencilIcon className="h-5 w-5 mr-2 text-elysViolet-500" /><span className="hidden sm:inline">Edit Appointment</span><span className="sm:hidden">Edit</span></>}
+              {mode === 'view' && <><EyeIcon className="h-5 w-5 mr-2 text-elysBlue-500" /><span className="hidden sm:inline">View Appointment</span><span className="sm:hidden">View</span></>}
             </h2>
             <button
               onClick={onClose}
-              className="text-dark-300 hover:text-elysPink-400 text-2xl transition-colors duration-300"
+              className="text-dark-300 hover:text-elysPink-400 text-2xl transition-colors duration-300 min-w-[44px] min-h-[44px] flex items-center justify-center"
             >
               ×
             </button>
@@ -1622,19 +1629,19 @@ const AppointmentModal: React.FC<{
 
           {mode === 'view' ? (
             // View mode
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-dark-200 mb-1">Customer</label>
-                  <div className="flex items-center text-dark-50">
+                  <label className="block text-xs sm:text-sm font-medium text-dark-200 mb-1">Customer</label>
+                  <div className="flex items-center text-dark-50 text-sm">
                     <UserIcon className="h-4 w-4 mr-2 text-dark-300" />
                     {appointment?.customerName}
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-dark-200 mb-1">Phone</label>
-                  <div className="flex items-center text-dark-50">
+                  <label className="block text-xs sm:text-sm font-medium text-dark-200 mb-1">Phone</label>
+                  <div className="flex items-center text-dark-50 text-sm">
                     <PhoneIcon className="h-4 w-4 mr-2 text-dark-300" />
                     {appointment?.customerPhone}
                   </div>
@@ -1642,11 +1649,11 @@ const AppointmentModal: React.FC<{
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-dark-200 mb-1">Email</label>
-                <p className="text-dark-50">{appointment?.customerEmail}</p>
+                <label className="block text-xs sm:text-sm font-medium text-dark-200 mb-1">Email</label>
+                <p className="text-dark-50 text-sm">{appointment?.customerEmail}</p>
               </div>
               
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div>
                   <label className="block text-sm font-medium text-dark-200 mb-1">Date & Time</label>
                   <div className="flex items-center text-dark-50">
@@ -1687,13 +1694,13 @@ const AppointmentModal: React.FC<{
                 </div>
               )}
 
-              <div className="flex justify-end space-x-3 pt-4 border-t">
+              <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 pt-4 border-t">
                 {appointment?.status !== 'cancelled' && appointment?.status !== 'noshow' && (
                   <>
                     <Button
                       onClick={() => onNoShow(appointment?.id || '')}
                       variant="secondary"
-                      className="text-red-600 hover:text-red-700"
+                      className="text-red-600 hover:text-red-700 min-h-[44px] w-full sm:w-auto"
                       disabled={isLoading}
                     >
                       <ExclamationTriangleIcon className="h-4 w-4 mr-1" />
@@ -1702,7 +1709,7 @@ const AppointmentModal: React.FC<{
                     <Button
                       onClick={() => onDelete(appointment?.id || '')}
                       variant="secondary"
-                      className="text-red-600 hover:text-red-700"
+                      className="text-red-600 hover:text-red-700 min-h-[44px] w-full sm:w-auto"
                       disabled={isLoading}
                     >
                       <TrashIcon className="h-4 w-4 mr-1" />
@@ -1710,15 +1717,15 @@ const AppointmentModal: React.FC<{
                     </Button>
                   </>
                 )}
-                <Button onClick={onClose} variant="secondary">
+                <Button onClick={onClose} variant="secondary" className="min-h-[44px] w-full sm:w-auto">
                   Close
                 </Button>
               </div>
             </div>
           ) : (
             // Create/Edit form
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+            <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <Input
                   label="Customer Name"
                   required
@@ -1806,11 +1813,11 @@ const AppointmentModal: React.FC<{
                 />
               </div>
 
-              <div className="flex justify-end space-x-3 pt-4 border-t">
-                <Button onClick={onClose} variant="secondary" type="button">
+              <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 pt-4 border-t">
+                <Button onClick={onClose} variant="secondary" type="button" className="min-h-[44px] w-full sm:w-auto">
                   Cancel
                 </Button>
-                <Button type="submit" disabled={isLoading}>
+                <Button type="submit" disabled={isLoading} className="min-h-[44px] w-full sm:w-auto">
                   {isLoading ? 'Saving...' : mode === 'create' ? 'Create' : 'Update'}
                 </Button>
               </div>
