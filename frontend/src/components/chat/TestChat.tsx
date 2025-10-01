@@ -67,17 +67,29 @@ const TestChat = ({ existingSessionId }: TestChatProps) => {
     };
 
     const createNewSession = async () => {
-      console.log('🔵 Making API call to create new session...');
-      const response = await botApi.createTestChatSession();
-      console.log('📥 New session response:', JSON.stringify(response, null, 2));
-      
-      if (response.data) {
-        console.log('📝 New session data:', JSON.stringify(response.data, null, 2));
-        setSession(response.data);
-        setMessages([]);
-        console.log('✅ New session created successfully');
-      } else {
-        console.error('❌ No session data in response');
+      try {
+        console.log('🔵 Making API call to create new session...');
+        const response = await botApi.createTestChatSession();
+        console.log('📥 New session response:', JSON.stringify(response, null, 2));
+        
+        if (response.data) {
+          console.log('📝 New session data:', JSON.stringify(response.data, null, 2));
+          setSession(response.data);
+          setMessages([]);
+          console.log('✅ New session created successfully');
+        } else {
+          console.error('❌ No session data in response');
+          throw new Error('No session data in response');
+        }
+      } catch (error: any) {
+        console.error('❌ Failed to create new session:', error);
+        console.error('❌ Error details:', {
+          message: error?.message,
+          response: error?.response,
+          status: error?.response?.status
+        });
+        // Re-throw to be handled by caller
+        throw error;
       }
     };
 

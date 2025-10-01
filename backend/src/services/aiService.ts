@@ -222,6 +222,14 @@ const executeTool = async (
         return { error: `Cannot book appointments in the past. Today is ${today.toISOString().split('T')[0]}` };
       }
       
+      // Check if requested date is today
+      const isToday = requestedDate.getTime() === today.getTime();
+      
+      // Get current time in HH:mm format (for filtering past time slots if today)
+      const nowTime = new Date();
+      const currentTimeHHmm = `${String(nowTime.getHours()).padStart(2, '0')}:${String(nowTime.getMinutes()).padStart(2, '0')}`;
+      console.log(`⏰ Current time: ${currentTimeHHmm}, isToday: ${isToday}`);
+      
       const availabilityConfig = await Database.getAvailabilityConfig();
       if (!availabilityConfig) {
         console.log('❌ No availability configuration found, creating default config and using 9-17');
@@ -277,14 +285,33 @@ const executeTool = async (
         console.log(`📅 Found ${bookedSlots.length} booked appointments on ${date} (default hours)`);
         
         // Calculate free time blocks directly from business hours and bookings
-        const freeBlocks = calculateFreeTimeBlocks(businessHours, bookedSlots);
+        let freeBlocks = calculateFreeTimeBlocks(businessHours, bookedSlots);
         console.log(`✅ Calculated ${freeBlocks.length} free time blocks (default hours)`);
+        
+        // Adjust time blocks for today to only show remaining time
+        if (isToday) {
+          freeBlocks = freeBlocks
+            .filter(block => {
+              // Only keep blocks that haven't completely ended yet
+              return block.end > currentTimeHHmm;
+            })
+            .map(block => {
+              // If block has already started, adjust start time to current time
+              if (block.start < currentTimeHHmm) {
+                return { start: currentTimeHHmm, end: block.end };
+              }
+              return block;
+            });
+          console.log(`⏰ Adjusted for today - ${freeBlocks.length} time blocks still available after ${currentTimeHHmm}`);
+        }
         
         return { 
           availableSlots: freeBlocks,
           message: freeBlocks.length > 0 
             ? `Ich habe folgende freie Zeitfenster: ${freeBlocks.map((block: { start: string; end: string }) => `${block.start} bis ${block.end}`).join(', ')}`
-            : 'Leider habe ich an diesem Tag keine freien Zeiten.'
+            : isToday 
+              ? 'Leider habe ich heute keine freien Zeiten mehr. Möchten Sie einen Termin für morgen oder einen anderen Tag?'
+              : 'Leider habe ich an diesem Tag keine freien Zeiten.'
         };
       }
       
@@ -339,14 +366,33 @@ const executeTool = async (
       console.log(`📅 Found ${bookedSlots.length} booked appointments on ${date}`);
       
       // Calculate free time blocks directly from business hours and bookings
-      const freeBlocks = calculateFreeTimeBlocks(businessHours, bookedSlots);
+      let freeBlocks = calculateFreeTimeBlocks(businessHours, bookedSlots);
       console.log(`✅ Calculated ${freeBlocks.length} free time blocks`);
+      
+      // Adjust time blocks for today to only show remaining time
+      if (isToday) {
+        freeBlocks = freeBlocks
+          .filter(block => {
+            // Only keep blocks that haven't completely ended yet
+            return block.end > currentTimeHHmm;
+          })
+          .map(block => {
+            // If block has already started, adjust start time to current time
+            if (block.start < currentTimeHHmm) {
+              return { start: currentTimeHHmm, end: block.end };
+            }
+            return block;
+          });
+        console.log(`⏰ Adjusted for today - ${freeBlocks.length} time blocks still available after ${currentTimeHHmm}`);
+      }
 
       return { 
         availableSlots: freeBlocks,
         message: freeBlocks.length > 0 
           ? `Ich habe folgende freie Zeitfenster: ${freeBlocks.map((block: { start: string; end: string }) => `${block.start} bis ${block.end}`).join(', ')}`
-          : 'Leider habe ich an diesem Tag keine freien Zeiten.'
+          : isToday 
+            ? 'Leider habe ich heute keine freien Zeiten mehr. Möchten Sie einen Termin für morgen oder einen anderen Tag?'
+            : 'Leider habe ich an diesem Tag keine freien Zeiten.'
       };
 
     case 'bookAppointment':

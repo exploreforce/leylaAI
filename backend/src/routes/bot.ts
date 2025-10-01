@@ -4,6 +4,7 @@ import { Database } from '../models/database';
 import { whatsappService } from '../services/whatsappService';
 import { ChatMessage } from '../types';
 import db from '../models/database';
+import { requireAuth, AuthRequest } from '../middleware/auth';
 
 const router = Router();
 
@@ -241,8 +242,23 @@ router.post(
   asyncHandler(async (req: Request, res: Response) => {
     console.log('🔵 Creating new test chat session...');
     
-    // Always create a new session (no longer reusing existing sessions)
-    const session = await Database.createTestChatSession();
+    // Try to get account_id from JWT token (optional)
+    let accountId: string | undefined;
+    try {
+      const auth = req.headers.authorization;
+      if (auth && auth.startsWith('Bearer ')) {
+        const token = auth.split(' ')[1];
+        const jwt = require('jsonwebtoken');
+        const payload = jwt.verify(token, process.env.JWT_SECRET || 'dev-secret') as any;
+        accountId = payload.accountId;
+        console.log('👤 Using account_id from JWT:', accountId);
+      }
+    } catch (error) {
+      console.warn('⚠️ No valid JWT token, will use default account');
+    }
+    
+    // Always create a new session (with accountId if available, otherwise fallback to default)
+    const session = await Database.createTestChatSession(accountId);
     console.log('📝 New session created:', JSON.stringify(session, null, 2));
     
     const responseData = {

@@ -2,7 +2,44 @@
 
 ## 📋 Changelog
 
-### 2025-10-01 (Latest) - Mobile Optimization & Internationalization
+### 2025-10-01 (Latest) - Multi-Tenancy & Appointment Booking Fixes
+
+**🐛 Critical Bug Fix - Appointments Not Showing in Calendar (v3):**
+- 🐛 Fixed test chat appointments not appearing in calendar
+  - **Issue 1:** Test chat sessions were created with the first account's ID instead of the logged-in user's account ID
+  - **Issue 2:** Initial fix added `requireAuth` middleware, but this broke session creation completely (no sessions could be created)
+  - **Issue 3:** Frontend had no error handling in `createNewSession()` - errors were silently swallowed
+  - **Root Cause:** When `requireAuth` was added, requests without valid JWT tokens were rejected with 401, preventing any session creation
+  - **Solution:** 
+    - Made authentication **optional** instead of required
+    - Endpoint now tries to extract `accountId` from JWT token if present
+    - Falls back to default account if no valid token (for backward compatibility)
+    - Added detailed error logging in frontend for debugging
+  - **Impact:** 
+    - Test chat sessions work again (can be created without errors)
+    - If user is logged in with JWT token → Uses correct `account_id` → Appointments appear in calendar! ✅
+    - If no JWT token → Falls back to default account (for development/testing)
+  - **Note:** Existing test sessions from before this fix may still have the old account_id - create a new test session to fix
+
+**🐛 Critical Bug Fix - AI Bot Appointment Booking (v2):**
+- 🐛 Fixed AI bot incorrectly saying "no appointments available today" when checking availability for the current day
+  - **Issue:** System was showing all business hours (e.g., 09:00-17:00) without considering the current time
+  - **First Fix Attempt:** Filtered out blocks where `start < currentTime` - BUT this removed partially-available blocks!
+  - **Problem Example:** Time is 16:55, block is 13:00-19:00 → First fix removed entire block (wrong!)
+  - **Correct Solution:** Adjust time blocks instead of removing them:
+    - If `block.end <= currentTime` → Remove (completely past)
+    - If `block.start < currentTime < block.end` → Adjust to `{ start: currentTime, end: block.end }`
+    - If `block.start >= currentTime` → Keep as-is (future block)
+  - **Example:** Time is 16:55, business hours 13:00-19:00 → Bot shows "16:55 bis 19:00" ✅
+  - **Improved message:** "Leider habe ich heute keine freien Zeiten mehr. Möchten Sie einen Termin für morgen oder einen anderen Tag?"
+
+**Files Modified:**
+- `backend/src/services/aiService.ts` - Added `isToday` check with smart time block adjustment in `checkAvailability` tool
+- `backend/src/routes/bot.ts` - Modified `/test-chat/session` endpoint to use logged-in user's `accountId` from JWT token
+
+---
+
+### 2025-10-01 - Mobile Optimization & Internationalization
 
 **🌍 Internationalization (i18n):**
 - ✨ Implemented lazy-loading translation system with localStorage persistence
