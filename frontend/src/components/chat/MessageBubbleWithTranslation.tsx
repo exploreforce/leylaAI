@@ -74,34 +74,34 @@ const MessageBubbleWithTranslation: React.FC<MessageBubbleWithTranslationProps> 
   };
 
   const bubbleClasses = cn(
-    'p-3 rounded-lg max-w-lg mb-2',
+    'p-2.5 sm:p-3 rounded-lg max-w-[85%] sm:max-w-lg mb-2',
     isUser ? 'bg-primary-600 text-white self-end' : 'bg-gray-200 text-gray-800 self-start',
     isSystem && 'bg-yellow-100 text-yellow-800 self-center w-full text-center'
   );
 
   const containerClasses = cn(
-    'flex items-end space-x-2',
+    'flex items-end space-x-1.5 sm:space-x-2',
     isUser ? 'justify-end' : 'justify-start'
   );
 
   const icon = isUser ? (
-    <UserIcon className="h-6 w-6 text-primary-300" />
+    <UserIcon className="h-5 sm:h-6 w-5 sm:w-6 text-primary-300 flex-shrink-0" />
   ) : isSystem ? (
-    <ExclamationTriangleIcon className="h-6 w-6 text-yellow-500" />
+    <ExclamationTriangleIcon className="h-5 sm:h-6 w-5 sm:w-6 text-yellow-500 flex-shrink-0" />
   ) : (
-    <CpuChipIcon className="h-6 w-6 text-gray-500" />
+    <CpuChipIcon className="h-5 sm:h-6 w-5 sm:w-6 text-gray-500 flex-shrink-0" />
   );
 
   // Don't show translation for very short messages or system messages
   const shouldShowTranslationOptions = !isSystem && message.content.length > 10;
 
   return (
-    <div className="mb-4">
+    <div className="mb-3 sm:mb-4">
       <div className={containerClasses}>
         {!isUser && <div className="flex-shrink-0">{icon}</div>}
         <div className={bubbleClasses}>
           {/* Message Content */}
-          <p className="text-sm">
+          <p className="text-xs sm:text-sm leading-relaxed">
             {showTranslation ? translatedContent : message.content}
           </p>
           

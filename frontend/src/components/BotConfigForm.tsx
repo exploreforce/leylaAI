@@ -555,29 +555,29 @@ const LanguageSettings = () => {
               <label className="block text-sm font-medium text-dark-200 mb-2">
                 {t('language.select_language')}
               </label>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3">
                 {availableLanguages.map((language) => (
                   <button
                     key={language.code}
                     type="button"
                     onClick={() => handleLanguageChange(language.code)}
-                    className={`p-3 text-left rounded-lg border-2 transition-all duration-200 relative ${
+                    className={`p-3 sm:p-4 text-left rounded-lg border-2 transition-all duration-200 relative min-h-[60px] ${
                       selectedLanguage === language.code
                         ? 'border-elysPink-500 bg-gradient-to-r from-elysPink-500/20 to-elysViolet-500/20 text-elysPink-300 shadow-lg shadow-elysPink-500/25 ring-1 ring-elysPink-500/50'
-                        : 'border-dark-600 bg-dark-700 text-dark-200 hover:border-dark-500 hover:text-dark-100 hover:bg-dark-600'
+                        : 'border-dark-600 bg-dark-700 text-dark-200 hover:border-dark-500 hover:text-dark-100 hover:bg-dark-600 active:bg-dark-500'
                     }`}
                   >
                     {selectedLanguage === language.code && (
-                      <div className="absolute top-2 right-2">
-                        <CheckIcon className="h-5 w-5 text-elysPink-400" />
+                      <div className="absolute top-1.5 sm:top-2 right-1.5 sm:right-2">
+                        <CheckIcon className="h-4 sm:h-5 w-4 sm:w-5 text-elysPink-400" />
                       </div>
                     )}
-                    <div className={`font-medium pr-6 ${
+                    <div className={`font-medium pr-6 text-sm sm:text-base ${
                       selectedLanguage === language.code ? 'text-elysPink-200' : ''
                     }`}>
                       {language.name}
                     </div>
-                    <div className={`text-xs uppercase mt-1 ${
+                    <div className={`text-xs uppercase mt-0.5 sm:mt-1 ${
                       selectedLanguage === language.code ? 'text-elysPink-400' : 'text-dark-400'
                     }`}>
                       {language.code}
@@ -698,48 +698,48 @@ const BotConfigForm = () => {
   return (
     <div className="space-y-6">
       {/* Tab Navigation */}
-      <div className="border-b border-gray-200">
-        <nav className="-mb-px flex space-x-8">
+      <div className="border-b border-gray-200 overflow-x-auto">
+        <nav className="-mb-px flex space-x-4 sm:space-x-8 min-w-max">
           <button
             type="button"
             onClick={() => setActiveTab('config')}
-            className={`py-2 px-1 border-b-2 font-medium text-sm ${
+            className={`py-3 px-1 border-b-2 font-medium text-sm min-h-[44px] ${
               activeTab === 'config'
                 ? 'border-elysPink-500 text-elysPink-500'
                 : 'border-transparent text-dark-300 hover:text-dark-200 hover:border-dark-500'
             }`}
           >
-            <div className="flex items-center space-x-2">
-              <CogIcon className="h-5 w-5" />
-              <span>{t('tabs.bot_config')}</span>
+            <div className="flex items-center space-x-1.5 sm:space-x-2">
+              <CogIcon className="h-4 sm:h-5 w-4 sm:w-5" />
+              <span className="text-xs sm:text-sm">{t('tabs.bot_config')}</span>
             </div>
           </button>
           <button
             type="button"
             onClick={() => setActiveTab('services')}
-            className={`py-2 px-1 border-b-2 font-medium text-sm ${
+            className={`py-3 px-1 border-b-2 font-medium text-sm min-h-[44px] ${
               activeTab === 'services'
                 ? 'border-elysPink-500 text-elysPink-500'
                 : 'border-transparent text-dark-300 hover:text-dark-200 hover:border-dark-500'
             }`}
           >
-            <div className="flex items-center space-x-2">
-              <CurrencyEuroIcon className="h-5 w-5" />
-              <span>{t('tabs.services')}</span>
+            <div className="flex items-center space-x-1.5 sm:space-x-2">
+              <CurrencyEuroIcon className="h-4 sm:h-5 w-4 sm:w-5" />
+              <span className="text-xs sm:text-sm">{t('tabs.services')}</span>
             </div>
           </button>
           <button
             type="button"
             onClick={() => setActiveTab('settings')}
-            className={`py-2 px-1 border-b-2 font-medium text-sm ${
+            className={`py-3 px-1 border-b-2 font-medium text-sm min-h-[44px] ${
               activeTab === 'settings'
                 ? 'border-elysPink-500 text-elysPink-500'
                 : 'border-transparent text-dark-300 hover:text-dark-200 hover:border-dark-500'
             }`}
           >
-            <div className="flex items-center space-x-2">
-              <CogIcon className="h-5 w-5" />
-              <span>{t('tabs.settings')}</span>
+            <div className="flex items-center space-x-1.5 sm:space-x-2">
+              <CogIcon className="h-4 sm:h-5 w-4 sm:w-5" />
+              <span className="text-xs sm:text-sm">{t('tabs.settings')}</span>
             </div>
           </button>
         </nav>

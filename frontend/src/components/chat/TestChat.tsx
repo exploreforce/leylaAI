@@ -305,12 +305,15 @@ const TestChat = ({ existingSessionId }: TestChatProps) => {
   };
 
   return (
-    <div className="flex flex-col h-[70vh] bg-dark-700 rounded-xl shadow-2xl border border-dark-600">
-      <div className="p-4 border-b border-dark-600">
-        <h2 className="text-lg font-semibold text-dark-50">Leyla AI Chat</h2>
-        <p className="text-sm text-dark-300">Experience intelligent conversation with Leyla AI.</p>
+    <div className="flex flex-col h-[70vh] sm:h-[70vh] bg-dark-700 rounded-xl shadow-2xl border border-dark-600 max-h-[calc(100vh-120px)] sm:max-h-none">
+      {/* Header */}
+      <div className="p-3 sm:p-4 border-b border-dark-600 flex-shrink-0">
+        <h2 className="text-base sm:text-lg font-semibold text-dark-50">Leyla AI Chat</h2>
+        <p className="text-xs sm:text-sm text-dark-300 hidden sm:block">Experience intelligent conversation with Leyla AI.</p>
       </div>
-      <div ref={messagesContainerRef} className="flex-1 p-4 overflow-y-auto">
+      
+      {/* Messages Container - Scrollable */}
+      <div ref={messagesContainerRef} className="flex-1 p-3 sm:p-4 overflow-y-auto pb-safe">
         {messages.map((msg) => (
           <MessageBubbleWithTranslation 
             key={msg.id} 
@@ -318,7 +321,7 @@ const TestChat = ({ existingSessionId }: TestChatProps) => {
           />
         ))}
         {isLoading && (
-          <div className="flex justify-start items-center">
+          <div className="flex justify-start items-center mb-4">
             <div className="bg-gray-200 rounded-lg p-3 max-w-lg">
               <div className="flex items-center space-x-2">
                 <div className="w-2 h-2 bg-elysPink-500 rounded-full animate-pulse"></div>
@@ -330,7 +333,9 @@ const TestChat = ({ existingSessionId }: TestChatProps) => {
         )}
         <div ref={messagesEndRef} />
       </div>
-      <div className="p-4 border-t">
+      
+      {/* Input Container - Fixed at bottom */}
+      <div className="p-3 sm:p-4 border-t border-dark-600 flex-shrink-0 bg-dark-700">
         <ChatInput onSendMessage={handleSendMessage} isLoading={isLoading} />
       </div>
     </div>

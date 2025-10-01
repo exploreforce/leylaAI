@@ -1334,26 +1334,26 @@ END:VCALENDAR`;
   return (
     <div className={`bg-dark-700 rounded-lg shadow-lg border border-dark-600 ${className}`}>
       {/* Header with enhanced controls */}
-      <div className="p-4 border-b border-elysPink-600">
-        <div className="flex justify-between items-start">
+      <div className="p-3 sm:p-4 border-b border-elysPink-600">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0">
           
           {/* View selector with enhanced options */}
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-1.5 sm:gap-2 w-full sm:w-auto">
             {(['Month', 'Week', 'Day', 'Availability'] as const).map((v) => (
               <Button
                 key={v}
                 onClick={() => setView(v)}
                 variant={view === v ? 'primary' : 'secondary'}
-                className="text-sm px-3 py-2 flex items-center space-x-2"
+                className="text-xs sm:text-sm px-2.5 sm:px-3 py-2.5 flex items-center space-x-1.5 sm:space-x-2 min-h-[44px] flex-1 sm:flex-initial justify-center"
               >
                 {v === 'Availability' ? (
                   <>
-                    <Cog6ToothIcon className="h-4 w-4" />
-                    <span>Verfügbarkeiten</span>
+                    <Cog6ToothIcon className="h-4 w-4 flex-shrink-0" />
+                    <span className="truncate">{v === 'Availability' ? 'Verfügb.' : v}</span>
                   </>
                 ) : (
                   <>
-                    <CalendarDaysIcon className="h-4 w-4" />
+                    <CalendarDaysIcon className="h-4 w-4 flex-shrink-0" />
                     <span>{v}</span>
                   </>
                 )}
@@ -1417,24 +1417,36 @@ END:VCALENDAR`;
 
         {/* Enhanced navigation */}
         {view !== 'Availability' && (
-          <div className="flex justify-between items-center mt-4">
-            <Button onClick={navigatePrevious} variant="secondary" className="px-3 py-1 flex items-center">
-              <ChevronLeftIcon className="h-4 w-4" />
+          <div className="flex justify-between items-center mt-3 sm:mt-4 gap-2">
+            <Button 
+              onClick={navigatePrevious} 
+              variant="secondary" 
+              className="px-3 py-2.5 flex items-center min-h-[44px] min-w-[44px] justify-center"
+            >
+              <ChevronLeftIcon className="h-5 w-5" />
             </Button>
             
-            <div className="flex items-center space-x-2">
-              <h2 className="text-lg font-semibold text-dark-50">
+            <div className="flex flex-col sm:flex-row items-center gap-1.5 sm:gap-2 flex-1">
+              <h2 className="text-sm sm:text-lg font-semibold text-dark-50 text-center">
                 {view === 'Month' ? startDate.toString('MMMM yyyy') : 
                  view === 'Week' ? `Week of ${startDate.toString('MMM dd, yyyy')}` :
                  startDate.toString('MMMM dd, yyyy')}
               </h2>
-              <Button onClick={navigateToday} variant="secondary" className="text-sm px-3 py-1">
+              <Button 
+                onClick={navigateToday} 
+                variant="secondary" 
+                className="text-xs sm:text-sm px-3 py-2 min-h-[44px]"
+              >
                 Today
               </Button>
             </div>
             
-            <Button onClick={navigateNext} variant="secondary" className="px-3 py-1 flex items-center">
-              <ChevronRightIcon className="h-4 w-4" />
+            <Button 
+              onClick={navigateNext} 
+              variant="secondary" 
+              className="px-3 py-2.5 flex items-center min-h-[44px] min-w-[44px] justify-center"
+            >
+              <ChevronRightIcon className="h-5 w-5" />
             </Button>
           </div>
         )}
