@@ -1,0 +1,57 @@
+# AWS App Runner optimized Dockerfile for Backend
+# Multi-stage build for smaller image size and faster deployments
+
+# Stage 1: Build
+FROM node:18-alpine AS builder
+
+WORKDIR /app
+
+# Install dependencies for native modules (SQLite, PostgreSQL)
+RUN apk add --no-cache python3 make g++ postgresql-client
+
+# Copy package files
+COPY backend/package*.json ./
+
+# Install dependencies
+RUN npm ci --only=production && npm cache clean --force
+
+# Copy source code
+COPY backend/ ./
+
+# Build TypeScript
+RUN npm run build
+
+# Stage 2: Production
+FROM node:18-alpine
+
+WORKDIR /app
+
+# Install only runtime dependencies
+RUN apk add --no-cache postgresql-client
+
+# Copy package files
+COPY backend/package*.json ./
+
+# Install production dependencies only
+RUN npm ci --only=production && npm cache clean --force
+
+# Copy built files from builder
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/database ./database
+
+# Create storage directory for WhatsApp sessions
+RUN mkdir -p /app/storage/wa-session
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+  CMD node -e "require('http').get('http://localhost:' + (process.env.PORT || 5000) + '/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
+
+# Set production environment
+ENV NODE_ENV=production
+
+# Expose port
+EXPOSE 5000
+
+# Run migrations and start
+CMD ["sh", "-c", "npm run db:migrate && npm start"]
+

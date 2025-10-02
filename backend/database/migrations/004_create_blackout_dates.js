@@ -1,6 +1,6 @@
 exports.up = function(knex) {
   return knex.schema.createTable('blackout_dates', table => {
-    table.uuid('id').primary().defaultTo(knex.raw('(hex(randomblob(16)))'));
+    table.uuid('id').primary().defaultTo(knex.raw('gen_random_uuid()'));
     table.date('date').notNullable();
     table.string('reason');
     table.boolean('is_recurring').notNullable().defaultTo(false);

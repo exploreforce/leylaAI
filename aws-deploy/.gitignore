@@ -1,0 +1,21 @@
+# Environment files with secrets
+.env.production
+.env.local
+.env
+
+# AWS credentials
+aws-credentials.json
+credentials.json
+
+# Temporary files
+*.tmp
+*.log
+
+# Database dumps
+*.sql
+*.dump
+
+# Backup files
+*.backup
+*.bak
+

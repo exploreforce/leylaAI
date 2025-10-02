@@ -5,7 +5,7 @@ exports.seed = function(knex) {
       // Inserts seed entries
       return knex('services').insert([
         {
-          id: knex.raw('(hex(randomblob(16)))'),
+          id: knex.raw('gen_random_uuid()'),
           bot_config_id: '550e8400-e29b-41d4-a716-446655440000',
           name: 'Beratungsgespräch',
           description: 'Persönliches Beratungsgespräch für individuelle Lösungen',
@@ -18,7 +18,7 @@ exports.seed = function(knex) {
           updated_at: new Date()
         },
         {
-          id: knex.raw('(hex(randomblob(16)))'),
+          id: knex.raw('gen_random_uuid()'),
           bot_config_id: '550e8400-e29b-41d4-a716-446655440000',
           name: 'Schnell-Check',
           description: 'Kurzer Check-up Termin',

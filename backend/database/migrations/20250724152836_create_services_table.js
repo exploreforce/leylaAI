@@ -4,8 +4,8 @@
  */
 exports.up = function(knex) {
   return knex.schema.createTable('services', table => {
-    table.uuid('id').primary().defaultTo(knex.raw('(hex(randomblob(16)))'));
-    table.string('bot_config_id').references('id').inTable('bot_configs').onDelete('CASCADE');
+    table.uuid('id').primary().defaultTo(knex.raw('gen_random_uuid()'));
+    table.uuid('bot_config_id').references('id').inTable('bot_configs').onDelete('CASCADE'); // Fixed: changed from string to uuid
     table.string('name').notNullable();
     table.text('description');
     table.decimal('price', 10, 2).notNullable();

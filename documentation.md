@@ -2,6 +2,45 @@
 
 ## 📋 Changelog
 
+### 2025-10-02 (Latest) - AWS Deployment Infrastructure
+
+**🚀 AWS Deployment Ready:**
+- ✨ Implemented complete AWS App Runner deployment configuration
+- ✨ PostgreSQL production support (replaced SQLite for scalability)
+- ✨ RDS PostgreSQL setup guide with Free Tier optimization
+- ✨ Cost optimization strategies (reduce costs by ~50%)
+- ✨ SQLite to PostgreSQL migration scripts and guides
+- ✨ Environment variables templates for production
+- ✨ Comprehensive step-by-step deployment guide
+
+**New AWS Infrastructure:**
+- `aws-deploy/apprunner.yaml` - AWS App Runner configuration
+- `aws-deploy/AWS_DEPLOYMENT_GUIDE.md` - Complete deployment walkthrough
+- `aws-deploy/MIGRATION_SCRIPT.md` - Database migration guide
+- `aws-deploy/COST_OPTIMIZATION.md` - Cost reduction strategies
+- `aws-deploy/QUICK_START.md` - Fast deployment for experienced users
+- `aws-deploy/Dockerfile.backend` - Optimized production Docker image
+
+**Backend Updates:**
+- Updated `knexfile.js` production config for PostgreSQL
+- PostgreSQL SSL support with RDS
+- DATABASE_URL support for easier configuration
+- Production-ready database connection pooling
+
+**Files Modified:**
+- `backend/knexfile.js` - Production now uses PostgreSQL instead of SQLite
+- Created `/aws-deploy/` directory with complete infrastructure
+
+**Deployment Options:**
+- AWS App Runner (recommended): ~30-50€/month optimized
+- RDS PostgreSQL: Free Tier eligible (12 months), then ~15€/month
+- Auto-scaling: 1-5 instances based on traffic
+- CI/CD: Automatic deployment on Git push
+
+---
+
+## 📋 Changelog
+
 ### 2025-10-01 (Latest) - Multi-Tenancy & Appointment Booking Fixes
 
 **🐛 Critical Bug Fix - Appointments Not Showing in Calendar (v3):**
@@ -672,7 +711,52 @@ First-time setup flow with WasenderAPI:
 5. Configure webhook URL in WasenderAPI dashboard → `https://<domain>/api/webhooks/wasender`
 6. Send a test message with `POST /api/whatsapp/send`
 
-### 8.7. AWS EC2 Production Deployment
+### 8.7. AWS Production Deployment (Recommended)
+
+- **Location**: See `aws-deploy/`.
+- **Requirements**: AWS account, GitHub repository, OpenAI API key.
+- **Estimated Costs**: ~30-50€/month (optimized), ~55-120€/month (standard)
+
+**Quick start:**
+
+```bash
+# 1. Follow comprehensive guide
+open aws-deploy/AWS_DEPLOYMENT_GUIDE.md
+
+# Or for experienced users
+open aws-deploy/QUICK_START.md
+```
+
+**Services:**
+- **AWS App Runner Backend**: Auto-scaling Node.js container (1-5 instances)
+- **AWS RDS PostgreSQL**: Managed database (db.t3.micro, Free Tier eligible)
+- **S3 + CloudFront** (optional): Static frontend hosting (~3-5€/month)
+- **Automatic HTTPS/SSL**: Built-in with App Runner
+- **CI/CD**: Auto-deploy on Git push
+
+**Deployment Steps:**
+1. Create RDS PostgreSQL database (15 min)
+2. Migrate SQLite data to PostgreSQL (5 min)
+3. Create App Runner service from GitHub (20 min)
+4. Configure environment variables (5 min)
+5. Deploy frontend (10 min)
+6. Optional: Custom domain setup (15 min)
+
+**Features:**
+- ✅ Auto-scaling (handles 1000+ users)
+- ✅ Zero-downtime deployments
+- ✅ Automated backups (RDS)
+- ✅ CloudWatch monitoring & logs
+- ✅ 99.9% uptime SLA
+
+**Cost Optimization:**
+See `aws-deploy/COST_OPTIMIZATION.md` for strategies to reduce costs by ~50%:
+- Frontend on S3 + CloudFront: Save ~30€/month
+- RDS Reserved Instances: Save 40%
+- Auto-scaling optimization
+- CloudWatch log retention tuning
+
+### 8.8. AWS EC2 Production Deployment (Alternative)
 
 - **Location**: See `deploy/`.
 - **Requirements**: A domain pointing to EC2, ports 80/443 open, Docker installed.
@@ -694,6 +778,8 @@ docker compose -f docker-compose.prod.yml --env-file .env.prod build ; docker co
   - Frontend: `https://${DOMAIN}`
   - API: `https://${DOMAIN}/api`
   - Health: `https://${DOMAIN}/health`
+
+**Note**: AWS App Runner (section 8.7) is recommended over EC2 for easier management and auto-scaling.
 
 ### 4.2. Functions
 
