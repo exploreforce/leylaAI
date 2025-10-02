@@ -37,8 +37,7 @@
     "socket.io": "^4.7.4",
     "sqlite3": "^5.1.7",
     "tsconfig-paths": "^4.2.0",
-    "uuid": "^9.0.1",
-    "whatsapp-bot": "file:.."
+    "uuid": "^9.0.1"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
