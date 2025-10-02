@@ -1,0 +1,16 @@
+{
+  "RuntimeEnvironmentVariables": {
+    "NODE_ENV": "production",
+    "PORT": "5000",
+    "FRONTEND_URL": "https://stmg7szp76.eu-west-1.awsapprunner.com",
+    "DATABASE_URL": "postgresql://mainadmin:rmsn2025whatsapp@whatsappbot-db.chwsoysw4ghw.eu-central-1.rds.amazonaws.com:5432/whatsappbot",
+    "DB_SSL": "true",
+    "OPENAI_API_KEY": "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",
+    "OPENAI_MODEL": "gpt-4o-mini",
+    "OPENAI_CONTENT_FILTER": "true",
+    "OPENAI_ALLOW_EXPLICIT": "false",
+    "JWT_SECRET": "leyla-suite-prod-2025-jwt-secret-a8f3d9c2e1b7f4a6d8e2c5b9a1f3e7d4",
+    "WHATSAPP_TYPING_DELAY": "true"
+  }
+}
+
