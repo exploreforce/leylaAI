@@ -13,7 +13,6 @@ build:
       - echo "Build completed successfully!"
       
 run:
-  runtime-version: 16
   command: cd backend && npm start
   network:
     port: 5000
