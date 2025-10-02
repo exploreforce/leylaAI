@@ -4,6 +4,7 @@ build:
   commands:
     pre-build:
       - echo "Installing dependencies..."
+      - cd backend
       - npm ci
     build:
       - echo "Building application..."
@@ -13,7 +14,7 @@ build:
       
 run:
   runtime-version: 18
-  command: npm start
+  command: cd backend && npm start
   network:
     port: 5000
     env: APP_PORT
@@ -22,4 +23,19 @@ run:
       value: "production"
     - name: PORT
       value: "5000"
+    - name: FRONTEND_URL
+      value: "https://stmg7szp76.eu-west-1.awsapprunner.com"
+    # DATABASE_URL wird über AWS Console / CLI gesetzt (enthält Passwort!)
+    - name: DB_SSL
+      value: "true"
+    # OPENAI_API_KEY wird über AWS Console / CLI gesetzt (nicht in Git!)
+    - name: OPENAI_MODEL
+      value: "gpt-4o-mini"
+    - name: OPENAI_CONTENT_FILTER
+      value: "true"
+    - name: OPENAI_ALLOW_EXPLICIT
+      value: "false"
+    # JWT_SECRET wird über AWS Console / CLI gesetzt
+    - name: WHATSAPP_TYPING_DELAY
+      value: "true"
 
