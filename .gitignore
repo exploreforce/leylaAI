@@ -169,3 +169,5 @@ ehthumbs.db
 apprunner-ecr-config.json
 apprunner-service-config*.json
 apprunner-ecr-trust-policy.json
+backend-env-update.json
+apprunner-frontend-config.json
