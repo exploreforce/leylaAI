@@ -163,4 +163,9 @@ ehthumbs.db
 
 # Production build
 /backend/dist
-/frontend/build 
+/frontend/build
+
+# AWS deployment configs with secrets
+apprunner-ecr-config.json
+apprunner-service-config*.json
+apprunner-ecr-trust-policy.json
