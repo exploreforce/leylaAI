@@ -1,0 +1,49 @@
+# Production Dockerfile für Backend (ohne whatsapp-bot dependency)
+FROM node:16-alpine AS deps
+WORKDIR /app
+
+# Copy backend package files
+COPY backend/package.json ./
+RUN npm install --production
+
+FROM node:16-alpine AS builder
+WORKDIR /app
+
+# Copy package.json and install ALL dependencies (including dev)
+COPY backend/package.json ./
+RUN npm install
+
+# Copy source code
+COPY backend/ ./
+
+# Build TypeScript
+RUN npm run build
+
+FROM node:16-alpine AS runner
+WORKDIR /app
+
+ENV NODE_ENV=production
+
+# Install Chromium for whatsapp-web.js
+RUN apk add --no-cache \
+    chromium \
+    nss \
+    freetype \
+    harfbuzz \
+    ca-certificates \
+    ttf-freefont \
+    tzdata
+
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
+
+# Copy built files
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package.json ./package.json
+COPY backend/knexfile.js ./knexfile.js
+COPY backend/database ./database
+
+EXPOSE 5000
+
+CMD ["node", "dist/index.js"]
+
