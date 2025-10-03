@@ -8,6 +8,11 @@
 - **Health Check:** https://wnn8pretct.eu-central-1.awsapprunner.com/health
 - **Region:** Frankfurt (eu-central-1)
 
+### Frontend (Production Ready)
+- **URL:** https://arki44wiab.eu-central-1.awsapprunner.com
+- **Status:** ✅ RUNNING
+- **Region:** Frankfurt (eu-central-1)
+
 ### Database
 - ✅ PostgreSQL RDS in Frankfurt
 - ✅ Migrations ausgeführt
@@ -16,45 +21,23 @@
 
 ---
 
-## 🎯 Für Live Testing benötigt
+## 🎯 Setup abgeschlossen - Ready for Testing!
 
-### 1. Frontend deployen
-Das Frontend muss noch deployt werden. Empfohlene Optionen:
+### ✅ Alle Services deployed!
 
-**Option A: Vercel (empfohlen - einfachst)**
-```bash
-cd frontend
-npm install -g vercel
-vercel --prod
-```
+Beide Services sind live und miteinander verbunden:
 
-**Option B: AWS Amplify**
-- AWS Console → Amplify
-- GitHub Repo verbinden
-- Branch: master oder feature/mobile-optimization-and-i18n
-- Build Command: `npm run build`
-- Root Directory: `frontend`
+**Frontend → Backend:**
+- Frontend nutzt: `NEXT_PUBLIC_API_URL=https://wnn8pretct.eu-central-1.awsapprunner.com`
+- Alle API-Calls gehen zum Backend
 
-**Option C: Netlify**
-- https://app.netlify.com
-- GitHub Repo verbinden
-- Build: `npm run build`
-- Publish directory: `.next`
+**Backend → Frontend:**
+- Backend nutzt: `FRONTEND_URL=https://arki44wiab.eu-central-1.awsapprunner.com`
+- CORS ist konfiguriert
 
-### 2. Frontend Environment Variables
-Nach dem Deployment, folgende ENV-Variablen setzen:
-
-```env
-NEXT_PUBLIC_API_URL=https://wnn8pretct.eu-central-1.awsapprunner.com
-```
-
-### 3. Backend FRONTEND_URL aktualisieren
-Nach Frontend-Deployment die Backend ENV-Variable updaten:
-
-```bash
-# In AWS Console → App Runner → Configuration → Edit
-FRONTEND_URL=https://[DEINE-FRONTEND-URL]
-```
+**Backend → Database:**
+- PostgreSQL RDS mit SSL
+- Connection String konfiguriert
 
 ---
 

@@ -6,9 +6,19 @@
 - **URL:** https://wnn8pretct.eu-central-1.awsapprunner.com
 - **Region:** eu-central-1 (Frankfurt)
 - **Service Name:** whatsappbot-backend
+- **Service ARN:** arn:aws:apprunner:eu-central-1:948451198730:service/whatsappbot-backend/caecd6b0f8fd4235a8b5e8b2305d62a9
 - **Runtime:** Node.js 16 (Docker via ECR)
 - **Resources:** 1 vCPU, 2 GB RAM
 - **Health Check:** `/health`
+
+### Frontend (AWS App Runner)
+- **URL:** https://arki44wiab.eu-central-1.awsapprunner.com
+- **Region:** eu-central-1 (Frankfurt)
+- **Service Name:** whatsappbot-frontend
+- **Service ARN:** arn:aws:apprunner:eu-central-1:948451198730:service/whatsappbot-frontend/dfa55fa42dbd48e0a99a02f9acf84705
+- **Runtime:** Node.js 18 (Docker via ECR)
+- **Resources:** 1 vCPU, 2 GB RAM
+- **Health Check:** `/`
 
 ### Database (AWS RDS PostgreSQL)
 - **Host:** whatsappbot-db.chwsoysw4ghw.eu-central-1.rds.amazonaws.com

@@ -1,0 +1,35 @@
+{
+  "ServiceName": "whatsappbot-frontend",
+  "SourceConfiguration": {
+    "AuthenticationConfiguration": {
+      "AccessRoleArn": "arn:aws:iam::948451198730:role/AppRunnerECRAccessRole"
+    },
+    "AutoDeploymentsEnabled": false,
+    "ImageRepository": {
+      "ImageIdentifier": "948451198730.dkr.ecr.eu-central-1.amazonaws.com/whatsappbot-frontend:latest",
+      "ImageConfiguration": {
+        "Port": "3000",
+        "RuntimeEnvironmentVariables": {
+          "NODE_ENV": "production",
+          "PORT": "3000",
+          "HOSTNAME": "0.0.0.0",
+          "NEXT_PUBLIC_API_URL": "https://wnn8pretct.eu-central-1.awsapprunner.com"
+        }
+      },
+      "ImageRepositoryType": "ECR"
+    }
+  },
+  "InstanceConfiguration": {
+    "Cpu": "1 vCPU",
+    "Memory": "2 GB"
+  },
+  "HealthCheckConfiguration": {
+    "Protocol": "HTTP",
+    "Path": "/",
+    "Interval": 20,
+    "Timeout": 10,
+    "HealthyThreshold": 1,
+    "UnhealthyThreshold": 5
+  }
+}
+
