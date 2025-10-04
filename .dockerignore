@@ -1,0 +1,23 @@
+# Docker Build Context Configuration
+# This file OVERRIDES .gitignore for Docker builds
+
+# Exclude unnecessary files to speed up builds
+node_modules
+.git
+.github
+*.md
+!README.md
+backend/node_modules
+backend/dist
+backend/storage
+backend/database/*.sqlite3
+backend/database/*.db
+frontend/.next
+frontend/out
+frontend/node_modules
+.env*.local
+*.log
+
+# NOTE: We do NOT exclude 'public' here!
+# frontend/public is needed for Docker build!
+
