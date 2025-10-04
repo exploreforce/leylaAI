@@ -135,7 +135,15 @@ export const appointmentsApi = {
     endDate?: string;
     status?: string;
   }): Promise<ApiResponse<Appointment[]>> => {
-    return api.get('/appointments', { params });
+    // 🔧 FIX: Disable browser cache to ensure fresh data after CREATE/UPDATE
+    return api.get('/appointments', { 
+      params,
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      }
+    });
   },
 
   create: async (appointment: CreateAppointmentRequest): Promise<ApiResponse<Appointment>> => {
