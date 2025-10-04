@@ -25,6 +25,11 @@ ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 RUN npm run build
 
+# Separate stage to preserve public folder
+FROM node:18-alpine AS public-files
+WORKDIR /app
+COPY frontend/public ./public
+
 FROM node:18-alpine AS runner
 WORKDIR /app
 
@@ -38,8 +43,8 @@ RUN adduser --system --uid 1001 nextjs
 # Copy built files
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-# Copy public folder (was copied to builder with 'COPY frontend/ ./')
-COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+# Copy public folder from separate stage
+COPY --from=public-files --chown=nextjs:nodejs /app/public ./public
 
 USER nextjs
 
