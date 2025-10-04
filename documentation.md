@@ -2,7 +2,44 @@
 
 ## 📋 Changelog
 
-### 2025-10-02 (Latest) - AWS Deployment Infrastructure
+### 2025-10-04 (Latest) - GitHub Actions CI/CD Pipeline
+
+**🚀 Automatic Deployment System:**
+- ✨ Implemented GitHub Actions CI/CD workflows for automatic deployment
+- ✨ Separate workflows for backend and frontend services
+- ✨ Auto-deploy on Git push to master branch (only when relevant files change)
+- ✨ Manual workflow trigger support via GitHub Actions UI
+- ✨ Build and push Docker images to AWS ECR automatically
+- ✨ Trigger App Runner deployments automatically
+- ✨ Comprehensive deployment status tracking and logs
+
+**New GitHub Actions Workflows:**
+- `.github/workflows/deploy-backend.yml` - Backend deployment workflow
+- `.github/workflows/deploy-frontend.yml` - Frontend deployment workflow
+- `GITHUB_ACTIONS_SETUP.md` - Complete CI/CD setup guide
+
+**Deployment Flow:**
+1. Code changes pushed to `master` branch
+2. GitHub Actions automatically detects changes
+3. Docker images built and pushed to ECR (~3-5 minutes)
+4. App Runner deployment triggered (~3-5 minutes)
+5. New version live (~5-10 minutes total)
+
+**Smart Triggers:**
+- Backend workflow: Only runs on changes to `backend/`, `Dockerfile.backend.prod`, or workflow file
+- Frontend workflow: Only runs on changes to `frontend/`, `Dockerfile.frontend.prod`, or workflow file
+- Documentation changes do NOT trigger deployments
+
+**Security:**
+- AWS credentials stored as encrypted GitHub Secrets
+- Secrets never exposed in logs or repository
+- Follows AWS IAM least-privilege principle
+
+**Status:** ✅ Successfully tested and operational
+
+---
+
+### 2025-10-02 - AWS Deployment Infrastructure
 
 **🚀 AWS Deployment Ready:**
 - ✨ Implemented complete AWS App Runner deployment configuration
