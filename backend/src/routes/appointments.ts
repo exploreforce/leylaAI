@@ -98,7 +98,7 @@ router.post('/', asyncHandler(async (req: Request, res: Response) => {
       status: 'confirmed',
       notes,
       appointment_type: appointmentType,
-      account_id: accountId,
+      // account_id: accountId, // ← DISABLED: Column doesn't exist in DB yet
     };
     
     console.log('📝 Creating appointment with LOCAL datetime:', datetimeStr);
@@ -136,7 +136,7 @@ router.post('/', asyncHandler(async (req: Request, res: Response) => {
     status: 'confirmed',
     notes,
     appointment_type: appointmentType,
-    account_id: accountId,
+    // account_id: accountId, // ← DISABLED: Column doesn't exist in DB yet
   };
   
   console.log('📝 Creating appointment with LOCAL datetime:', finalDatetimeStr);
