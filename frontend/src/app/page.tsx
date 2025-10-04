@@ -94,7 +94,7 @@ const Dashboard = () => {
               <h1 className="hidden md:block text-2xl font-bold text-transparent bg-gradient-to-r from-elysPink-600 to-elysBlue-800 bg-clip-text">{t('title')}</h1>
             </div>
             <nav className="flex space-x-1 sm:space-x-4">
-              <Link href="/test-chat" className="text-elysViolet-400 hover:text-elysViolet-300 px-2 sm:px-3 py-2 rounded-lg transition-all duration-300 hover:bg-dark-700 text-sm sm:text-base">
+              <Link href="/test-chat?new=true" className="text-elysViolet-400 hover:text-elysViolet-300 px-2 sm:px-3 py-2 rounded-lg transition-all duration-300 hover:bg-dark-700 text-sm sm:text-base">
                 <span className="hidden sm:inline">{t('quick_actions.start_chat')}</span>
                 <span className="sm:hidden">Chat</span>
               </Link>

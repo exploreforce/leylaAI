@@ -21,7 +21,7 @@ export default function MobileDashboard() {
 
       <main className="flex-1 p-4 space-y-4">
         <Link
-          href="/test-chat"
+          href="/test-chat?new=true"
           className="block p-4 bg-dark-700 rounded-xl shadow-2xl text-center font-medium text-dark-50 border border-dark-600 hover:border-elysPink-500 transition-all duration-300"
         >
           AI Chat
@@ -45,7 +45,7 @@ export default function MobileDashboard() {
           <HomeIcon className="h-6 w-6" />
           <span className="text-xs">Home</span>
         </Link>
-        <Link href="/test-chat" className="flex flex-col items-center text-dark-300">
+        <Link href="/test-chat?new=true" className="flex flex-col items-center text-dark-300">
           <ChatBubbleLeftRightIcon className="h-6 w-6" />
           <span className="text-xs">Chat</span>
         </Link>

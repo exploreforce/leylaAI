@@ -534,9 +534,9 @@ router.get(
           .where('session_id', session.id)
           .select(
             db.raw('COUNT(*) as total_messages'),
-            db.raw('COUNT(CASE WHEN role = "user" THEN 1 END) as user_messages'),
-            db.raw('COUNT(CASE WHEN role = "assistant" THEN 1 END) as assistant_messages'),
-            db.raw('COUNT(CASE WHEN role = "assistant" AND metadata LIKE \'%"status":"draft"%\' THEN 1 END) as draft_messages')
+            db.raw("COUNT(CASE WHEN role = 'user' THEN 1 END) as user_messages"),
+            db.raw("COUNT(CASE WHEN role = 'assistant' THEN 1 END) as assistant_messages"),
+            db.raw("COUNT(CASE WHEN role = 'assistant' AND metadata LIKE '%\"status\":\"draft\"%' THEN 1 END) as draft_messages")
           )
           .first();
         

@@ -100,7 +100,7 @@ export default function ChatReviewPage() {
             </div>
             <p className="text-dark-200">{t('chat_review.all_up_to_date')}</p>
             <Link 
-              href="/test-chat" 
+              href="/test-chat?new=true" 
               className="mt-4 inline-block bg-gradient-to-r from-elysViolet-500 to-elysBlue-600 text-white px-4 py-2 rounded-lg hover:from-elysViolet-600 hover:to-elysBlue-700 transition-all duration-300 shadow-lg"
             >
               {t('test_chat.start_new')}

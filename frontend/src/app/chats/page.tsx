@@ -250,7 +250,7 @@ export default function AllChatsPage() {
             </div>
             <div className="flex space-x-2 sm:space-x-3 w-full sm:w-auto">
               <Link 
-                href="/test-chat" 
+                href="/test-chat?new=true" 
                 className="flex-1 sm:flex-initial bg-gradient-to-r from-luxe-500 to-luxe-600 text-white px-3 sm:px-4 py-2.5 rounded-lg hover:from-luxe-600 hover:to-rouge-600 transition-all duration-300 shadow-lg text-center text-sm sm:text-base min-h-[44px] flex items-center justify-center"
               >
                 <span className="hidden sm:inline">+ New AI Chat</span>
@@ -334,7 +334,7 @@ export default function AllChatsPage() {
               </div>
               <p className="text-dark-200 mb-6">Start your first test chat to see it here.</p>
               <Link 
-                href="/test-chat" 
+                href="/test-chat?new=true" 
                 className="inline-block bg-gradient-to-r from-elysViolet-500 to-elysBlue-600 text-white px-6 py-3 rounded-lg hover:from-elysViolet-600 hover:to-elysBlue-700 transition-all duration-300 shadow-lg"
               >
                 Start AI Chat

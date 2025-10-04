@@ -11,12 +11,21 @@ export default function TestChatWrapper() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const urlSessionId = searchParams?.get('sessionId');
+  const forceNew = searchParams?.get('new') === 'true';
   const [resolvedSessionId, setResolvedSessionId] = useState<string | null>(null);
   const [isResolving, setIsResolving] = useState(true);
 
   useEffect(() => {
     const resolveSession = async () => {
-      console.log('🔍 Resolving session...');
+      console.log('🔍 Resolving session...', { urlSessionId, forceNew });
+      
+      // Priority 0: Force new session if ?new=true
+      if (forceNew) {
+        console.log('🆕 Force new session requested');
+        setResolvedSessionId(null);
+        setIsResolving(false);
+        return;
+      }
       
       // Priority 1: Session ID in URL
       if (urlSessionId) {
@@ -65,7 +74,7 @@ export default function TestChatWrapper() {
     };
 
     resolveSession();
-  }, [urlSessionId, router]);
+  }, [urlSessionId, forceNew, router]);
 
   if (isResolving) {
     return (
