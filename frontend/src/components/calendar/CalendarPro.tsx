@@ -491,9 +491,11 @@ const CalendarPro: React.FC<CalendarProProps> = ({ className = '' }) => {
         startDateStr = startDate.firstDayOfMonth().toString('yyyy-MM-dd');
         endDateStr = startDate.lastDayOfMonth().toString('yyyy-MM-dd');
       } else if (view === 'Week') {
-        // Week view: load from start of week to end of week (including adjacent months)
-        const weekStart = startDate.firstDayOfWeek(1); // 1 = Monday
-        const weekEnd = weekStart.addDays(6);
+        // Week view: load a wider range to ensure we catch all visible days
+        // Calendar can show Saturday-Friday or Sunday-Saturday depending on settings
+        // So we load from 7 days before to 7 days after current date
+        const weekStart = startDate.addDays(-7); // 7 days before
+        const weekEnd = startDate.addDays(7); // 7 days after
         startDateStr = weekStart.toString('yyyy-MM-dd');
         endDateStr = weekEnd.toString('yyyy-MM-dd');
       } else {
