@@ -13,7 +13,7 @@ on:
 env:
   AWS_REGION: eu-central-1
   ECR_REPOSITORY: whatsappbot-frontend
-  SERVICE_ARN: arn:aws:apprunner:eu-central-1:948451198730:service/whatsappbot-frontend/dfa55fa42dbd48e0a99a02f9acf84705
+  SERVICE_ARN: arn:aws:apprunner:eu-central-1:948451198730:service/whatsappbot-frontend/55f2dca371004b63b3cfc59e0d8323b7
 
 jobs:
   deploy:
