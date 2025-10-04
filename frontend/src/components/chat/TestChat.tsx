@@ -1,16 +1,20 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import { botApi } from '@/utils/api';
 import { ChatMessage, TestChatSession } from '@/types';
 import MessageBubbleWithTranslation from './MessageBubbleWithTranslation';
 import ChatInput from './ChatInput';
+
+const STORAGE_KEY = 'lastTestChatSessionId';
 
 interface TestChatProps {
   existingSessionId?: string | null;
 }
 
 const TestChat = ({ existingSessionId }: TestChatProps) => {
+  const router = useRouter();
   const [session, setSession] = useState<TestChatSession | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -74,6 +78,16 @@ const TestChat = ({ existingSessionId }: TestChatProps) => {
         
         if (response.data) {
           console.log('📝 New session data:', JSON.stringify(response.data, null, 2));
+          const newSessionId = response.data.id;
+          
+          // Save to localStorage
+          localStorage.setItem(STORAGE_KEY, newSessionId);
+          console.log('💾 Saved session ID to localStorage:', newSessionId);
+          
+          // Redirect to URL with session ID
+          router.push(`/test-chat?sessionId=${newSessionId}`);
+          console.log('🔄 Redirecting to session URL');
+          
           setSession(response.data);
           setMessages([]);
           console.log('✅ New session created successfully');
@@ -94,7 +108,7 @@ const TestChat = ({ existingSessionId }: TestChatProps) => {
     };
 
     initializeSession();
-  }, [existingSessionId]);
+  }, [existingSessionId, router]);
 
   // Intelligent auto-scroll: Only scroll when new messages arrive AND user is near bottom
   useEffect(() => {

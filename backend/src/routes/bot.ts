@@ -271,6 +271,36 @@ router.post(
   })
 );
 
+// Get active test chat session (last active session from database)
+router.get(
+  '/test-chat/active-session',
+  asyncHandler(async (req: Request, res: Response) => {
+    console.log('🔍 Getting active test chat session...');
+    
+    try {
+      const session = await Database.getActiveTestChatSession();
+      
+      if (!session) {
+        return res.status(404).json({ 
+          error: 'No active session found',
+          data: null 
+        });
+      }
+      
+      console.log('✅ Active session found:', session.id);
+      return res.json({
+        message: 'Active session retrieved',
+        data: session
+      });
+    } catch (error) {
+      console.error('❌ Error getting active session:', error);
+      return res.status(500).json({ 
+        error: 'Failed to get active session' 
+      });
+    }
+  })
+);
+
 // Get existing test chat session with messages
 router.get(
   '/test-chat/session/:sessionId',

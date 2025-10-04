@@ -75,6 +75,10 @@ export const botApi = {
     return api.get(`/bot/test-chat/session/${sessionId}`);
   },
 
+  getActiveTestChatSession: async (): Promise<ApiResponse<TestChatSession>> => {
+    return api.get('/bot/test-chat/active-session');
+  },
+
   getChatsForReview: async (): Promise<ApiResponse<any[]>> => {
     return api.get('/bot/chats/review');
   },
