@@ -184,31 +184,55 @@ export class Database {
   static async createAppointment(appointment: any): Promise<Appointment> {
     console.log('📝 Database.createAppointment called with:', appointment);
     
-    const [created] = await db('appointments')
-      .insert(appointment)
-      .returning('*');
-    
-    console.log('📝 Database.createAppointment result:', {
-      id: created.id,
-      datetime: created.datetime,
-      datetimeType: typeof created.datetime
-    });
-    
-    // Transform snake_case back to camelCase for API response
-    // NO TIMEZONE CONVERSION - keep datetime as-is
-    return {
-      id: created.id,
-      customerName: created.customer_name,
-      customerPhone: created.customer_phone,
-      customerEmail: created.customer_email,
-      datetime: created.datetime, // Keep as string - no Date conversion
-      duration: created.duration,
-      status: created.status,
-      notes: created.notes,
-      appointmentType: created.appointment_type,
-      createdAt: new Date(created.created_at),
-      updatedAt: new Date(created.updated_at)
-    };
+    try {
+      const [created] = await db('appointments')
+        .insert(appointment)
+        .returning('*');
+      
+      console.log('📝 Database.createAppointment INSERT result:', {
+        created: !!created,
+        id: created?.id,
+        datetime: created?.datetime,
+        datetimeType: typeof created?.datetime
+      });
+      
+      if (!created || !created.id) {
+        throw new Error('INSERT returned no data - appointment may not have been created!');
+      }
+      
+      // VERIFY: Immediately query back to confirm it was saved
+      const verification = await db('appointments')
+        .where('id', created.id)
+        .first();
+      
+      console.log('📝 Database.createAppointment VERIFICATION:', {
+        found: !!verification,
+        id: verification?.id
+      });
+      
+      if (!verification) {
+        throw new Error(`Appointment ${created.id} was not found after INSERT - transaction may have failed!`);
+      }
+      
+      // Transform snake_case back to camelCase for API response
+      // NO TIMEZONE CONVERSION - keep datetime as-is
+      return {
+        id: created.id,
+        customerName: created.customer_name,
+        customerPhone: created.customer_phone,
+        customerEmail: created.customer_email,
+        datetime: created.datetime, // Keep as string - no Date conversion
+        duration: created.duration,
+        status: created.status,
+        notes: created.notes,
+        appointmentType: created.appointment_type,
+        createdAt: new Date(created.created_at),
+        updatedAt: new Date(created.updated_at)
+      };
+    } catch (error) {
+      console.error('❌ Database.createAppointment FAILED:', error);
+      throw error;
+    }
   }
 
   static async updateAppointment(id: string, updates: Partial<Appointment>): Promise<Appointment | null> {
