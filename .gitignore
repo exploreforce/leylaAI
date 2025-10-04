@@ -171,3 +171,4 @@ apprunner-service-config*.json
 apprunner-ecr-trust-policy.json
 backend-env-update.json
 apprunner-frontend-config.json
+AWS_CREDENTIALS_TEMP.txt
