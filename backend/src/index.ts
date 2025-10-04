@@ -145,3 +145,4 @@ server.listen(PORT, () => {
 // No local WhatsApp Web client initialization. Incoming messages arrive via WasenderAPI webhooks.
 
 export { io }; 
+// CI/CD Auto-Deployment Test - 2025-10-04 13:09:07
