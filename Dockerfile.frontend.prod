@@ -1,4 +1,5 @@
 # Production Dockerfile für Frontend (Next.js)
+# Updated: Added .dockerignore to fix public folder inclusion
 FROM node:18-alpine AS deps
 WORKDIR /app
 
