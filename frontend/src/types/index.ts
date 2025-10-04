@@ -63,6 +63,7 @@ export interface Appointment {
   status: 'pending' | 'booked' | 'confirmed' | 'cancelled' | 'completed' | 'noshow';
   notes?: string;
   appointmentType?: string;
+  serviceName?: string; // Service name resolved from services table
   createdAt: string;
   updatedAt: string;
 }

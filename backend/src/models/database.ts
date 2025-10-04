@@ -115,28 +115,33 @@ export class Database {
         status: filters.status
       });
 
-      let query = db('appointments').select('*');
+      let query = db('appointments')
+        .select(
+          'appointments.*',
+          'services.name as service_name'
+        )
+        .leftJoin('services', 'appointments.appointment_type', 'services.id');
       
       if (filters.startDateStr) {
         // Use date string directly with 00:00 time
         const startDateTimeStr = `${filters.startDateStr} 00:00`;
         console.log('🔍 Adding startDate filter (LOCAL STRING): datetime >=', startDateTimeStr);
-        query = query.where('datetime', '>=', startDateTimeStr);
+        query = query.where('appointments.datetime', '>=', startDateTimeStr);
       }
       
       if (filters.endDateStr) {
         // Use date string directly with 23:59 time
         const endDateTimeStr = `${filters.endDateStr} 23:59`;
         console.log('🔍 Adding endDate filter (LOCAL STRING): datetime <=', endDateTimeStr);
-        query = query.where('datetime', '<=', endDateTimeStr);
+        query = query.where('appointments.datetime', '<=', endDateTimeStr);
       }
       if (filters.status) {
         console.log('🔍 Adding status filter:', filters.status);
-        query = query.where('status', filters.status);
+        query = query.where('appointments.status', filters.status);
       }
       if (filters.accountId) {
         console.log('🔍 Adding account filter:', filters.accountId);
-        query = query.where('account_id', filters.accountId);
+        query = query.where('appointments.account_id', filters.accountId);
       }
       
       console.log('🔍 Executing query:', query.toString());
@@ -165,6 +170,7 @@ export class Database {
         status: row.status,
         notes: row.notes,
         appointmentType: row.appointment_type,
+        serviceName: row.service_name || row.appointment_type, // Use service name if available, fallback to UUID
         accountId: row.account_id, // Include account_id for multi-tenant support
         createdAt: new Date(row.created_at),
         updatedAt: new Date(row.updated_at)

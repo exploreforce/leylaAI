@@ -654,7 +654,7 @@ const CalendarPro: React.FC<CalendarProProps> = ({ className = '' }) => {
           // Event styling will be handled by onBeforeEventRender
           tags: {
             status: appointment.status,
-            serviceType: appointment.appointmentType || 'Service',
+            serviceType: appointment.serviceName || appointment.appointmentType || 'Service',
             duration: appointment.duration,
             priority: getDurationPriority(appointment.duration)
           }
