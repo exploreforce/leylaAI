@@ -141,7 +141,8 @@ export class Database {
       }
       if (filters.accountId) {
         console.log('🔍 Adding account filter:', filters.accountId);
-        query = query.where('appointments.account_id', filters.accountId);
+        // 🔧 FIX: Cast account_id to UUID for PostgreSQL type compatibility
+        query = query.whereRaw('appointments.account_id::uuid = ?', [filters.accountId]);
       }
       
       console.log('🔍 Executing query:', query.toString());
