@@ -1536,14 +1536,31 @@ const AppointmentModal: React.FC<{
     
     if (selectedSlot?.start) {
       try {
-        // EXTRACT LOCAL TIME FROM DAYPILOT DATE OBJECT (NO toString!)
+        // DayPilot can return different formats - handle both
         const dayPilotDate = selectedSlot.start;
-        const year = dayPilotDate.getYear();
-        const month = String(dayPilotDate.getMonth() + 1).padStart(2, '0');
-        const day = String(dayPilotDate.getDate()).padStart(2, '0');
-        const hour = String(dayPilotDate.getHours()).padStart(2, '0');
-        const minute = String(dayPilotDate.getMinutes()).padStart(2, '0');
-        return `${year}-${month}-${day}T${hour}:${minute}`;
+        
+        // Check if it's a DayPilot.Date object with .value property
+        if (dayPilotDate.value) {
+          const dateStr = dayPilotDate.value.toString();
+          // Format: "2025-10-04T18:00:00" -> "2025-10-04T18:00"
+          return dateStr.slice(0, 16);
+        }
+        
+        // Check if it has Date methods
+        if (typeof dayPilotDate.getFullYear === 'function') {
+          const year = dayPilotDate.getFullYear();
+          const month = String(dayPilotDate.getMonth() + 1).padStart(2, '0');
+          const day = String(dayPilotDate.getDate()).padStart(2, '0');
+          const hour = String(dayPilotDate.getHours()).padStart(2, '0');
+          const minute = String(dayPilotDate.getMinutes()).padStart(2, '0');
+          return `${year}-${month}-${day}T${hour}:${minute}`;
+        }
+        
+        // Fallback: try toString()
+        const dateStr = dayPilotDate.toString();
+        if (dateStr.includes('T')) {
+          return dateStr.slice(0, 16);
+        }
       } catch (error) {
         console.warn('⚠️ Invalid selectedSlot start:', selectedSlot.start, error);
       }
