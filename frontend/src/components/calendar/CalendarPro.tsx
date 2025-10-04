@@ -1149,10 +1149,11 @@ const CalendarPro: React.FC<CalendarProProps> = ({ className = '' }) => {
   const handleCreateAppointment = async (appointmentData: any) => {
     try {
       await createAppointment(() => appointmentsApi.create(appointmentData));
-      refetchAppointments();
+      await refetchAppointments(); // ← FIXED: Now awaiting refetch!
       setShowAppointmentModal(false);
       window.DayPilot.Modal.alert("Appointment created successfully!");
     } catch (error) {
+      console.error('❌ Error creating appointment:', error);
       window.DayPilot.Modal.alert("Error creating appointment");
     }
   };

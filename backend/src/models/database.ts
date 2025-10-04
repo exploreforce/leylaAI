@@ -146,7 +146,7 @@ export class Database {
       
       console.log('🔍 Executing query:', query.toString());
       
-      const results = await query.orderBy('datetime', 'asc');
+      const results = await query.orderBy('appointments.datetime', 'asc');
       
       console.log('🔍 Raw database results:', {
         count: results?.length || 0,
