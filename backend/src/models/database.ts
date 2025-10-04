@@ -172,7 +172,7 @@ export class Database {
         notes: row.notes,
         appointmentType: row.appointment_type,
         serviceName: row.service_name || row.appointment_type, // Use service name if available, fallback to UUID
-        // accountId: row.account_id, // ← DISABLED: Column doesn't exist in DB yet
+        accountId: row.account_id, // ← ENABLED: Column added via migration
         createdAt: new Date(row.created_at),
         updatedAt: new Date(row.updated_at)
       }));

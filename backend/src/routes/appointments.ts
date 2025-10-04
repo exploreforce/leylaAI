@@ -98,10 +98,11 @@ router.post('/', asyncHandler(async (req: Request, res: Response) => {
       status: 'confirmed',
       notes,
       appointment_type: appointmentType,
-      // account_id: accountId, // ← DISABLED: Column doesn't exist in DB yet
+      account_id: accountId, // ← ENABLED: Column added via migration
     };
     
     console.log('📝 Creating appointment with LOCAL datetime:', datetimeStr);
+    console.log('👤 With account_id:', accountId);
 
     const newAppointment = await Database.createAppointment(newAppointmentData);
     
@@ -136,10 +137,11 @@ router.post('/', asyncHandler(async (req: Request, res: Response) => {
     status: 'confirmed',
     notes,
     appointment_type: appointmentType,
-    // account_id: accountId, // ← DISABLED: Column doesn't exist in DB yet
+    account_id: accountId, // ← ENABLED: Column added via migration
   };
   
   console.log('📝 Creating appointment with LOCAL datetime:', finalDatetimeStr);
+  console.log('👤 With account_id:', accountId);
 
   const newAppointment = await Database.createAppointment(newAppointmentData);
   
