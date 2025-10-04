@@ -1,0 +1,51 @@
+{
+  "tabs": {
+    "bot_config": "Bot Konfiguráció",
+    "services": "Szolgáltatások és Árak",
+    "settings": "Beállítások"
+  },
+  "messages": {
+    "config_saved": "Bot konfiguráció sikeresen mentve!",
+    "loading_config": "Bot konfiguráció betöltése..."
+  },
+  "language": {
+    "title": "Nyelv",
+    "subtitle": "Válassza ki a kívánt felület nyelvét",
+    "select_language": "Nyelv kiválasztása",
+    "current_language": "Jelenlegi nyelv",
+    "loading": "Nyelvi opciók betöltése...",
+    "change_success": "Nyelv sikeresen megváltoztatva!"
+  },
+  "bot_config": {
+    "identity": {
+      "title": "Bot Identitás",
+      "name": "Bot Neve",
+      "personality": "Személyiség",
+      "role": "Szerep",
+      "description": "Leírás"
+    },
+    "appearance": {
+      "title": "Megjelenés",
+      "avatar": "Avatar",
+      "theme": "Téma",
+      "colors": "Színek"
+    },
+    "behavior": {
+      "title": "Viselkedés",
+      "response_style": "Válasz stílus",
+      "greeting": "Üdvözlés",
+      "farewell": "Búcsú"
+    }
+  },
+  "services": {
+    "title": "Szolgáltatások és Árak",
+    "add_service": "Szolgáltatás hozzáadása",
+    "edit_service": "Szolgáltatás szerkesztése",
+    "delete_service": "Szolgáltatás törlése",
+    "name": "Név",
+    "description": "Leírás",
+    "price": "Ár",
+    "duration": "Időtartam",
+    "available": "Elérhető"
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "test_chat": {
+    "title": "AI Chat Simulation",
+    "navigation": {
+      "all_chats": "All Chats",
+      "review_responses": "Review AI Responses",
+      "back_to_dashboard": "← Back to Dashboard"
+    },
+    "loading": "Loading chat...",
+    "simulation": "Chat Simulation",
+    "start_new": "Start New Chat"
+  },
+  
+  "chat_list": {
+    "title": "Chat Overview",
+    "loading": "Loading chat sessions...",
+    "no_sessions": "No chat sessions found",
+    "filters": {
+      "all": "All",
+      "active": "Active", 
+      "archived": "Archived",
+      "inactive": "Inactive",
+      "show_filters": "Show Filters"
+    },
+    "actions": {
+      "open": "Open Chat",
+      "archive": "Archive",
+      "activate": "Reactivate",
+      "delete": "Delete",
+      "confirm_delete": "Really delete? This action cannot be undone.",
+      "confirm_archive": "Archive chat?"
+    },
+    "status": {
+      "active": "Active",
+      "archived": "Archived", 
+      "inactive": "Inactive (2+ weeks inactive)"
+    }
+  },
+  
+  "chat_review": {
+    "title": "AI Response Review",
+    "loading": "Loading chat...",
+    "loading_chats": "Loading chats...",
+    "review_responses": "Review AI Responses",
+    "no_chats": "No pending reviews!",
+    "all_up_to_date": "All chats are up to date.",
+    "pending_review": "Pending Review",
+    "user_label": "User:",
+    "pending_ai_reply": "Pending AI Reply:",
+    "review_arrow": "Review →",
+    "approve": "Approve",
+    "reject": "Reject", 
+    "edit": "Edit",
+    "send_custom": "Send Custom Response"
+  },
+  
+  "common": {
+    "back_to_dashboard": "← Back to Dashboard",
+    "loading": "Loading...",
+    "error": "Error loading",
+    "no_data": "No data available",
+    "session": "Session",
+    "last_activity": "Last Activity"
+  }
+}

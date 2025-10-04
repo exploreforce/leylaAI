@@ -1,0 +1,44 @@
+{
+  "title": "Leyla AI Irányítópult",
+  "welcome": "Üdvözöljük vissza!",
+  "appointments": {
+    "title": "Találkozók",
+    "today": "Ma",
+    "this_week": "Ezen a héten",
+    "manage_calendar": "Naptár kezelése",
+    "total_appointments": "Összes találkozó",
+    "upcoming": "Közelgő"
+  },
+  "chats": {
+    "title": "Aktív csevegések",
+    "current": "Jelenlegi csevegések",
+    "view_all": "Összes csevegés megtekintése",
+    "active_conversations": "Aktív beszélgetések",
+    "total_sessions": "Összes munkamenet"
+  },
+  "reviews": {
+    "title": "Ellenőrzés szükséges",
+    "pending_approvals": "Függőben lévő jóváhagyások",
+    "review_messages": "Üzenetek ellenőrzése",
+    "items_to_review": "Ellenőrizendő elemek",
+    "no_reviews_needed": "Nincs szükség ellenőrzésre"
+  },
+  "settings": {
+    "title": "Beállítások",
+    "description": "Bot konfiguráció és beállítások",
+    "button": "Beállítások",
+    "configure": "Konfigurálás",
+    "system_ready": "Rendszer kész a konfigurálásra"
+  },
+  "quick_actions": {
+    "new_chat": "+ Új AI Csevegés",
+    "start_chat": "AI Csevegés indítása",
+    "view_calendar": "Naptár megtekintése",
+    "manage_settings": "Beállítások kezelése"
+  },
+  "stats": {
+    "loading": "Irányítópult statisztikák betöltése...",
+    "error": "Hiba a statisztikák betöltésekor",
+    "last_updated": "Utolsó frissítés"
+  }
+}

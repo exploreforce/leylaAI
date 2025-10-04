@@ -1,0 +1,96 @@
+{
+  "header": {
+    "title": "Calendar",
+    "back_to_dashboard": "← Dashboard"
+  },
+  
+  "views": {
+    "month": "Month",
+    "week": "Week", 
+    "day": "Day",
+    "availability": "Availability"
+  },
+  
+  "buttons": {
+    "new_appointment": "New Appointment",
+    "export_ics": "Export ICS",
+    "today": "Today",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "view_details": "View Details",
+    "add_time_slot": "Add Time Slot",
+    "add_date": "Add Date"
+  },
+  
+  "appointment": {
+    "new_appointment": "New Appointment",
+    "edit_appointment": "Edit Appointment",
+    "view_appointment": "View Appointment",
+    "delete_appointment": "Delete Appointment",
+    "export_to_ics": "Export to ICS",
+    "confirm_delete": "Delete this appointment?",
+    
+    "form": {
+      "date_time": "Date & Time",
+      "customer_name": "Customer Name",
+      "email": "Email",
+      "phone": "Phone",
+      "service": "Service",
+      "status": "Status",
+      "notes": "Notes",
+      "duration": "Duration (Minutes)"
+    },
+    
+    "status": {
+      "pending": "Pending",
+      "booked": "Booked",
+      "confirmed": "Confirmed",
+      "completed": "Completed",
+      "cancelled": "Cancelled",
+      "noshow": "No-Show"
+    }
+  },
+  
+  "availability": {
+    "title": "Availability Settings",
+    "weekly_schedule": "Weekly Availability",
+    "blackout_dates": "Blackout Dates",
+    "loading": "Loading availability...",
+    "no_blackout_dates": "No blackout dates",
+    "success_message": "Availability settings saved successfully!",
+    
+    "days": {
+      "monday": "Monday",
+      "tuesday": "Tuesday", 
+      "wednesday": "Wednesday",
+      "thursday": "Thursday",
+      "friday": "Friday",
+      "saturday": "Saturday",
+      "sunday": "Sunday"
+    },
+    
+    "time_labels": {
+      "from": "from",
+      "to": "to",
+      "start_time": "Start Time",
+      "end_time": "End Time",
+      "reason": "Reason"
+    }
+  },
+  
+  "services": {
+    "no_services": "No services available - Configure services in Bot Settings first",
+    "no_services_configured": "No Services Configured",
+    "configure_services": "Go to Bot Configuration → Services & Prices to add services first.",
+    "price_duration": "${price} ({duration}min)"
+  },
+  
+  "errors": {
+    "invalid_date": "Invalid Date",
+    "loading_error": "Error loading",
+    "save_error": "Error saving"
+  }
+}
+

@@ -1,0 +1,50 @@
+{
+  "title": "Leyla AI Dashboard",
+  "welcome": "Welcome back!",
+  
+  "appointments": {
+    "title": "Appointments",
+    "today": "Today", 
+    "this_week": "This Week",
+    "manage_calendar": "Manage Calendar",
+    "total_appointments": "Total Appointments",
+    "upcoming": "Upcoming"
+  },
+  
+  "chats": {
+    "title": "Current Chats",
+    "current": "Current Chats",
+    "view_all": "View All Chats",
+    "active_conversations": "Active Conversations",
+    "total_sessions": "Total Sessions"
+  },
+  
+  "reviews": {
+    "title": "Needs Review",
+    "pending_approvals": "Pending Approvals", 
+    "review_messages": "Review Messages",
+    "items_to_review": "Items to Review",
+    "no_reviews_needed": "No review needed"
+  },
+  
+  "settings": {
+    "title": "Settings",
+    "description": "Bot configuration & settings",
+    "button": "Settings",
+    "configure": "Configure",
+    "system_ready": "System ready for configuration"
+  },
+  
+  "quick_actions": {
+    "new_chat": "+ New AI Chat",
+    "start_chat": "Start AI Chat",
+    "view_calendar": "View Calendar",
+    "manage_settings": "Manage Settings"
+  },
+  
+  "stats": {
+    "loading": "Loading dashboard statistics...",
+    "error": "Error loading statistics",
+    "last_updated": "Last updated"
+  }
+}

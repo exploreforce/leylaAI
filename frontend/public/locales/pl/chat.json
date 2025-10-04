@@ -1,0 +1,62 @@
+{
+  "test_chat": {
+    "title": "Symulacja Czatu AI",
+    "navigation": {
+      "all_chats": "Wszystkie czaty",
+      "review_responses": "Sprawdź odpowiedzi AI",
+      "back_to_dashboard": "← Powrót do panelu"
+    },
+    "loading": "Ładowanie czatu...",
+    "simulation": "Symulacja czatu",
+    "start_new": "Rozpocznij nowy czat"
+  },
+  "chat_list": {
+    "title": "Przegląd czatów",
+    "loading": "Ładowanie sesji czatu...",
+    "no_sessions": "Nie znaleziono sesji czatu",
+    "filters": {
+      "all": "Wszystkie",
+      "active": "Aktywny",
+      "archived": "Zarchiwizowany",
+      "inactive": "Nieaktywny",
+      "show_filters": "Pokaż filtry"
+    },
+    "actions": {
+      "open": "Otwórz czat",
+      "archive": "Archiwizuj",
+      "activate": "Reaktywuj",
+      "delete": "Usuń",
+      "confirm_delete": "Naprawdę usunąć? Ta akcja nie może być cofnięta.",
+      "confirm_archive": "Zarchiwizować czat?"
+    },
+    "status": {
+      "active": "Aktywny",
+      "archived": "Zarchiwizowany",
+      "inactive": "Nieaktywny (2+ tygodnie bez aktywności)"
+    }
+  },
+  "chat_review": {
+    "title": "Weryfikacja odpowiedzi AI",
+    "loading": "Ładowanie czatu...",
+    "loading_chats": "Ładowanie czatów...",
+    "review_responses": "Sprawdź odpowiedzi AI",
+    "no_chats": "Brak oczekujących weryfikacji!",
+    "all_up_to_date": "Wszystkie czaty są aktualne.",
+    "pending_review": "Oczekująca weryfikacja",
+    "user_label": "Użytkownik:",
+    "pending_ai_reply": "Oczekująca odpowiedź AI:",
+    "review_arrow": "Sprawdź →",
+    "approve": "Zatwierdź",
+    "reject": "Odrzuć",
+    "edit": "Edytuj",
+    "send_custom": "Wyślij własną odpowiedź"
+  },
+  "common": {
+    "back_to_dashboard": "← Powrót do panelu",
+    "loading": "Ładowanie...",
+    "error": "Błąd ładowania",
+    "no_data": "Brak dostępnych danych",
+    "session": "Sesja",
+    "last_activity": "Ostatnia aktywność"
+  }
+}

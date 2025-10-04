@@ -1,0 +1,86 @@
+{
+  "header": {
+    "title": "Calendrier",
+    "back_to_dashboard": "← Tableau de bord"
+  },
+  "views": {
+    "month": "Mois",
+    "week": "Semaine",
+    "day": "Jour",
+    "availability": "Disponibilité"
+  },
+  "buttons": {
+    "new_appointment": "Nouveau rendez-vous",
+    "export_ics": "Exporter ICS",
+    "today": "Maintenant",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "view_details": "Voir les détails",
+    "add_time_slot": "Ajouter un créneau horaire",
+    "add_date": "Ajouter une date"
+  },
+  "appointment": {
+    "new_appointment": "Nouveau rendez-vous",
+    "edit_appointment": "Modifier le rendez-vous",
+    "view_appointment": "Voir le rendez-vous",
+    "delete_appointment": "Supprimer le rendez-vous",
+    "export_to_ics": "Exporter vers ICS",
+    "confirm_delete": "Supprimer ce rendez-vous ?",
+    "form": {
+      "date_time": "Date et heure",
+      "customer_name": "Nom du client",
+      "email": "E-mail",
+      "phone": "Téléphone",
+      "service": "Service",
+      "status": "Statut",
+      "notes": "Notes",
+      "duration": "Durée (minutes)"
+    },
+    "status": {
+      "pending": "En attente",
+      "booked": "Réservé",
+      "confirmed": "Confirmé",
+      "completed": "Terminé",
+      "cancelled": "Annulé",
+      "noshow": "Absent"
+    }
+  },
+  "availability": {
+    "title": "Paramètres de disponibilité",
+    "weekly_schedule": "Disponibilité hebdomadaire",
+    "blackout_dates": "Dates bloquées",
+    "loading": "Chargement de la disponibilité...",
+    "no_blackout_dates": "Aucune date bloquée",
+    "success_message": "Disponibilité enregistrée avec succès !",
+    "days": {
+      "monday": "Lundi",
+      "tuesday": "Mardi",
+      "wednesday": "Mercredi",
+      "thursday": "Jeudi",
+      "friday": "Vendredi",
+      "saturday": "Samedi",
+      "sunday": "Dimanche"
+    },
+    "time_labels": {
+      "from": "de",
+      "to": "à",
+      "start_time": "Heure de début",
+      "end_time": "Heure de fin",
+      "reason": "Raison"
+    }
+  },
+  "services": {
+    "no_services": "Aucun service disponible - Configurez d'abord les services dans les paramètres du bot",
+    "no_services_configured": "Aucun service configuré",
+    "configure_services": "Allez dans Configuration du Bot → Services et Prix pour ajouter d'abord des services.",
+    "price_duration": "€{price} ({duration}min)"
+  },
+  "errors": {
+    "invalid_date": "Date invalide",
+    "loading_error": "Erreur de chargement",
+    "save_error": "Erreur d'enregistrement"
+  }
+}
+

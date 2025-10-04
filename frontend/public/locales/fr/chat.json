@@ -1,0 +1,63 @@
+{
+  "test_chat": {
+    "title": "Simulation de Chat AI",
+    "navigation": {
+      "all_chats": "Tous les chats",
+      "review_responses": "Examiner les réponses AI",
+      "back_to_dashboard": "← Retour au tableau de bord"
+    },
+    "loading": "Chargement du chat...",
+    "simulation": "Simulation de chat",
+    "start_new": "Démarrer un nouveau chat"
+  },
+  "chat_list": {
+    "title": "Vue d'ensemble des chats",
+    "loading": "Chargement des sessions de chat...",
+    "no_sessions": "Aucune session de chat trouvée",
+    "filters": {
+      "all": "Tous",
+      "active": "Actif",
+      "archived": "Archivé",
+      "inactive": "Inactif",
+      "show_filters": "Afficher les filtres"
+    },
+    "actions": {
+      "open": "Ouvrir le chat",
+      "archive": "Archiver",
+      "activate": "Réactiver",
+      "delete": "Supprimer",
+      "confirm_delete": "Vraiment supprimer ? Cette action ne peut pas être annulée.",
+      "confirm_archive": "Archiver le chat ?"
+    },
+    "status": {
+      "active": "Actif",
+      "archived": "Archivé",
+      "inactive": "Inactif (2+ semaines d'inactivité)"
+    }
+  },
+  "chat_review": {
+    "title": "Examen des réponses AI",
+    "loading": "Chargement du chat...",
+    "loading_chats": "Chargement des chats...",
+    "review_responses": "Examiner les réponses AI",
+    "no_chats": "Aucun examen en attente !",
+    "all_up_to_date": "Tous les chats sont à jour.",
+    "pending_review": "Examen en attente",
+    "user_label": "Utilisateur :",
+    "pending_ai_reply": "Réponse AI en attente :",
+    "review_arrow": "Examiner →",
+    "approve": "Approuver",
+    "reject": "Rejeter",
+    "edit": "Modifier",
+    "send_custom": "Envoyer une réponse personnalisée"
+  },
+  "common": {
+    "back_to_dashboard": "← Retour au tableau de bord",
+    "loading": "Chargement...",
+    "error": "Erreur de chargement",
+    "no_data": "Aucune donnée disponible",
+    "session": "Session",
+    "last_activity": "Dernière activité"
+  }
+}
+

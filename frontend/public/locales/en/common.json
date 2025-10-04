@@ -1,0 +1,87 @@
+{
+  "language_names": {
+    "de": "Deutsch",
+    "en": "English", 
+    "ru": "Русский",
+    "pl": "Polski",
+    "cs": "Čeština",
+    "sk": "Slovenčina",
+    "hu": "Magyar",
+    "ro": "Română",
+    "bg": "Български",
+    "sr": "Српски",
+    "hr": "Hrvatski",
+    "sl": "Slovenščina",
+    "bs": "Bosanski",
+    "mk": "Македонски",
+    "sq": "Shqip",
+    "lv": "Latviešu",
+    "lt": "Lietuvių",
+    "et": "Eesti",
+    "uk": "Українська",
+    "be": "Беларуская",
+    "es": "Español",
+    "it": "Italiano",
+    "el": "Ελληνικά",
+    "th": "ไทย",
+    "tl": "Tagalog",
+    "vi": "Tiếng Việt"
+  },
+  
+  "actions": {
+    "save": "Save",
+    "saving": "Saving...",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "create": "Create",
+    "update": "Update",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "confirm": "Confirm",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "warning": "Warning",
+    "info": "Information"
+  },
+  
+  "navigation": {
+    "dashboard": "Dashboard",
+    "settings": "Settings",
+    "appointments": "Appointments",
+    "calendar": "Calendar",
+    "chats": "Chats",
+    "messages": "Messages",
+    "reviews": "Reviews",
+    "profile": "Profile",
+    "logout": "Logout",
+    "login": "Login"
+  },
+  
+  "status": {
+    "active": "Active",
+    "inactive": "Inactive", 
+    "archived": "Archived",
+    "pending": "Pending",
+    "completed": "Completed",
+    "cancelled": "Cancelled",
+    "draft": "Draft",
+    "published": "Published"
+  },
+  
+  "time": {
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "tomorrow": "Tomorrow",
+    "this_week": "This Week",
+    "last_week": "Last Week",
+    "next_week": "Next Week",
+    "this_month": "This Month",
+    "last_month": "Last Month",
+    "next_month": "Next Month"
+  }
+}

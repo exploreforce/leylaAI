@@ -1,0 +1,62 @@
+{
+  "test_chat": {
+    "title": "AI Csevegés Szimuláció",
+    "navigation": {
+      "all_chats": "Összes csevegés",
+      "review_responses": "AI válaszok ellenőrzése",
+      "back_to_dashboard": "← Vissza az irányítópulthoz"
+    },
+    "loading": "Csevegés betöltése...",
+    "simulation": "Csevegés szimuláció",
+    "start_new": "Új csevegés indítása"
+  },
+  "chat_list": {
+    "title": "Csevegések áttekintése",
+    "loading": "Csevegés munkamenetek betöltése...",
+    "no_sessions": "Nem található csevegés munkamenet",
+    "filters": {
+      "all": "Összes",
+      "active": "Aktív",
+      "archived": "Archivált",
+      "inactive": "Inaktív",
+      "show_filters": "Szűrők megjelenítése"
+    },
+    "actions": {
+      "open": "Csevegés megnyitása",
+      "archive": "Archiválás",
+      "activate": "Újraaktiválás",
+      "delete": "Törlés",
+      "confirm_delete": "Biztosan törölni szeretné? Ez a művelet nem vonható vissza.",
+      "confirm_archive": "Csevegés archiválása?"
+    },
+    "status": {
+      "active": "Aktív",
+      "archived": "Archivált",
+      "inactive": "Inaktív (2+ hét inaktivitás)"
+    }
+  },
+  "chat_review": {
+    "title": "AI válaszok ellenőrzése",
+    "loading": "Csevegés betöltése...",
+    "loading_chats": "Csevegések betöltése...",
+    "review_responses": "AI válaszok ellenőrzése",
+    "no_chats": "Nincs függőben lévő ellenőrzés!",
+    "all_up_to_date": "Minden csevegés naprakész.",
+    "pending_review": "Függőben lévő ellenőrzés",
+    "user_label": "Felhasználó:",
+    "pending_ai_reply": "Függőben lévő AI válasz:",
+    "review_arrow": "Ellenőrzés →",
+    "approve": "Jóváhagyás",
+    "reject": "Elutasítás",
+    "edit": "Szerkesztés",
+    "send_custom": "Egyéni válasz küldése"
+  },
+  "common": {
+    "back_to_dashboard": "← Vissza az irányítópulthoz",
+    "loading": "Betöltés...",
+    "error": "Betöltési hiba",
+    "no_data": "Nincs elérhető adat",
+    "session": "Munkamenet",
+    "last_activity": "Utolsó aktivitás"
+  }
+}

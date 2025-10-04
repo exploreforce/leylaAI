@@ -1,0 +1,85 @@
+{
+  "header": {
+    "title": "Kalendář",
+    "back_to_dashboard": "← Panel"
+  },
+  "views": {
+    "month": "Měsíc",
+    "week": "Týden",
+    "day": "Den",
+    "availability": "Dostupnost"
+  },
+  "buttons": {
+    "new_appointment": "Nová schůzka",
+    "export_ics": "Export ICS",
+    "today": "Nyní",
+    "save": "Uložit",
+    "cancel": "Zrušit",
+    "delete": "Smazat",
+    "edit": "Upravit",
+    "view_details": "Zobrazit detaily",
+    "add_time_slot": "Přidat časový slot",
+    "add_date": "Přidat datum"
+  },
+  "appointment": {
+    "new_appointment": "Nová schůzka",
+    "edit_appointment": "Upravit schůzku",
+    "view_appointment": "Zobrazit schůzku",
+    "delete_appointment": "Smazat schůzku",
+    "export_to_ics": "Exportovat do ICS",
+    "confirm_delete": "Smazat tuto schůzku?",
+    "form": {
+      "date_time": "Datum a čas",
+      "customer_name": "Jméno zákazníka",
+      "email": "E-mail",
+      "phone": "Telefon",
+      "service": "Služba",
+      "status": "Stav",
+      "notes": "Poznámky",
+      "duration": "Doba trvání (minuty)"
+    },
+    "status": {
+      "pending": "Čekající",
+      "booked": "Rezervováno",
+      "confirmed": "Potvrzeno",
+      "completed": "Dokončeno",
+      "cancelled": "Zrušeno",
+      "noshow": "Nedostavil se"
+    }
+  },
+  "availability": {
+    "title": "Nastavení dostupnosti",
+    "weekly_schedule": "Týdenní dostupnost",
+    "blackout_dates": "Blokovaná data",
+    "loading": "Načítání dostupnosti...",
+    "no_blackout_dates": "Žádná blokovaná data",
+    "success_message": "Dostupnost úspěšně uložena!",
+    "days": {
+      "monday": "Pondělí",
+      "tuesday": "Úterý",
+      "wednesday": "Středa",
+      "thursday": "Čtvrtek",
+      "friday": "Pátek",
+      "saturday": "Sobota",
+      "sunday": "Neděle"
+    },
+    "time_labels": {
+      "from": "od",
+      "to": "do",
+      "start_time": "Čas zahájení",
+      "end_time": "Čas ukončení",
+      "reason": "Důvod"
+    }
+  },
+  "services": {
+    "no_services": "Žádné dostupné služby - Nejprve nakonfigurujte služby v nastavení bota",
+    "no_services_configured": "Žádné nakonfigurované služby",
+    "configure_services": "Přejděte do Konfigurace Bota → Služby a Ceny pro přidání služeb.",
+    "price_duration": "€{price} ({duration}min)"
+  },
+  "errors": {
+    "invalid_date": "Neplatné datum",
+    "loading_error": "Chyba načítání",
+    "save_error": "Chyba ukládání"
+  }
+}

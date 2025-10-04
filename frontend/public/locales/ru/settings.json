@@ -1,0 +1,51 @@
+{
+  "tabs": {
+    "bot_config": "Конфигурация бота",
+    "services": "Услуги и цены",
+    "settings": "Настройки"
+  },
+  "messages": {
+    "config_saved": "Конфигурация бота успешно сохранена!",
+    "loading_config": "Загрузка конфигурации бота..."
+  },
+  "language": {
+    "title": "Язык",
+    "subtitle": "Выберите предпочитаемый язык интерфейса",
+    "select_language": "Выбрать язык",
+    "current_language": "Текущий язык",
+    "loading": "Загрузка языковых опций...",
+    "change_success": "Язык успешно изменен!"
+  },
+  "bot_config": {
+    "identity": {
+      "title": "Идентификация бота",
+      "name": "Имя бота",
+      "personality": "Личность",
+      "role": "Роль",
+      "description": "Описание"
+    },
+    "appearance": {
+      "title": "Внешний вид",
+      "avatar": "Аватар",
+      "theme": "Тема",
+      "colors": "Цвета"
+    },
+    "behavior": {
+      "title": "Поведение",
+      "response_style": "Стиль ответа",
+      "greeting": "Приветствие",
+      "farewell": "Прощание"
+    }
+  },
+  "services": {
+    "title": "Услуги и цены",
+    "add_service": "Добавить услугу",
+    "edit_service": "Редактировать услугу",
+    "delete_service": "Удалить услугу",
+    "name": "Название",
+    "description": "Описание",
+    "price": "Цена",
+    "duration": "Длительность",
+    "available": "Доступно"
+  }
+}

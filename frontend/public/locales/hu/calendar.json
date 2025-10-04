@@ -1,0 +1,85 @@
+{
+  "header": {
+    "title": "Naptár",
+    "back_to_dashboard": "← Irányítópult"
+  },
+  "views": {
+    "month": "Hónap",
+    "week": "Hét",
+    "day": "Nap",
+    "availability": "Elérhetőség"
+  },
+  "buttons": {
+    "new_appointment": "Új találkozó",
+    "export_ics": "ICS Export",
+    "today": "Most",
+    "save": "Mentés",
+    "cancel": "Mégse",
+    "delete": "Törlés",
+    "edit": "Szerkesztés",
+    "view_details": "Részletek megtekintése",
+    "add_time_slot": "Időrés hozzáadása",
+    "add_date": "Dátum hozzáadása"
+  },
+  "appointment": {
+    "new_appointment": "Új találkozó",
+    "edit_appointment": "Találkozó szerkesztése",
+    "view_appointment": "Találkozó megtekintése",
+    "delete_appointment": "Találkozó törlése",
+    "export_to_ics": "Exportálás ICS-be",
+    "confirm_delete": "Törli ezt a találkozót?",
+    "form": {
+      "date_time": "Dátum és idő",
+      "customer_name": "Ügyfél neve",
+      "email": "E-mail",
+      "phone": "Telefon",
+      "service": "Szolgáltatás",
+      "status": "Állapot",
+      "notes": "Jegyzetek",
+      "duration": "Időtartam (perc)"
+    },
+    "status": {
+      "pending": "Függőben",
+      "booked": "Lefoglalt",
+      "confirmed": "Megerősített",
+      "completed": "Befejezett",
+      "cancelled": "Törölve",
+      "noshow": "Nem jelent meg"
+    }
+  },
+  "availability": {
+    "title": "Elérhetőség beállítások",
+    "weekly_schedule": "Heti elérhetőség",
+    "blackout_dates": "Blokkolt dátumok",
+    "loading": "Elérhetőség betöltése...",
+    "no_blackout_dates": "Nincs blokkolt dátum",
+    "success_message": "Elérhetőség sikeresen mentve!",
+    "days": {
+      "monday": "Hétfő",
+      "tuesday": "Kedd",
+      "wednesday": "Szerda",
+      "thursday": "Csütörtök",
+      "friday": "Péntek",
+      "saturday": "Szombat",
+      "sunday": "Vasárnap"
+    },
+    "time_labels": {
+      "from": "ettől",
+      "to": "eddig",
+      "start_time": "Kezdési idő",
+      "end_time": "Befejezési idő",
+      "reason": "Ok"
+    }
+  },
+  "services": {
+    "no_services": "Nincs elérhető szolgáltatás - Először konfigurálja a szolgáltatásokat a bot beállításokban",
+    "no_services_configured": "Nincs konfigurált szolgáltatás",
+    "configure_services": "Menjen a Bot Konfiguráció → Szolgáltatások és Árak menüponthoz a szolgáltatások hozzáadásához.",
+    "price_duration": "€{price} ({duration}perc)"
+  },
+  "errors": {
+    "invalid_date": "Érvénytelen dátum",
+    "loading_error": "Betöltési hiba",
+    "save_error": "Mentési hiba"
+  }
+}

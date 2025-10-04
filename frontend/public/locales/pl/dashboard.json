@@ -1,0 +1,44 @@
+{
+  "title": "Panel Leyla AI",
+  "welcome": "Witaj ponownie!",
+  "appointments": {
+    "title": "Spotkania",
+    "today": "Dzisiaj",
+    "this_week": "Ten tydzień",
+    "manage_calendar": "Zarządzaj kalendarzem",
+    "total_appointments": "Wszystkie spotkania",
+    "upcoming": "Nadchodzące"
+  },
+  "chats": {
+    "title": "Aktywne czaty",
+    "current": "Obecne czaty",
+    "view_all": "Zobacz wszystkie czaty",
+    "active_conversations": "Aktywne rozmowy",
+    "total_sessions": "Wszystkie sesje"
+  },
+  "reviews": {
+    "title": "Wymagana weryfikacja",
+    "pending_approvals": "Oczekujące zatwierdzenia",
+    "review_messages": "Sprawdź wiadomości",
+    "items_to_review": "Elementy do sprawdzenia",
+    "no_reviews_needed": "Brak konieczności weryfikacji"
+  },
+  "settings": {
+    "title": "Ustawienia",
+    "description": "Konfiguracja bota i ustawienia",
+    "button": "Ustawienia",
+    "configure": "Konfiguruj",
+    "system_ready": "System gotowy do konfiguracji"
+  },
+  "quick_actions": {
+    "new_chat": "+ Nowy Czat AI",
+    "start_chat": "Rozpocznij Czat AI",
+    "view_calendar": "Zobacz kalendarz",
+    "manage_settings": "Zarządzaj ustawieniami"
+  },
+  "stats": {
+    "loading": "Ładowanie statystyk panelu...",
+    "error": "Błąd podczas ładowania statystyk",
+    "last_updated": "Ostatnia aktualizacja"
+  }
+}

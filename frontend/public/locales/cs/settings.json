@@ -1,0 +1,51 @@
+{
+  "tabs": {
+    "bot_config": "Konfigurace Bota",
+    "services": "Služby a Ceny",
+    "settings": "Nastavení"
+  },
+  "messages": {
+    "config_saved": "Konfigurace bota úspěšně uložena!",
+    "loading_config": "Načítání konfigurace bota..."
+  },
+  "language": {
+    "title": "Jazyk",
+    "subtitle": "Vyberte preferovaný jazyk rozhraní",
+    "select_language": "Vybrat jazyk",
+    "current_language": "Aktuální jazyk",
+    "loading": "Načítání jazykových možností...",
+    "change_success": "Jazyk úspěšně změněn!"
+  },
+  "bot_config": {
+    "identity": {
+      "title": "Identita Bota",
+      "name": "Název Bota",
+      "personality": "Osobnost",
+      "role": "Role",
+      "description": "Popis"
+    },
+    "appearance": {
+      "title": "Vzhled",
+      "avatar": "Avatar",
+      "theme": "Téma",
+      "colors": "Barvy"
+    },
+    "behavior": {
+      "title": "Chování",
+      "response_style": "Styl odpovědi",
+      "greeting": "Pozdrav",
+      "farewell": "Rozloučení"
+    }
+  },
+  "services": {
+    "title": "Služby a Ceny",
+    "add_service": "Přidat službu",
+    "edit_service": "Upravit službu",
+    "delete_service": "Smazat službu",
+    "name": "Název",
+    "description": "Popis",
+    "price": "Cena",
+    "duration": "Doba trvání",
+    "available": "Dostupný"
+  }
+}

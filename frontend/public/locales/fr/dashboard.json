@@ -1,0 +1,45 @@
+{
+  "title": "Tableau de bord Leyla AI",
+  "welcome": "Bon retour !",
+  "appointments": {
+    "title": "Rendez-vous",
+    "today": "Aujourd'hui",
+    "this_week": "Cette semaine",
+    "manage_calendar": "Gérer le calendrier",
+    "total_appointments": "Total des rendez-vous",
+    "upcoming": "À venir"
+  },
+  "chats": {
+    "title": "Chats actifs",
+    "current": "Chats actuels",
+    "view_all": "Voir tous les chats",
+    "active_conversations": "Conversations actives",
+    "total_sessions": "Total des sessions"
+  },
+  "reviews": {
+    "title": "Révision requise",
+    "pending_approvals": "Approbations en attente",
+    "review_messages": "Examiner les messages",
+    "items_to_review": "Éléments à examiner",
+    "no_reviews_needed": "Aucune révision nécessaire"
+  },
+  "settings": {
+    "title": "Paramètres",
+    "description": "Configuration du bot et paramètres",
+    "button": "Paramètres",
+    "configure": "Configurer",
+    "system_ready": "Système prêt pour la configuration"
+  },
+  "quick_actions": {
+    "new_chat": "+ Nouveau Chat AI",
+    "start_chat": "Démarrer Chat AI",
+    "view_calendar": "Voir le calendrier",
+    "manage_settings": "Gérer les paramètres"
+  },
+  "stats": {
+    "loading": "Chargement des statistiques du tableau de bord...",
+    "error": "Erreur lors du chargement des statistiques",
+    "last_updated": "Dernière mise à jour"
+  }
+}
+

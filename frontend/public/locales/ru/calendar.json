@@ -1,0 +1,85 @@
+{
+  "header": {
+    "title": "Календарь",
+    "back_to_dashboard": "← Панель"
+  },
+  "views": {
+    "month": "Месяц",
+    "week": "Неделя",
+    "day": "День",
+    "availability": "Доступность"
+  },
+  "buttons": {
+    "new_appointment": "Новая встреча",
+    "export_ics": "Экспорт ICS",
+    "today": "Сейчас",
+    "save": "Сохранить",
+    "cancel": "Отменить",
+    "delete": "Удалить",
+    "edit": "Редактировать",
+    "view_details": "Посмотреть детали",
+    "add_time_slot": "Добавить временной слот",
+    "add_date": "Добавить дату"
+  },
+  "appointment": {
+    "new_appointment": "Новая встреча",
+    "edit_appointment": "Редактировать встречу",
+    "view_appointment": "Посмотреть встречу",
+    "delete_appointment": "Удалить встречу",
+    "export_to_ics": "Экспортировать в ICS",
+    "confirm_delete": "Удалить эту встречу?",
+    "form": {
+      "date_time": "Дата и время",
+      "customer_name": "Имя клиента",
+      "email": "E-mail",
+      "phone": "Телефон",
+      "service": "Услуга",
+      "status": "Статус",
+      "notes": "Заметки",
+      "duration": "Длительность (минуты)"
+    },
+    "status": {
+      "pending": "Ожидает",
+      "booked": "Забронирован",
+      "confirmed": "Подтвержден",
+      "completed": "Завершен",
+      "cancelled": "Отменен",
+      "noshow": "Не явился"
+    }
+  },
+  "availability": {
+    "title": "Настройки доступности",
+    "weekly_schedule": "Еженедельная доступность",
+    "blackout_dates": "Заблокированные даты",
+    "loading": "Загрузка доступности...",
+    "no_blackout_dates": "Нет заблокированных дат",
+    "success_message": "Доступность успешно сохранена!",
+    "days": {
+      "monday": "Понедельник",
+      "tuesday": "Вторник",
+      "wednesday": "Среда",
+      "thursday": "Четверг",
+      "friday": "Пятница",
+      "saturday": "Суббота",
+      "sunday": "Воскресенье"
+    },
+    "time_labels": {
+      "from": "с",
+      "to": "до",
+      "start_time": "Время начала",
+      "end_time": "Время окончания",
+      "reason": "Причина"
+    }
+  },
+  "services": {
+    "no_services": "Нет доступных услуг - Сначала настройте услуги в настройках бота",
+    "no_services_configured": "Услуги не настроены",
+    "configure_services": "Перейдите в Конфигурация бота → Услуги и цены, чтобы сначала добавить услуги.",
+    "price_duration": "€{price} ({duration}мин)"
+  },
+  "errors": {
+    "invalid_date": "Неверная дата",
+    "loading_error": "Ошибка загрузки",
+    "save_error": "Ошибка сохранения"
+  }
+}

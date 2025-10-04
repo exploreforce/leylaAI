@@ -1,0 +1,62 @@
+{
+  "test_chat": {
+    "title": "Simulace AI Chatu",
+    "navigation": {
+      "all_chats": "Všechny chaty",
+      "review_responses": "Zkontrolovat odpovědi AI",
+      "back_to_dashboard": "← Zpět na panel"
+    },
+    "loading": "Načítání chatu...",
+    "simulation": "Simulace chatu",
+    "start_new": "Zahájit nový chat"
+  },
+  "chat_list": {
+    "title": "Přehled chatů",
+    "loading": "Načítání relací chatu...",
+    "no_sessions": "Žádné relace chatu nenalezeny",
+    "filters": {
+      "all": "Vše",
+      "active": "Aktivní",
+      "archived": "Archivováno",
+      "inactive": "Neaktivní",
+      "show_filters": "Zobrazit filtry"
+    },
+    "actions": {
+      "open": "Otevřít chat",
+      "archive": "Archivovat",
+      "activate": "Reaktivovat",
+      "delete": "Smazat",
+      "confirm_delete": "Opravdu smazat? Tuto akci nelze vrátit zpět.",
+      "confirm_archive": "Archivovat chat?"
+    },
+    "status": {
+      "active": "Aktivní",
+      "archived": "Archivováno",
+      "inactive": "Neaktivní (2+ týdny neaktivity)"
+    }
+  },
+  "chat_review": {
+    "title": "Kontrola odpovědí AI",
+    "loading": "Načítání chatu...",
+    "loading_chats": "Načítání chatů...",
+    "review_responses": "Zkontrolovat odpovědi AI",
+    "no_chats": "Žádné čekající kontroly!",
+    "all_up_to_date": "Všechny chaty jsou aktuální.",
+    "pending_review": "Čekající kontrola",
+    "user_label": "Uživatel:",
+    "pending_ai_reply": "Čekající odpověď AI:",
+    "review_arrow": "Zkontrolovat →",
+    "approve": "Schválit",
+    "reject": "Odmítnout",
+    "edit": "Upravit",
+    "send_custom": "Odeslat vlastní odpověď"
+  },
+  "common": {
+    "back_to_dashboard": "← Zpět na panel",
+    "loading": "Načítání...",
+    "error": "Chyba načítání",
+    "no_data": "Žádná data k dispozici",
+    "session": "Relace",
+    "last_activity": "Poslední aktivita"
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "title": "Panel Leyla AI",
+  "welcome": "Vítejte zpět!",
+  "appointments": {
+    "title": "Schůzky",
+    "today": "Dnes",
+    "this_week": "Tento týden",
+    "manage_calendar": "Spravovat kalendář",
+    "total_appointments": "Celkem schůzek",
+    "upcoming": "Nadcházející"
+  },
+  "chats": {
+    "title": "Aktivní chaty",
+    "current": "Aktuální chaty",
+    "view_all": "Zobrazit všechny chaty",
+    "active_conversations": "Aktivní konverzace",
+    "total_sessions": "Celkem relací"
+  },
+  "reviews": {
+    "title": "Vyžaduje kontrolu",
+    "pending_approvals": "Čekající schválení",
+    "review_messages": "Zkontrolovat zprávy",
+    "items_to_review": "Položky ke kontrole",
+    "no_reviews_needed": "Není vyžadována kontrola"
+  },
+  "settings": {
+    "title": "Nastavení",
+    "description": "Konfigurace bota a nastavení",
+    "button": "Nastavení",
+    "configure": "Konfigurovat",
+    "system_ready": "Systém připraven ke konfiguraci"
+  },
+  "quick_actions": {
+    "new_chat": "+ Nový AI Chat",
+    "start_chat": "Zahájit AI Chat",
+    "view_calendar": "Zobrazit kalendář",
+    "manage_settings": "Spravovat nastavení"
+  },
+  "stats": {
+    "loading": "Načítání statistik panelu...",
+    "error": "Chyba při načítání statistik",
+    "last_updated": "Naposledy aktualizováno"
+  }
+}

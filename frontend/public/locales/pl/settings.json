@@ -1,0 +1,51 @@
+{
+  "tabs": {
+    "bot_config": "Konfiguracja Bota",
+    "services": "Usługi i Ceny",
+    "settings": "Ustawienia"
+  },
+  "messages": {
+    "config_saved": "Konfiguracja bota zapisana pomyślnie!",
+    "loading_config": "Ładowanie konfiguracji bota..."
+  },
+  "language": {
+    "title": "Język",
+    "subtitle": "Wybierz preferowany język interfejsu",
+    "select_language": "Wybierz język",
+    "current_language": "Obecny język",
+    "loading": "Ładowanie opcji językowych...",
+    "change_success": "Język zmieniony pomyślnie!"
+  },
+  "bot_config": {
+    "identity": {
+      "title": "Tożsamość Bota",
+      "name": "Nazwa Bota",
+      "personality": "Osobowość",
+      "role": "Rola",
+      "description": "Opis"
+    },
+    "appearance": {
+      "title": "Wygląd",
+      "avatar": "Avatar",
+      "theme": "Motyw",
+      "colors": "Kolory"
+    },
+    "behavior": {
+      "title": "Zachowanie",
+      "response_style": "Styl odpowiedzi",
+      "greeting": "Powitanie",
+      "farewell": "Pożegnanie"
+    }
+  },
+  "services": {
+    "title": "Usługi i Ceny",
+    "add_service": "Dodaj usługę",
+    "edit_service": "Edytuj usługę",
+    "delete_service": "Usuń usługę",
+    "name": "Nazwa",
+    "description": "Opis",
+    "price": "Cena",
+    "duration": "Czas trwania",
+    "available": "Dostępny"
+  }
+}

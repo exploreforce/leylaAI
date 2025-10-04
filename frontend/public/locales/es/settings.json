@@ -1,0 +1,51 @@
+{
+  "tabs": {
+    "bot_config": "Configuración del Bot",
+    "services": "Servicios y Precios",
+    "settings": "Configuración"
+  },
+  "messages": {
+    "config_saved": "¡Configuración del bot guardada con éxito!",
+    "loading_config": "Cargando configuración del bot..."
+  },
+  "language": {
+    "title": "Idioma",
+    "subtitle": "Seleccione su idioma preferido para la interfaz",
+    "select_language": "Seleccionar idioma",
+    "current_language": "Idioma actual",
+    "loading": "Cargando opciones de idioma...",
+    "change_success": "¡Idioma cambiado con éxito!"
+  },
+  "bot_config": {
+    "identity": {
+      "title": "Identidad del Bot",
+      "name": "Nombre del Bot",
+      "personality": "Personalidad",
+      "role": "Rol",
+      "description": "Descripción"
+    },
+    "appearance": {
+      "title": "Apariencia",
+      "avatar": "Avatar",
+      "theme": "Tema",
+      "colors": "Colores"
+    },
+    "behavior": {
+      "title": "Comportamiento",
+      "response_style": "Estilo de respuesta",
+      "greeting": "Saludo",
+      "farewell": "Despedida"
+    }
+  },
+  "services": {
+    "title": "Servicios y Precios",
+    "add_service": "Añadir servicio",
+    "edit_service": "Editar servicio",
+    "delete_service": "Eliminar servicio",
+    "name": "Nombre",
+    "description": "Descripción",
+    "price": "Precio",
+    "duration": "Duración",
+    "available": "Disponible"
+  }
+}

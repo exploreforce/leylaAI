@@ -1,0 +1,9 @@
+{
+  "title": "Panou Leyla AI", "welcome": "Bine ați revenit!",
+  "appointments": {"title": "Întâlniri", "today": "Astăzi", "this_week": "Această săptămână", "manage_calendar": "Gestionează calendarul", "total_appointments": "Total întâlniri", "upcoming": "Viitoare"},
+  "chats": {"title": "Chat-uri active", "current": "Chat-uri curente", "view_all": "Vezi toate chat-urile", "active_conversations": "Conversații active", "total_sessions": "Total sesiuni"},
+  "reviews": {"title": "Necesită revizuire", "pending_approvals": "Aprobări în așteptare", "review_messages": "Revizuiește mesajele", "items_to_review": "Elemente de revizuit", "no_reviews_needed": "Nu este necesară revizuirea"},
+  "settings": {"title": "Setări", "description": "Configurare bot și setări", "button": "Setări", "configure": "Configurează", "system_ready": "Sistem pregătit pentru configurare"},
+  "quick_actions": {"new_chat": "+ Chat AI Nou", "start_chat": "Pornește Chat AI", "view_calendar": "Vezi calendarul", "manage_settings": "Gestionează setările"},
+  "stats": {"loading": "Se încarcă statisticile panoului...", "error": "Eroare la încărcarea statisticilor", "last_updated": "Ultima actualizare"}
+}

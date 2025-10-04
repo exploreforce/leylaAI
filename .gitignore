@@ -128,7 +128,9 @@ dist
 
 # Gatsby files
 .cache/
-public
+# Note: We need frontend/public for Next.js, so we DON'T exclude it here
+# Only exclude Gatsby's public folder if you have one at root level
+# public
 
 # Storybook build outputs
 .out

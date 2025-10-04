@@ -1,0 +1,44 @@
+{
+  "title": "Панель Leyla AI",
+  "welcome": "С возвращением!",
+  "appointments": {
+    "title": "Встречи",
+    "today": "Сегодня",
+    "this_week": "Эта неделя",
+    "manage_calendar": "Управление календарем",
+    "total_appointments": "Всего встреч",
+    "upcoming": "Предстоящие"
+  },
+  "chats": {
+    "title": "Активные чаты",
+    "current": "Текущие чаты",
+    "view_all": "Посмотреть все чаты",
+    "active_conversations": "Активные беседы",
+    "total_sessions": "Всего сессий"
+  },
+  "reviews": {
+    "title": "Требуется проверка",
+    "pending_approvals": "Ожидающие одобрения",
+    "review_messages": "Проверить сообщения",
+    "items_to_review": "Элементы для проверки",
+    "no_reviews_needed": "Проверка не требуется"
+  },
+  "settings": {
+    "title": "Настройки",
+    "description": "Конфигурация бота и настройки",
+    "button": "Настройки",
+    "configure": "Настроить",
+    "system_ready": "Система готова к настройке"
+  },
+  "quick_actions": {
+    "new_chat": "+ Новый AI чат",
+    "start_chat": "Начать AI чат",
+    "view_calendar": "Посмотреть календарь",
+    "manage_settings": "Управление настройками"
+  },
+  "stats": {
+    "loading": "Загрузка статистики панели...",
+    "error": "Ошибка при загрузке статистики",
+    "last_updated": "Последнее обновление"
+  }
+}

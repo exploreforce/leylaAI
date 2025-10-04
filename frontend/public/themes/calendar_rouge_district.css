@@ -1,0 +1,182 @@
+/* Leyla AI Calendar Theme (Light)
+   This file is intentionally minimal. Most variables and styles are driven
+   by global CSS variables in /src/app/globals.css and component-level Tailwind.
+   Keeping this file allows controlled overrides and prevents 404s from layout. */
+
+/* Example hooks for calendar libs (kept neutral to avoid conflicts) */
+/* :root {
+  --calendar-accent: rgb(79, 70, 229);      /* #4F46E5 */
+  --calendar-accent-2: rgb(124, 58, 237);   /* #7C3AED */
+  --calendar-bg: #ffffff;
+  --calendar-surface: #ffffff;
+  --calendar-surface-alt: #f1f5f9;
+  --calendar-border: #e2e8f0;
+  --calendar-text: #0f172a;
+} */
+
+/* 🌤️ Calendar Rouge District Theme - Light, Trust-Focused */
+/* Overrides map to a clean light palette aligned with global CSS variables */
+
+.calendar_rouge_district_main {
+    /* 🌤️ Light Background & Text */
+    --color-header-background: #f1f5f9; /* slate-100 */
+    --color-header-text: rgb(var(--elysBlue-primary-rgb)); /* brand blue */
+
+    /* 🎯 Border & Line Colors */
+    --color-vertical-line-header: rgb(var(--elysBlue-primary-rgb));
+    --color-vertical-line-cell: #e2e8f0; /* slate-200 */
+
+    /* 💼 Cell Background Colors */
+    --color-cell-background-business: #ffffff; /* white */
+    --color-cell-background-nonbusiness: #f8fafc; /* slate-50 */
+
+    /* ✨ Event Styling */
+    --color-event-background: linear-gradient(135deg, rgb(var(--elysBlue-primary-rgb)), rgb(var(--elysViolet-primary-rgb)));
+    --color-event-border: #c7d2fe; /* indigo-200 */
+    --color-event-bar: rgb(var(--elysBlue-secondary-rgb));
+    --color-event-bar-background: transparent;
+    --color-event-text: #ffffff; /* readable on brand gradient */
+
+    /* 📏 Layout */
+    --width-vertical-line: 1px;
+
+    /* 🎨 Light Theme Accents */
+    --color-today-highlight: rgba(79, 70, 229, 0.12); /* indigo */
+    --color-selected-background: rgba(124, 58, 237, 0.15); /* violet */
+    --color-hover-background: rgba(79, 70, 229, 0.06); /* subtle hover */
+}
+
+/* 🌃 Main Calendar Styling */
+.calendar_rouge_district_main {
+    border: 1px solid #e2e8f0; /* slate-200 */
+    font-size: 13px;
+    background-color: #ffffff; /* light background */
+    border-radius: 12px;
+    box-shadow: 0 6px 24px rgba(2, 6, 23, 0.06);
+    overflow: hidden;
+    color: #0f172a; /* slate-900 default text */
+}
+
+/* 📅 Headers Enhanced */
+.calendar_rouge_district_cornerright_inner,
+.calendar_rouge_district_corner_inner,
+.calendar_rouge_district_colheader_inner,
+.calendar_rouge_district_alldayheader_inner {
+    color: var(--color-header-text);
+    background: linear-gradient(135deg, var(--color-header-background), rgba(79, 70, 229, 0.08));
+    font-weight: 600;
+}
+
+.calendar_rouge_district_rowheader_inner {
+    color: #0f172a;
+    background: linear-gradient(135deg, var(--color-header-background), rgba(124, 58, 237, 0.05));
+    font-weight: 500;
+    text-align: center;
+}
+
+/* 🏢 Business Hours Styling */
+.calendar_rouge_district_cell_business .calendar_rouge_district_cell_inner {
+    background-color: var(--color-cell-background-business);
+}
+
+.calendar_rouge_district_cell_inner {
+    background-color: var(--color-cell-background-nonbusiness);
+    border-right: var(--width-vertical-line) solid var(--color-vertical-line-cell);
+    border-bottom: 1px solid #e2e8f0;
+    transition: all 0.3s ease;
+}
+
+.calendar_rouge_district_cell_inner:hover {
+    background-color: var(--color-hover-background);
+}
+
+/* ⚡ Events Enhanced */
+.calendar_rouge_district_alldayevent_inner,
+.calendar_rouge_district_event_inner {
+    color: var(--color-event-text);
+    background: var(--color-event-background);
+    border: 1px solid var(--color-event-border);
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(79, 70, 229, 0.2);
+    transition: all 0.3s ease;
+}
+
+.calendar_rouge_district_event:hover .calendar_rouge_district_event_inner,
+.calendar_rouge_district_alldayevent:hover .calendar_rouge_district_alldayevent_inner {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(192, 14, 157, 0.4);
+}
+
+/* 🎯 Selected Events */
+.calendar_rouge_district_selected .calendar_rouge_district_event_inner {
+    background: linear-gradient(135deg, rgb(var(--elysBlue-primary-rgb)), rgb(var(--elysViolet-primary-rgb)));
+    border-color: #8b5cf6;
+}
+
+/* 🔥 Event Bar Styling */
+.calendar_rouge_district_event_bar_inner {
+    background: linear-gradient(to bottom, var(--color-event-bar), #7c3aed);
+    width: 8px;
+    border-radius: 0 4px 4px 0;
+}
+
+.calendar_rouge_district_alldayevent_inner {
+    border-left: 6px solid var(--color-event-bar);
+    background: linear-gradient(135deg, rgba(79, 70, 229, 0.9), rgba(124, 58, 237, 0.9));
+}
+
+/* 🕐 Current Time Indicator */
+.calendar_rouge_district_now {
+    background: linear-gradient(90deg, rgb(var(--elysBlue-primary-rgb)), rgb(var(--elysViolet-primary-rgb)));
+    height: 3px;
+    box-shadow: 0 0 8px rgba(79, 70, 229, 0.5);
+}
+
+.calendar_rouge_district_now:before {
+    border-color: transparent transparent transparent rgb(var(--elysBlue-primary-rgb));
+}
+
+/* 💫 Loading & Message States */
+.calendar_rouge_district_message {
+    background: #eff6ff; /* blue-50 */
+    color: #1d4ed8; /* blue-700 */
+    border: 1px solid #bfdbfe; /* blue-200 */
+    border-radius: 8px;
+}
+
+.calendar_rouge_district_loading {
+    background: linear-gradient(135deg, #6366f1, #4f46e5);
+    color: white;
+    border-radius: 4px;
+}
+
+/* 🎨 Shadow Effects */
+.calendar_rouge_district_shadow_inner {
+    background: linear-gradient(135deg, rgba(79, 70, 229, 0.3), rgba(124, 58, 237, 0.25));
+}
+
+/* 📱 Mobile Optimizations */
+@media (max-width: 768px) {
+    .calendar_rouge_district_main {
+        border-radius: 8px;
+        border-width: 1px;
+    }
+    
+    .calendar_rouge_district_event_inner,
+    .calendar_rouge_district_alldayevent_inner {
+        font-size: 12px;
+    }
+    
+    .calendar_rouge_district_rowheader_inner {
+        font-size: 14px;
+    }
+}
+
+/* 🌟 Accessibility Enhancements */
+.calendar_rouge_district_event:focus .calendar_rouge_district_event_inner,
+.calendar_rouge_district_alldayevent:focus .calendar_rouge_district_alldayevent_inner {
+    outline: 2px solid #8b5cf6;
+    outline-offset: 2px;
+}
+
+/* 🎭 Professional Dark Theme Complete */

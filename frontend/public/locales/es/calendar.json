@@ -1,0 +1,85 @@
+{
+  "header": {
+    "title": "Calendario",
+    "back_to_dashboard": "← Panel"
+  },
+  "views": {
+    "month": "Mes",
+    "week": "Semana",
+    "day": "Día",
+    "availability": "Disponibilidad"
+  },
+  "buttons": {
+    "new_appointment": "Nueva cita",
+    "export_ics": "Exportar ICS",
+    "today": "Ahora",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "view_details": "Ver detalles",
+    "add_time_slot": "Añadir franja horaria",
+    "add_date": "Añadir fecha"
+  },
+  "appointment": {
+    "new_appointment": "Nueva cita",
+    "edit_appointment": "Editar cita",
+    "view_appointment": "Ver cita",
+    "delete_appointment": "Eliminar cita",
+    "export_to_ics": "Exportar a ICS",
+    "confirm_delete": "¿Eliminar esta cita?",
+    "form": {
+      "date_time": "Fecha y hora",
+      "customer_name": "Nombre del cliente",
+      "email": "Correo electrónico",
+      "phone": "Teléfono",
+      "service": "Servicio",
+      "status": "Estado",
+      "notes": "Notas",
+      "duration": "Duración (minutos)"
+    },
+    "status": {
+      "pending": "Pendiente",
+      "booked": "Reservado",
+      "confirmed": "Confirmado",
+      "completed": "Completado",
+      "cancelled": "Cancelado",
+      "noshow": "No presentado"
+    }
+  },
+  "availability": {
+    "title": "Configuración de disponibilidad",
+    "weekly_schedule": "Disponibilidad semanal",
+    "blackout_dates": "Fechas bloqueadas",
+    "loading": "Cargando disponibilidad...",
+    "no_blackout_dates": "Sin fechas bloqueadas",
+    "success_message": "¡Disponibilidad guardada con éxito!",
+    "days": {
+      "monday": "Lunes",
+      "tuesday": "Martes",
+      "wednesday": "Miércoles",
+      "thursday": "Jueves",
+      "friday": "Viernes",
+      "saturday": "Sábado",
+      "sunday": "Domingo"
+    },
+    "time_labels": {
+      "from": "de",
+      "to": "a",
+      "start_time": "Hora de inicio",
+      "end_time": "Hora de fin",
+      "reason": "Razón"
+    }
+  },
+  "services": {
+    "no_services": "No hay servicios disponibles - Configure los servicios en la configuración del bot primero",
+    "no_services_configured": "No hay servicios configurados",
+    "configure_services": "Vaya a Configuración del Bot → Servicios y Precios para añadir servicios primero.",
+    "price_duration": "€{price} ({duration}min)"
+  },
+  "errors": {
+    "invalid_date": "Fecha inválida",
+    "loading_error": "Error al cargar",
+    "save_error": "Error al guardar"
+  }
+}

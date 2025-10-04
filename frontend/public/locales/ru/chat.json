@@ -1,0 +1,62 @@
+{
+  "test_chat": {
+    "title": "Симуляция AI чата",
+    "navigation": {
+      "all_chats": "Все чаты",
+      "review_responses": "Проверить ответы AI",
+      "back_to_dashboard": "← Назад к панели"
+    },
+    "loading": "Загрузка чата...",
+    "simulation": "Симуляция чата",
+    "start_new": "Начать новый чат"
+  },
+  "chat_list": {
+    "title": "Обзор чатов",
+    "loading": "Загрузка сессий чата...",
+    "no_sessions": "Сессии чата не найдены",
+    "filters": {
+      "all": "Все",
+      "active": "Активный",
+      "archived": "Архивный",
+      "inactive": "Неактивный",
+      "show_filters": "Показать фильтры"
+    },
+    "actions": {
+      "open": "Открыть чат",
+      "archive": "Архивировать",
+      "activate": "Реактивировать",
+      "delete": "Удалить",
+      "confirm_delete": "Действительно удалить? Это действие нельзя отменить.",
+      "confirm_archive": "Архивировать чат?"
+    },
+    "status": {
+      "active": "Активный",
+      "archived": "Архивный",
+      "inactive": "Неактивный (2+ недели без активности)"
+    }
+  },
+  "chat_review": {
+    "title": "Проверка ответов AI",
+    "loading": "Загрузка чата...",
+    "loading_chats": "Загрузка чатов...",
+    "review_responses": "Проверить ответы AI",
+    "no_chats": "Нет ожидающих проверок!",
+    "all_up_to_date": "Все чаты актуальны.",
+    "pending_review": "Ожидает проверки",
+    "user_label": "Пользователь:",
+    "pending_ai_reply": "Ожидающий ответ AI:",
+    "review_arrow": "Проверить →",
+    "approve": "Одобрить",
+    "reject": "Отклонить",
+    "edit": "Редактировать",
+    "send_custom": "Отправить свой ответ"
+  },
+  "common": {
+    "back_to_dashboard": "← Назад к панели",
+    "loading": "Загрузка...",
+    "error": "Ошибка загрузки",
+    "no_data": "Нет доступных данных",
+    "session": "Сессия",
+    "last_activity": "Последняя активность"
+  }
+}

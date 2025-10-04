@@ -1,0 +1,7 @@
+{
+  "tabs": {"bot_config": "Configurare Bot", "services": "Servicii și Prețuri", "settings": "Setări"},
+  "messages": {"config_saved": "Configurare bot salvată cu succes!", "loading_config": "Se încarcă configurarea bot..."},
+  "language": {"title": "Limbă", "subtitle": "Selectați limba preferată pentru interfață", "select_language": "Selectați limba", "current_language": "Limba curentă", "loading": "Se încarcă opțiunile de limbă...", "change_success": "Limba schimbată cu succes!"},
+  "bot_config": {"identity": {"title": "Identitate Bot", "name": "Nume Bot", "personality": "Personalitate", "role": "Rol", "description": "Descriere"}, "appearance": {"title": "Aspect", "avatar": "Avatar", "theme": "Temă", "colors": "Culori"}, "behavior": {"title": "Comportament", "response_style": "Stil de răspuns", "greeting": "Salut", "farewell": "La revedere"}},
+  "services": {"title": "Servicii și Prețuri", "add_service": "Adaugă serviciu", "edit_service": "Editează serviciu", "delete_service": "Șterge serviciu", "name": "Nume", "description": "Descriere", "price": "Preț", "duration": "Durată", "available": "Disponibil"}
+}

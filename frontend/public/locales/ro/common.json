@@ -1,0 +1,17 @@
+{
+  "language_names": {
+    "de": "Germană", "en": "Engleză", "ru": "Rusă", "pl": "Poloneză", "cs": "Cehă", "sk": "Slovacă", "hu": "Maghiară", "ro": "Română", "bg": "Bulgară", "sr": "Sârbă", "hr": "Croată", "sl": "Slovenă", "bs": "Bosniacă", "mk": "Macedoneană", "sq": "Albaneză", "lv": "Letonă", "lt": "Lituaniană", "et": "Estonă", "uk": "Ucraineană", "be": "Belarusă", "es": "Spaniolă", "it": "Italiană", "el": "Greacă", "th": "Thailandeză", "tl": "Filipineză", "vi": "Vietnameză", "fr": "Franceză", "pt": "Portugheză", "nl": "Olandeză", "tr": "Turcă"
+  },
+  "actions": {
+    "save": "Salvează", "saving": "Se salvează...", "cancel": "Anulează", "delete": "Șterge", "edit": "Editează", "add": "Adaugă", "create": "Creează", "update": "Actualizează", "close": "Închide", "back": "Înapoi", "next": "Următorul", "previous": "Anterior", "confirm": "Confirmă", "loading": "Se încarcă...", "error": "Eroare", "success": "Succes", "warning": "Avertisment", "info": "Informație"
+  },
+  "navigation": {
+    "dashboard": "Panou", "settings": "Setări", "appointments": "Întâlniri", "calendar": "Calendar", "chats": "Chat-uri", "messages": "Mesaje", "reviews": "Recenzii", "profile": "Profil", "logout": "Deconectare", "login": "Autentificare"
+  },
+  "status": {
+    "active": "Activ", "inactive": "Inactiv", "archived": "Arhivat", "pending": "În așteptare", "completed": "Finalizat", "cancelled": "Anulat", "draft": "Ciornă", "published": "Publicat"
+  },
+  "time": {
+    "today": "Astăzi", "yesterday": "Ieri", "tomorrow": "Mâine", "this_week": "Această săptămână", "last_week": "Săptămâna trecută", "next_week": "Săptămâna viitoare", "this_month": "Luna aceasta", "last_month": "Luna trecută", "next_month": "Luna viitoare"
+  }
+}

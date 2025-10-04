@@ -1,0 +1,62 @@
+{
+  "test_chat": {
+    "title": "Simulazione Chat AI",
+    "navigation": {
+      "all_chats": "Tutte le chat",
+      "review_responses": "Esamina risposte AI",
+      "back_to_dashboard": "← Torna alla dashboard"
+    },
+    "loading": "Caricamento chat...",
+    "simulation": "Simulazione chat",
+    "start_new": "Avvia nuova chat"
+  },
+  "chat_list": {
+    "title": "Panoramica chat",
+    "loading": "Caricamento sessioni chat...",
+    "no_sessions": "Nessuna sessione chat trovata",
+    "filters": {
+      "all": "Tutte",
+      "active": "Attivo",
+      "archived": "Archiviato",
+      "inactive": "Inattivo",
+      "show_filters": "Mostra filtri"
+    },
+    "actions": {
+      "open": "Apri chat",
+      "archive": "Archivia",
+      "activate": "Riattiva",
+      "delete": "Elimina",
+      "confirm_delete": "Eliminare davvero? Questa azione non può essere annullata.",
+      "confirm_archive": "Archiviare la chat?"
+    },
+    "status": {
+      "active": "Attivo",
+      "archived": "Archiviato",
+      "inactive": "Inattivo (2+ settimane di inattività)"
+    }
+  },
+  "chat_review": {
+    "title": "Revisione risposte AI",
+    "loading": "Caricamento chat...",
+    "loading_chats": "Caricamento chat...",
+    "review_responses": "Esamina risposte AI",
+    "no_chats": "Nessuna revisione in attesa!",
+    "all_up_to_date": "Tutte le chat sono aggiornate.",
+    "pending_review": "Revisione in attesa",
+    "user_label": "Utente:",
+    "pending_ai_reply": "Risposta AI in attesa:",
+    "review_arrow": "Esamina →",
+    "approve": "Approva",
+    "reject": "Rifiuta",
+    "edit": "Modifica",
+    "send_custom": "Invia risposta personalizzata"
+  },
+  "common": {
+    "back_to_dashboard": "← Torna alla dashboard",
+    "loading": "Caricamento...",
+    "error": "Errore di caricamento",
+    "no_data": "Nessun dato disponibile",
+    "session": "Sessione",
+    "last_activity": "Ultima attività"
+  }
+}

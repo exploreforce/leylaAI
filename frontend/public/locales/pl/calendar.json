@@ -1,0 +1,85 @@
+{
+  "header": {
+    "title": "Kalendarz",
+    "back_to_dashboard": "← Panel"
+  },
+  "views": {
+    "month": "Miesiąc",
+    "week": "Tydzień",
+    "day": "Dzień",
+    "availability": "Dostępność"
+  },
+  "buttons": {
+    "new_appointment": "Nowe spotkanie",
+    "export_ics": "Eksportuj ICS",
+    "today": "Teraz",
+    "save": "Zapisz",
+    "cancel": "Anuluj",
+    "delete": "Usuń",
+    "edit": "Edytuj",
+    "view_details": "Zobacz szczegóły",
+    "add_time_slot": "Dodaj przedział czasowy",
+    "add_date": "Dodaj datę"
+  },
+  "appointment": {
+    "new_appointment": "Nowe spotkanie",
+    "edit_appointment": "Edytuj spotkanie",
+    "view_appointment": "Zobacz spotkanie",
+    "delete_appointment": "Usuń spotkanie",
+    "export_to_ics": "Eksportuj do ICS",
+    "confirm_delete": "Usunąć to spotkanie?",
+    "form": {
+      "date_time": "Data i godzina",
+      "customer_name": "Imię klienta",
+      "email": "E-mail",
+      "phone": "Telefon",
+      "service": "Usługa",
+      "status": "Status",
+      "notes": "Notatki",
+      "duration": "Czas trwania (minuty)"
+    },
+    "status": {
+      "pending": "Oczekujący",
+      "booked": "Zarezerwowany",
+      "confirmed": "Potwierdzony",
+      "completed": "Ukończony",
+      "cancelled": "Anulowany",
+      "noshow": "Nieobecny"
+    }
+  },
+  "availability": {
+    "title": "Ustawienia dostępności",
+    "weekly_schedule": "Tygodniowa dostępność",
+    "blackout_dates": "Zablokowane daty",
+    "loading": "Ładowanie dostępności...",
+    "no_blackout_dates": "Brak zablokowanych dat",
+    "success_message": "Dostępność zapisana pomyślnie!",
+    "days": {
+      "monday": "Poniedziałek",
+      "tuesday": "Wtorek",
+      "wednesday": "Środa",
+      "thursday": "Czwartek",
+      "friday": "Piątek",
+      "saturday": "Sobota",
+      "sunday": "Niedziela"
+    },
+    "time_labels": {
+      "from": "od",
+      "to": "do",
+      "start_time": "Godzina rozpoczęcia",
+      "end_time": "Godzina zakończenia",
+      "reason": "Powód"
+    }
+  },
+  "services": {
+    "no_services": "Brak dostępnych usług - Skonfiguruj najpierw usługi w ustawieniach bota",
+    "no_services_configured": "Brak skonfigurowanych usług",
+    "configure_services": "Przejdź do Konfiguracja Bota → Usługi i Ceny, aby najpierw dodać usługi.",
+    "price_duration": "€{price} ({duration}min)"
+  },
+  "errors": {
+    "invalid_date": "Nieprawidłowa data",
+    "loading_error": "Błąd ładowania",
+    "save_error": "Błąd zapisu"
+  }
+}
