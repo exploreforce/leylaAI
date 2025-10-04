@@ -16,6 +16,13 @@ const resolveBaseUrl = () => {
 
 const BASE_URL = resolveBaseUrl();
 
+// 🔍 DEBUG: Log the actual API URL being used
+console.log('🌐 API Configuration:', {
+  NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
+  resolvedBaseURL: BASE_URL,
+  fullApiURL: `${BASE_URL}/api`
+});
+
 // Create axios instance with default config
 const api = axios.create({
   baseURL: `${BASE_URL}/api`,
