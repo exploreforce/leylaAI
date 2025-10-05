@@ -30,8 +30,10 @@ COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules ./node_modules
 COPY knexfile.js ./knexfile.js
 COPY database ./database
+COPY run-migrations.js ./run-migrations.js
 # Env will be provided via compose
 EXPOSE 5000
-CMD ["node", "dist/index.js"]
+# Run migrations first, then start the server
+CMD ["sh", "-c", "node run-migrations.js && node dist/index.js"]
 
 
