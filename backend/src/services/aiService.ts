@@ -485,7 +485,7 @@ const executeTool = async (
         // Check if appointmentType is already a UUID (contains dashes)
         if (!appointmentType.includes('-')) {
           // It's a name, need to look it up
-          const services = await Database.getServices(accountId || undefined);
+          const services = await Database.getServices(accountId ? accountId : undefined);
           const matchingService = services.find(s => 
             s.name.toLowerCase() === appointmentType.toLowerCase() ||
             s.name.toLowerCase().includes(appointmentType.toLowerCase()) ||
