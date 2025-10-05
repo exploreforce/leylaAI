@@ -205,12 +205,20 @@ const executeTool = async (
   const toolName = toolCall.function.name;
   const args = JSON.parse(toolCall.function.arguments);
 
-  console.log(`🤖 Executing tool: ${toolName} for account: ${accountId}`, args);
+  console.log(`\n${'='.repeat(80)}`);
+  console.log(`🔧 TOOL CALL START: ${toolName}`);
+  console.log(`${'='.repeat(80)}`);
+  console.log(`📋 Tool ID: ${toolCall.id}`);
+  console.log(`👤 Account ID: ${accountId || 'N/A'}`);
+  console.log(`📥 Parameters:`, JSON.stringify(args, null, 2));
 
   switch (toolName) {
     case 'checkAvailability':
       const { date, duration } = args;
-      console.log(`🔍 Checking availability for date: ${date}, duration: ${duration} minutes`);
+      console.log(`\n📅 CHECK AVAILABILITY`);
+      console.log(`   Date: ${date}`);
+      console.log(`   Duration: ${duration} minutes`);
+      console.log(`   Account: ${accountId || 'N/A'}`);
       
       // Check if date is in the past
       const requestedDate = new Date(date + 'T00:00:00');
@@ -319,13 +327,32 @@ const executeTool = async (
       const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
       const dayName = dayNames[dayOfWeek];
       
+      console.log(`🔍 DEBUG: dayOfWeek=${dayOfWeek}, dayName="${dayName}"`);
+      console.log(`🔍 DEBUG: weeklySchedule type:`, typeof availabilityConfig.weeklySchedule);
+      console.log(`🔍 DEBUG: weeklySchedule content:`, JSON.stringify(availabilityConfig.weeklySchedule, null, 2));
+      
+      // Parse weeklySchedule if it's a string
+      let weeklySchedule = availabilityConfig.weeklySchedule;
+      if (typeof weeklySchedule === 'string') {
+        try {
+          weeklySchedule = JSON.parse(weeklySchedule);
+          console.log(`🔍 DEBUG: Parsed weeklySchedule from string`);
+        } catch (e) {
+          console.error(`❌ Failed to parse weeklySchedule:`, e);
+        }
+      }
+      
+      console.log(`🔍 DEBUG: weeklySchedule keys:`, Object.keys(weeklySchedule || {}));
+      console.log(`🔍 DEBUG: weeklySchedule[${dayName}]:`, weeklySchedule?.[dayName]);
+      
       // Try to find schedule by dayOfWeek property first, fallback to day name key
-      let daySchedule = Object.values(availabilityConfig.weeklySchedule).find(d => d.dayOfWeek === dayOfWeek);
+      let daySchedule = Object.values(weeklySchedule || {}).find((d: any) => d.dayOfWeek === dayOfWeek);
+      console.log(`🔍 DEBUG: daySchedule from dayOfWeek search:`, daySchedule);
       
       // Fallback: If dayOfWeek property doesn't exist, try to get by key name
-      if (!daySchedule && availabilityConfig.weeklySchedule[dayName]) {
-        daySchedule = availabilityConfig.weeklySchedule[dayName];
-        console.log(`📅 Using fallback: Found schedule by day name "${dayName}"`);
+      if (!daySchedule && weeklySchedule?.[dayName]) {
+        daySchedule = weeklySchedule[dayName];
+        console.log(`📅 Using fallback: Found schedule by day name "${dayName}"`, daySchedule);
       }
 
       if (!daySchedule || !daySchedule.isAvailable) {
@@ -396,7 +423,7 @@ const executeTool = async (
         console.log(`⏰ Adjusted for today - ${freeBlocks.length} time blocks still available after ${currentTimeHHmm}`);
       }
 
-      return { 
+      const result = { 
         availableSlots: freeBlocks,
         message: freeBlocks.length > 0 
           ? `Ich habe folgende freie Zeitfenster: ${freeBlocks.map((block: { start: string; end: string }) => `${block.start} bis ${block.end}`).join(', ')}. WICHTIG: Du kannst JEDE Uhrzeit innerhalb dieser Zeitfenster buchen. Zum Beispiel: Wenn "13:00 bis 17:00" verfügbar ist, dann sind auch 13:30, 14:00, 15:00, 16:00, etc. möglich!`
@@ -404,21 +431,25 @@ const executeTool = async (
             ? 'Leider habe ich heute keine freien Zeiten mehr. Möchten Sie einen Termin für morgen oder einen anderen Tag?'
             : 'Leider habe ich an diesem Tag keine freien Zeiten.'
       };
+      
+      console.log(`\n✅ CHECK AVAILABILITY RESULT:`);
+      console.log(`   Free Blocks: ${freeBlocks.length}`);
+      console.log(`   Blocks:`, JSON.stringify(freeBlocks, null, 2));
+      console.log(`   Message: ${result.message.substring(0, 100)}...`);
+      console.log(`${'='.repeat(80)}\n`);
+      
+      return result;
 
     case 'bookAppointment':
       const { customerName, customerPhone, customerEmail, datetime, duration: apptDuration, appointmentType, notes } = args;
-      console.log(`📅 ========== BOOKING APPOINTMENT START ==========`);
-      console.log(`📅 Raw args received:`, JSON.stringify(args, null, 2));
-      console.log(`📅 Parsed values:`, { 
-        customerName, 
-        customerPhone, 
-        customerEmail, 
-        datetime, 
-        'datetime type': typeof datetime,
-        'datetime value': datetime,
-        duration: apptDuration, 
-        appointmentType 
-      });
+      console.log(`\n📝 BOOK APPOINTMENT`);
+      console.log(`   Customer: ${customerName}`);
+      console.log(`   Phone: ${customerPhone}`);
+      console.log(`   Email: ${customerEmail || 'N/A'}`);
+      console.log(`   DateTime: ${datetime} (type: ${typeof datetime})`);
+      console.log(`   Duration: ${apptDuration} minutes`);
+      console.log(`   Service: ${appointmentType}`);
+      console.log(`   Notes: ${notes || 'N/A'}`);
       
       // Normalize incoming datetime to local string 'YYYY-MM-DD HH:mm'
       const localDatetime = String(datetime).replace('T', ' ').replace('Z', '').slice(0, 16);
@@ -470,8 +501,7 @@ const executeTool = async (
           status: 'booked',
           account_id: accountId, // Use session's account_id for multi-tenant isolation
         });
-        console.log(`✅ Appointment created successfully:`, newAppointment.id);
-        return { 
+        const appointmentResult = { 
           success: true, 
           message: `Appointment booked successfully for ${customerName} on ${localDatetime}`,
           appointment: {
@@ -482,14 +512,28 @@ const executeTool = async (
             appointmentType: newAppointment.appointmentType
           }
         };
+        
+        console.log(`\n✅ BOOK APPOINTMENT RESULT:`);
+        console.log(`   Success: true`);
+        console.log(`   Appointment ID: ${newAppointment.id}`);
+        console.log(`   Customer: ${newAppointment.customerName}`);
+        console.log(`   DateTime: ${newAppointment.datetime}`);
+        console.log(`${'='.repeat(80)}\n`);
+        
+        return appointmentResult;
       } catch (error: any) {
-        console.error(`❌ Failed to create appointment:`, error);
-        console.error(`❌ Error stack:`, error.stack);
-        return { 
+        const errorResult = { 
           error: 'Failed to create appointment. Please try again.',
           details: error.message,
           technicalError: error.toString()
         };
+        
+        console.error(`\n❌ BOOK APPOINTMENT ERROR:`);
+        console.error(`   Error: ${error.message}`);
+        console.error(`   Stack:`, error.stack);
+        console.error(`${'='.repeat(80)}\n`);
+        
+        return errorResult;
       }
 
     case 'findAppointments':
@@ -708,13 +752,6 @@ IMPORTANT BOOKING RULES:
 - If a customer wants 15:00 and you get "13:00 bis 17:00", you CAN book at 15:00 - it's within the range!
 - Only reject a booking if the requested time is OUTSIDE the available blocks
 - Example: Block "13:00-17:00" covers: 13:00, 13:15, 13:30, 14:00, 14:30, 15:00, 15:30, 16:00, 16:30, etc.
-
-DATETIME FORMAT RULES:
-- ALWAYS convert relative dates ("tomorrow", "next Monday") to absolute dates
-- Current date is: ${currentDate}
-- Format MUST be: YYYY-MM-DDThh:mm (e.g., ${currentDate}T14:30)
-- If user says "tomorrow at 15:00", calculate tomorrow's date and use format like "2025-10-06T15:00"
-- If user says "Monday at 10:00", find next Monday's date and use format like "2025-10-07T10:00"
 `;
 
     const systemMessage: OpenAI.Chat.ChatCompletionMessageParam = {
