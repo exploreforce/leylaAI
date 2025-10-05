@@ -137,7 +137,7 @@ const tools: ChatCompletionTool[] = [
           customerEmail: { type: 'string', description: "The customer's email address (optional)." },
           datetime: {
             type: 'string',
-            description: 'The appointment start time in ISO 8601 format (e.g., 2024-07-25T14:30:00Z).',
+            description: 'The appointment start time in ISO 8601 format (e.g., 2024-07-25T14:30:00 or 2024-07-25T14:30). IMPORTANT: Always include the full date (YYYY-MM-DD) and time (HH:mm). If user says "tomorrow at 15:00", calculate tomorrow\'s date and format it as YYYY-MM-DDT15:00.',
           },
           duration: {
             type: 'number',
@@ -407,11 +407,22 @@ const executeTool = async (
 
     case 'bookAppointment':
       const { customerName, customerPhone, customerEmail, datetime, duration: apptDuration, appointmentType, notes } = args;
-      console.log(`📅 Booking appointment:`, { customerName, customerPhone, customerEmail, datetime, duration: apptDuration, appointmentType });
+      console.log(`📅 ========== BOOKING APPOINTMENT START ==========`);
+      console.log(`📅 Raw args received:`, JSON.stringify(args, null, 2));
+      console.log(`📅 Parsed values:`, { 
+        customerName, 
+        customerPhone, 
+        customerEmail, 
+        datetime, 
+        'datetime type': typeof datetime,
+        'datetime value': datetime,
+        duration: apptDuration, 
+        appointmentType 
+      });
       
       // Normalize incoming datetime to local string 'YYYY-MM-DD HH:mm'
       const localDatetime = String(datetime).replace('T', ' ').replace('Z', '').slice(0, 16);
-      console.log(`📅 Normalized datetime: ${datetime} → ${localDatetime}`);
+      console.log(`📅 Normalized datetime: "${datetime}" → "${localDatetime}"`);
       
       try {
         // Use the account ID from the current session
@@ -697,6 +708,13 @@ IMPORTANT BOOKING RULES:
 - If a customer wants 15:00 and you get "13:00 bis 17:00", you CAN book at 15:00 - it's within the range!
 - Only reject a booking if the requested time is OUTSIDE the available blocks
 - Example: Block "13:00-17:00" covers: 13:00, 13:15, 13:30, 14:00, 14:30, 15:00, 15:30, 16:00, 16:30, etc.
+
+DATETIME FORMAT RULES:
+- ALWAYS convert relative dates ("tomorrow", "next Monday") to absolute dates
+- Current date is: ${currentDate}
+- Format MUST be: YYYY-MM-DDThh:mm (e.g., ${currentDate}T14:30)
+- If user says "tomorrow at 15:00", calculate tomorrow's date and use format like "2025-10-06T15:00"
+- If user says "Monday at 10:00", find next Monday's date and use format like "2025-10-07T10:00"
 `;
 
     const systemMessage: OpenAI.Chat.ChatCompletionMessageParam = {
