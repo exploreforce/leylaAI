@@ -5,6 +5,7 @@ exports.seed = function(knex) {
       // Inserts seed entries
       const weeklySchedule = {
         monday: {
+          dayOfWeek: 1,
           isAvailable: true,
           timeSlots: [
             { start: '09:00', end: '12:00' },
@@ -12,6 +13,7 @@ exports.seed = function(knex) {
           ]
         },
         tuesday: {
+          dayOfWeek: 2,
           isAvailable: true,
           timeSlots: [
             { start: '09:00', end: '12:00' },
@@ -19,6 +21,7 @@ exports.seed = function(knex) {
           ]
         },
         wednesday: {
+          dayOfWeek: 3,
           isAvailable: true,
           timeSlots: [
             { start: '09:00', end: '12:00' },
@@ -26,6 +29,7 @@ exports.seed = function(knex) {
           ]
         },
         thursday: {
+          dayOfWeek: 4,
           isAvailable: true,
           timeSlots: [
             { start: '09:00', end: '12:00' },
@@ -33,6 +37,7 @@ exports.seed = function(knex) {
           ]
         },
         friday: {
+          dayOfWeek: 5,
           isAvailable: true,
           timeSlots: [
             { start: '09:00', end: '12:00' },
@@ -40,10 +45,12 @@ exports.seed = function(knex) {
           ]
         },
         saturday: {
+          dayOfWeek: 6,
           isAvailable: false,
           timeSlots: []
         },
         sunday: {
+          dayOfWeek: 0,
           isAvailable: false,
           timeSlots: []
         }
