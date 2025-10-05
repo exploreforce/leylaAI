@@ -107,7 +107,7 @@ const tools: ChatCompletionTool[] = [
     type: 'function',
     function: {
       name: 'checkAvailability',
-      description: 'Checks for available appointment slots on a given date. Returns continuous time blocks (e.g., "09:00 bis 12:00"). IMPORTANT: A time block like "13:00 bis 17:00" means ANY time between 13:00 and 17:00 is available - you can book at 13:30, 14:00, 15:00, 16:30, etc. within that range.',
+      description: 'Checks for available appointment slots on a given date. Returns continuous time blocks (e.g., "09:00 bis 12:00") instead of individual slots.',
       parameters: {
         type: 'object',
         properties: {
@@ -315,13 +315,9 @@ const executeTool = async (
         
         return { 
           availableSlots: freeBlocks,
-          date: date,
-          isAvailable: freeBlocks.length > 0,
           message: freeBlocks.length > 0 
-            ? `AVAILABLE TIME RANGES for ${date}: ${freeBlocks.map((block: { start: string; end: string }) => `${block.start}-${block.end} (any time within this range)`).join(', ')}. IMPORTANT: Customer can book at ANY time within these ranges. Example: if "13:00-17:00" is shown, customer can book at 13:00, 13:15, 13:30, 14:00, 14:15, 14:30, 15:00, 15:15, 15:30, 16:00, 16:15, 16:30, 16:45, or any other time between 13:00 and 17:00.`
-            : isToday 
-              ? 'No availability remaining today. Suggest tomorrow or another date.'
-              : 'No availability on this date. Day is closed or fully booked.'
+            ? `Ich habe folgende freie Zeitfenster: ${freeBlocks.map((block: { start: string; end: string }) => `${block.start} bis ${block.end}`).join(', ')}`
+            : 'Leider habe ich an diesem Tag keine freien Zeiten.'
         };
       }
       
@@ -427,13 +423,9 @@ const executeTool = async (
 
       const result = { 
         availableSlots: freeBlocks,
-        date: date,
-        isAvailable: freeBlocks.length > 0,
         message: freeBlocks.length > 0 
-          ? `AVAILABLE TIME RANGES for ${date}: ${freeBlocks.map((block: { start: string; end: string }) => `${block.start}-${block.end} (any time within this range)`).join(', ')}. IMPORTANT: Customer can book at ANY time within these ranges. Example: if "13:00-17:00" is shown, customer can book at 13:00, 13:15, 13:30, 14:00, 14:15, 14:30, 15:00, 15:15, 15:30, 16:00, 16:15, 16:30, 16:45, or any other time between 13:00 and 17:00.`
-          : isToday 
-            ? 'No availability remaining today. Suggest tomorrow or another date.'
-            : 'No availability on this date. Day is closed or fully booked.'
+          ? `Ich habe folgende freie Zeitfenster: ${freeBlocks.map((block: { start: string; end: string }) => `${block.start} bis ${block.end}`).join(', ')}`
+          : 'Leider habe ich an diesem Tag keine freien Zeiten.'
       };
       
       console.log(`\n✅ CHECK AVAILABILITY RESULT:`);
@@ -784,21 +776,9 @@ GUIDELINES
 - is_flagged true only if content crosses a red line
 - user_sentiment is a short qualitative label
 
-⚠️ CRITICAL BOOKING RULES - READ CAREFULLY ⚠️
-
-TIME RANGE INTERPRETATION:
-- checkAvailability returns TIME RANGES, NOT specific times
-- Example: "13:00-17:00" is a CONTINUOUS RANGE from 13:00 to 17:00
-- This means: 13:00, 13:01, 13:02, ... 16:58, 16:59, 17:00 are ALL available
-- Common intervals within "13:00-17:00": 13:00, 13:15, 13:30, 13:45, 14:00, 14:15, 14:30, 14:45, 15:00, 15:15, 15:30, 15:45, 16:00, 16:15, 16:30, 16:45
-
-BOOKING LOGIC:
-- Customer wants 15:00, you see "13:00-17:00" → BOOK IT (15:00 is between 13:00 and 17:00) ✅
-- Customer wants 14:30, you see "13:00-17:00" → BOOK IT (14:30 is between 13:00 and 17:00) ✅
-- Customer wants 12:00, you see "13:00-17:00" → REJECT (12:00 is before 13:00) ❌
-- Customer wants 18:00, you see "13:00-17:00" → REJECT (18:00 is after 17:00) ❌
-
-NEVER say a time is unavailable if it falls within an available range!
+BOOKING RULES:
+- Time blocks (e.g., "13:00 bis 17:00") represent continuous available time ranges
+- Customer can book appointments at any time within these ranges
 `;
 
     const systemMessage: OpenAI.Chat.ChatCompletionMessageParam = {
