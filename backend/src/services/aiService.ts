@@ -107,7 +107,7 @@ const tools: ChatCompletionTool[] = [
     type: 'function',
     function: {
       name: 'checkAvailability',
-      description: 'Checks for available appointment slots on a given date. Returns continuous time blocks (e.g., "09:00 bis 12:00") instead of individual slots.',
+      description: 'Checks for available appointment slots on a given date. Returns continuous time blocks (e.g., "09:00 bis 12:00"). IMPORTANT: A time block like "13:00 bis 17:00" means ANY time between 13:00 and 17:00 is available - you can book at 13:30, 14:00, 15:00, 16:30, etc. within that range.',
       parameters: {
         type: 'object',
         properties: {
@@ -308,7 +308,7 @@ const executeTool = async (
         return { 
           availableSlots: freeBlocks,
           message: freeBlocks.length > 0 
-            ? `Ich habe folgende freie Zeitfenster: ${freeBlocks.map((block: { start: string; end: string }) => `${block.start} bis ${block.end}`).join(', ')}`
+            ? `Ich habe folgende freie Zeitfenster: ${freeBlocks.map((block: { start: string; end: string }) => `${block.start} bis ${block.end}`).join(', ')}. WICHTIG: Du kannst JEDE Uhrzeit innerhalb dieser Zeitfenster buchen. Zum Beispiel: Wenn "13:00 bis 17:00" verfügbar ist, dann sind auch 13:30, 14:00, 15:00, 16:00, etc. möglich!`
             : isToday 
               ? 'Leider habe ich heute keine freien Zeiten mehr. Möchten Sie einen Termin für morgen oder einen anderen Tag?'
               : 'Leider habe ich an diesem Tag keine freien Zeiten.'
@@ -389,7 +389,7 @@ const executeTool = async (
       return { 
         availableSlots: freeBlocks,
         message: freeBlocks.length > 0 
-          ? `Ich habe folgende freie Zeitfenster: ${freeBlocks.map((block: { start: string; end: string }) => `${block.start} bis ${block.end}`).join(', ')}`
+          ? `Ich habe folgende freie Zeitfenster: ${freeBlocks.map((block: { start: string; end: string }) => `${block.start} bis ${block.end}`).join(', ')}. WICHTIG: Du kannst JEDE Uhrzeit innerhalb dieser Zeitfenster buchen. Zum Beispiel: Wenn "13:00 bis 17:00" verfügbar ist, dann sind auch 13:30, 14:00, 15:00, 16:00, etc. möglich!`
           : isToday 
             ? 'Leider habe ich heute keine freien Zeiten mehr. Möchten Sie einen Termin für morgen oder einen anderen Tag?'
             : 'Leider habe ich an diesem Tag keine freien Zeiten.'
@@ -411,6 +411,33 @@ const executeTool = async (
           console.log(`✅ Using session account ID: ${accountId}`);
         }
         
+        // Validate the appointment data
+        if (!customerName || !customerPhone || !localDatetime || !apptDuration || !appointmentType) {
+          console.error('❌ Missing required appointment fields:', { customerName, customerPhone, localDatetime, apptDuration, appointmentType });
+          return { 
+            error: 'Missing required appointment information. Please provide: customer name, phone number, date/time, duration, and service type.',
+            details: {
+              hasName: !!customerName,
+              hasPhone: !!customerPhone,
+              hasDatetime: !!localDatetime,
+              hasDuration: !!apptDuration,
+              hasServiceType: !!appointmentType
+            }
+          };
+        }
+        
+        console.log(`📝 Creating appointment with data:`, {
+          customer_name: customerName,
+          customer_phone: customerPhone,
+          customer_email: customerEmail || null,
+          datetime: localDatetime,
+          duration: apptDuration,
+          appointment_type: appointmentType,
+          notes: notes || null,
+          status: 'booked',
+          account_id: accountId
+        });
+        
         const newAppointment = await Database.createAppointment({
           customer_name: customerName,
           customer_phone: customerPhone,
@@ -423,10 +450,25 @@ const executeTool = async (
           account_id: accountId, // Use session's account_id for multi-tenant isolation
         });
         console.log(`✅ Appointment created successfully:`, newAppointment.id);
-        return { success: true, appointment: newAppointment };
-      } catch (error) {
+        return { 
+          success: true, 
+          message: `Appointment booked successfully for ${customerName} on ${localDatetime}`,
+          appointment: {
+            id: newAppointment.id,
+            customerName: newAppointment.customerName,
+            datetime: newAppointment.datetime,
+            duration: newAppointment.duration,
+            appointmentType: newAppointment.appointmentType
+          }
+        };
+      } catch (error: any) {
         console.error(`❌ Failed to create appointment:`, error);
-        return { error: 'Failed to create appointment. Please try again.' };
+        console.error(`❌ Error stack:`, error.stack);
+        return { 
+          error: 'Failed to create appointment. Please try again.',
+          details: error.message,
+          technicalError: error.toString()
+        };
       }
 
     case 'findAppointments':
@@ -561,10 +603,27 @@ export class AIService {
     // Content Filter Settings
     const contentFilterEnabled = process.env.OPENAI_CONTENT_FILTER !== 'false';
     
+    // Load available services for the account
+    let servicesInfo = '';
+    try {
+      const services = await Database.getServices(accountId || undefined);
+      if (services && services.length > 0) {
+        const activeServices = services.filter(s => s.isActive);
+        servicesInfo = '\n\nAVAILABLE SERVICES:\n';
+        activeServices.forEach(service => {
+          servicesInfo += `- "${service.name}": ${service.description || 'No description'} (${service.durationMinutes} minutes, ${service.price} ${service.currency})\n`;
+        });
+        servicesInfo += '\nWhen booking an appointment, use the exact service name from the list above for the appointmentType parameter.\n';
+      }
+    } catch (error) {
+      console.warn('⚠️ Could not load services:', error);
+    }
+    
     console.log('🤖 AI Service: Bot config loaded:', {
       promptType,
       systemPrompt: activeSystemPrompt.substring(0, 50) + '...',
-      contentFilterEnabled
+      contentFilterEnabled,
+      servicesAvailable: servicesInfo.length > 0
     });
 
     // Erweitere System Prompt basierend auf Einstellungen
@@ -607,6 +666,8 @@ CURRENT DATE & TIME
 - Aktuelles Datum: ${currentDate}
 - WICHTIG: Nutze dieses Datum für alle Terminberechnungen und -prüfungen!
 
+${servicesInfo}
+
 ${customerContext}SESSION MEMORY
 - Known user info: ${previousUserInformation || 'None'}
 - Last user language: ${previousUserLanguage || 'unknown'}
@@ -620,6 +681,12 @@ GUIDELINES
 - user_language is the detected language code (e.g., 'de', 'en')
 - is_flagged true only if content crosses a red line
 - user_sentiment is a short qualitative label
+
+IMPORTANT BOOKING RULES:
+- When checkAvailability returns time blocks like "13:00 bis 17:00", this means ANY time between 13:00 and 17:00 is available
+- If a customer wants 15:00 and you get "13:00 bis 17:00", you CAN book at 15:00 - it's within the range!
+- Only reject a booking if the requested time is OUTSIDE the available blocks
+- Example: Block "13:00-17:00" covers: 13:00, 13:15, 13:30, 14:00, 14:30, 15:00, 15:30, 16:00, 16:30, etc.
 `;
 
     const systemMessage: OpenAI.Chat.ChatCompletionMessageParam = {
