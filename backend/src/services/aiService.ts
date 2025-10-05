@@ -478,13 +478,42 @@ const executeTool = async (
           };
         }
         
+        // Convert service name to UUID (AI sends name, DB expects UUID)
+        console.log(`🔍 Looking up service by name: "${appointmentType}"`);
+        let serviceId = appointmentType;
+        
+        // Check if appointmentType is already a UUID (contains dashes)
+        if (!appointmentType.includes('-')) {
+          // It's a name, need to look it up
+          const services = await Database.getServices(accountId || undefined);
+          const matchingService = services.find(s => 
+            s.name.toLowerCase() === appointmentType.toLowerCase() ||
+            s.name.toLowerCase().includes(appointmentType.toLowerCase()) ||
+            appointmentType.toLowerCase().includes(s.name.toLowerCase())
+          );
+          
+          if (matchingService) {
+            serviceId = matchingService.id;
+            console.log(`✅ Found service: "${matchingService.name}" → ${serviceId}`);
+          } else {
+            console.error(`❌ Service not found: "${appointmentType}"`);
+            console.log(`📋 Available services:`, services.map(s => s.name));
+            return {
+              error: `Service "${appointmentType}" not found. Please use one of the available services.`,
+              availableServices: services.map(s => s.name)
+            };
+          }
+        } else {
+          console.log(`✅ appointmentType is already a UUID: ${serviceId}`);
+        }
+        
         console.log(`📝 Creating appointment with data:`, {
           customer_name: customerName,
           customer_phone: customerPhone,
           customer_email: customerEmail || null,
           datetime: localDatetime,
           duration: apptDuration,
-          appointment_type: appointmentType,
+          appointment_type: serviceId, // <- NOW USING UUID!
           notes: notes || null,
           status: 'booked',
           account_id: accountId
@@ -496,7 +525,7 @@ const executeTool = async (
           customer_email: customerEmail || null,
           datetime: localDatetime,
           duration: apptDuration,
-          appointment_type: appointmentType,
+          appointment_type: serviceId, // <- USE UUID INSTEAD OF NAME!
           notes,
           status: 'booked',
           account_id: accountId, // Use session's account_id for multi-tenant isolation
