@@ -5,39 +5,6 @@ import { requireAuth } from '../middleware/auth';
 
 const router = Router();
 
-// Test endpoint to check database connection (NO AUTH for debugging)
-router.get('/test-db', asyncHandler(async (req: Request, res: Response) => {
-  try {
-    const { db } = require('../models/database');
-    
-    // Test database connection
-    await db.raw('SELECT 1');
-    
-    // Try to count tables
-    let tableCount = 0;
-    try {
-      const tables = await db.raw("SELECT tablename FROM pg_tables WHERE schemaname = 'public'");
-      tableCount = tables.rows?.length || 0;
-    } catch {}
-    
-    return res.json({ 
-      success: true,
-      message: 'Database connection successful',
-      environment: process.env.NODE_ENV,
-      hasDatabase: true,
-      tableCount
-    });
-  } catch (error: any) {
-    return res.status(500).json({ 
-      success: false,
-      error: error.message,
-      environment: process.env.NODE_ENV,
-      hasDatabaseUrl: !!process.env.DATABASE_URL,
-      hasDbHost: !!process.env.DB_HOST
-    });
-  }
-}));
-
 // Admin endpoint to setup webhooks for all existing sessions
 router.post('/setup-webhooks', requireAuth as any, asyncHandler(async (req: any, res: Response) => {
   const userId = req.userId;
