@@ -4,6 +4,7 @@ import { cn, formatTime } from '@/utils';
 import { UserIcon, CpuChipIcon, ExclamationTriangleIcon, LanguageIcon, ArrowPathIcon } from '@heroicons/react/24/solid';
 import { useTranslateMessage, LANGUAGE_CODES } from '@/hooks/useTranslateMessage';
 import { useTranslation } from 'react-i18next';
+import ToolCallDisplay from './ToolCallDisplay';
 
 interface MessageBubbleWithTranslationProps {
   message: ChatMessage;
@@ -95,6 +96,9 @@ const MessageBubbleWithTranslation: React.FC<MessageBubbleWithTranslationProps> 
   // Don't show translation for very short messages or system messages
   const shouldShowTranslationOptions = !isSystem && message.content.length > 10;
 
+  // Check if message has tool calls
+  const hasToolCalls = !isUser && message.metadata?.toolCalls && message.metadata.toolCalls.length > 0;
+
   return (
     <div className="mb-3 sm:mb-4">
       <div className={containerClasses}>
@@ -119,6 +123,16 @@ const MessageBubbleWithTranslation: React.FC<MessageBubbleWithTranslationProps> 
         </div>
         {isUser && <div className="flex-shrink-0">{icon}</div>}
       </div>
+
+      {/* Tool Calls Display - Only for assistant messages with tool calls */}
+      {hasToolCalls && (
+        <div className={cn(
+          'ml-6 sm:ml-8',
+          isUser ? 'mr-0' : 'mr-0'
+        )}>
+          <ToolCallDisplay toolCalls={message.metadata!.toolCalls!} />
+        </div>
+      )}
 
       {/* Translation Controls */}
       {shouldShowTranslationOptions && (
