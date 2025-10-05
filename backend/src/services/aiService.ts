@@ -316,10 +316,20 @@ const executeTool = async (
       }
       
       const dayOfWeek = new Date(date).getDay();
-      const daySchedule = Object.values(availabilityConfig.weeklySchedule).find(d => d.dayOfWeek === dayOfWeek);
+      const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+      const dayName = dayNames[dayOfWeek];
+      
+      // Try to find schedule by dayOfWeek property first, fallback to day name key
+      let daySchedule = Object.values(availabilityConfig.weeklySchedule).find(d => d.dayOfWeek === dayOfWeek);
+      
+      // Fallback: If dayOfWeek property doesn't exist, try to get by key name
+      if (!daySchedule && availabilityConfig.weeklySchedule[dayName]) {
+        daySchedule = availabilityConfig.weeklySchedule[dayName];
+        console.log(`📅 Using fallback: Found schedule by day name "${dayName}"`);
+      }
 
       if (!daySchedule || !daySchedule.isAvailable) {
-        console.log(`❌ Day ${dayOfWeek} is not available according to schedule`);
+        console.log(`❌ Day ${dayOfWeek} (${dayName}) is not available according to schedule`);
         return { 
           availableSlots: [],
           message: 'An diesem Tag ist leider geschlossen.'
