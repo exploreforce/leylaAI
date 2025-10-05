@@ -695,23 +695,10 @@ export class AIService {
     // Content Filter Settings
     const contentFilterEnabled = process.env.OPENAI_CONTENT_FILTER !== 'false';
     
-    // Load available services for the account
+    // Load available services (simplified - don't overload the prompt)
     let servicesInfo = '';
-    try {
-      // Use default bot_config_id from seeds (all services are linked to this)
-      const DEFAULT_BOT_CONFIG_ID = '550e8400-e29b-41d4-a716-446655440000';
-      const services = await Database.getServices(DEFAULT_BOT_CONFIG_ID);
-      if (services && services.length > 0) {
-        const activeServices = services.filter(s => s.isActive);
-        servicesInfo = '\n\nAVAILABLE SERVICES:\n';
-        activeServices.forEach(service => {
-          servicesInfo += `- "${service.name}": ${service.description || 'No description'} (${service.durationMinutes} minutes, ${service.price} ${service.currency})\n`;
-        });
-        servicesInfo += '\nWhen booking an appointment, use the exact service name from the list above for the appointmentType parameter.\n';
-      }
-    } catch (error) {
-      console.warn('⚠️ Could not load services:', error);
-    }
+    // Note: Services are loaded internally for bookAppointment tool
+    // No need to list them in system prompt - keeps prompt clean
     
     console.log('🤖 AI Service: Bot config loaded:', {
       promptType,
