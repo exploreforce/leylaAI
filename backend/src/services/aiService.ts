@@ -700,7 +700,7 @@ export class AIService {
     // Load available services for the account
     let servicesInfo = '';
     try {
-      const services = await Database.getServices(accountId || undefined);
+      const services = await Database.getServices(accountId!);
       if (services && services.length > 0) {
         const activeServices = services.filter(s => s.isActive);
         servicesInfo = '\n\nAVAILABLE SERVICES:\n';
