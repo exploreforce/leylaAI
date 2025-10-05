@@ -763,11 +763,7 @@ GUIDELINES
 - is_flagged true only if content crosses a red line
 - user_sentiment is a short qualitative label
 
-BOOKING RULES:
-- Time blocks (e.g., "13:00 bis 17:00") represent continuous available time ranges
-- Customer can book appointments at any time within these ranges
-- NEVER make assumptions about availability - ALWAYS use checkAvailability first before commenting on availability
-- If customer asks for a specific time, use checkAvailability IMMEDIATELY, then respond based on the actual results
+IMPORTANT: Always check tools before answering questions about availability or appointments.
 `;
 
     const systemMessage: OpenAI.Chat.ChatCompletionMessageParam = {
