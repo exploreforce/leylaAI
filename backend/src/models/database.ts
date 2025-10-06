@@ -14,6 +14,11 @@ export class Database {
     return user || null;
   }
 
+  static async getUserById(userId: string): Promise<{ id: string; account_id: string; email: string } | null> {
+    const user = await db('users').select('id', 'account_id', 'email').where({ id: userId }).first();
+    return user || null;
+  }
+
   static async getUserWasenderSessionId(userId: string): Promise<string | null> {
     const user = await db('users').select('wasender_session_id').where({ id: userId }).first();
     return user?.wasender_session_id || null;
@@ -532,12 +537,61 @@ export class Database {
         };
       }
       
+      // Get default account (first account ordered by creation date)
+      const defaultAccount = await db('accounts')
+        .select('id')
+        .orderBy('created_at', 'asc')
+        .first();
+      
+      if (!defaultAccount) {
+        console.error('❌ No accounts found in database - cannot create WhatsApp session');
+        throw new Error('No accounts available. Please create an account first.');
+      }
+      
+      console.log('✅ Using default account for WhatsApp session:', defaultAccount.id);
+      
+      return await this.createWhatsAppChatSessionForAccount(whatsappNumber, defaultAccount.id);
+    } catch (error) {
+      console.error('📱 Database: Error creating WhatsApp chat session:', error);
+      throw error;
+    }
+  }
+
+  static async createWhatsAppChatSessionForAccount(whatsappNumber: string, accountId: string): Promise<TestChatSession> {
+    console.log('📱 Database: Creating WhatsApp chat session for:', whatsappNumber, 'with account:', accountId);
+    
+    try {
+      // Check if session already exists for this WhatsApp number
+      const existing = await db('test_chat_sessions')
+        .where('whatsapp_number', whatsappNumber)
+        .andWhere('session_type', 'whatsapp')
+        .first();
+      
+      if (existing) {
+        console.log('📱 WhatsApp session already exists for', whatsappNumber, '- updating activity and account');
+        await db('test_chat_sessions')
+          .where('id', existing.id)
+          .update({ 
+            last_activity: new Date(),
+            status: 'active',
+            account_id: accountId // Update to correct account
+          });
+        
+        return {
+          id: String(existing.id),
+          messages: [],
+          createdAt: new Date(existing.created_at).toISOString(),
+          lastActivity: new Date().toISOString()
+        };
+      }
+      
       const [insertResult] = await db('test_chat_sessions')
         .insert({
           session_type: 'whatsapp',
           whatsapp_number: whatsappNumber,
           display_name: whatsappNumber, // Use phone number as display name
-          status: 'active'
+          status: 'active',
+          account_id: accountId
         })
         .returning('id');
       
@@ -569,7 +623,7 @@ export class Database {
                      created.updated_at ? new Date(created.updated_at).toISOString() : new Date().toISOString()
       };
     } catch (error) {
-      console.error('📱 Database: Error creating WhatsApp chat session:', error);
+      console.error('📱 Database: Error creating WhatsApp chat session for account:', error);
       throw error;
     }
   }

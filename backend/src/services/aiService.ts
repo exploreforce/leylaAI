@@ -545,7 +545,7 @@ const executeTool = async (
           duration: apptDuration,
           appointment_type: serviceId, // <- NOW USING UUID!
           notes: notes || null,
-          status: 'booked',
+          status: 'confirmed',
           account_id: accountId
         });
         
@@ -557,7 +557,7 @@ const executeTool = async (
           duration: apptDuration,
           appointment_type: serviceId, // <- USE UUID INSTEAD OF NAME!
           notes,
-          status: 'booked',
+          status: 'confirmed', // ✅ FIX: Use valid ENUM value ('pending', 'confirmed', 'cancelled', 'completed')
           account_id: accountId, // Use session's account_id for multi-tenant isolation
         });
         const appointmentResult = { 

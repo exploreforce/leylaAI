@@ -155,11 +155,15 @@ class WhatsAppService {
   async findOrCreateSessionForUser(userId: string, phoneNumber: string): Promise<TestChatSession> {
     console.log(`👤 Finding/creating WhatsApp session for user ${userId} and phone ${phoneNumber}`);
     
-    // For now, use the same logic as regular findOrCreateSession
-    // In a full multi-tenant setup, you'd want to link sessions to specific users
-    // TODO: Add user_id column to test_chat_sessions table for proper multi-tenancy
+    // Get the user's account_id
+    const user = await Database.getUserById(userId);
+    if (!user) {
+      console.error(`❌ User ${userId} not found - falling back to default session creation`);
+      return await this.findOrCreateSession(phoneNumber);
+    }
     
-    return await this.findOrCreateSession(phoneNumber);
+    // Create session with user's account_id
+    return await Database.createWhatsAppChatSessionForAccount(phoneNumber, user.account_id);
   }
 
   async handleTestMessage(sessionId: string, messageBody: string): Promise<ChatMessage | null> {
