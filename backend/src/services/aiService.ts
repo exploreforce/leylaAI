@@ -316,8 +316,8 @@ const executeTool = async (
         return { 
           availableSlots: freeBlocks,
           message: freeBlocks.length > 0 
-            ? `Ich habe folgende freie Zeitfenster: ${freeBlocks.map((block: { start: string; end: string }) => `${block.start} bis ${block.end}`).join(', ')}`
-            : 'Leider habe ich an diesem Tag keine freien Zeiten.'
+            ? `Free time slots: ${freeBlocks.map((block: { start: string; end: string }) => `${block.start}-${block.end}`).join(', ')}. Customer can book ANY time within these ranges.`
+            : 'No availability on this date.'
         };
       }
       
@@ -424,8 +424,8 @@ const executeTool = async (
       const result = { 
         availableSlots: freeBlocks,
         message: freeBlocks.length > 0 
-          ? `Ich habe folgende freie Zeitfenster: ${freeBlocks.map((block: { start: string; end: string }) => `${block.start} bis ${block.end}`).join(', ')}`
-          : 'Leider habe ich an diesem Tag keine freien Zeiten.'
+          ? `Free time slots: ${freeBlocks.map((block: { start: string; end: string }) => `${block.start}-${block.end}`).join(', ')}. Customer can book ANY time within these ranges.`
+          : 'No availability on this date.'
       };
       
       console.log(`\n✅ CHECK AVAILABILITY RESULT:`);
@@ -787,7 +787,7 @@ IMPORTANT: Always check tools before answering questions about availability or a
 
     // OpenAI API Call mit Structured Outputs
     const apiParams: any = {
-      model: process.env.OPENAI_MODEL || 'gpt-4-1106-preview', // Ensure model supports structured outputs
+      model: process.env.OPENAI_MODEL || 'gpt-4o', // Use gpt-4o (better tool calling than mini)
       messages: [systemMessage, ...conversationHistory],
       tools: tools,
       tool_choice: 'auto',
@@ -810,6 +810,13 @@ IMPORTANT: Always check tools before answering questions about availability or a
 
     const responseMessage = response.choices[0].message;
     const toolCalls = responseMessage.tool_calls;
+    
+    // DEBUG: Check if AI generated text before tool call
+    if (toolCalls && responseMessage.content) {
+      console.log('⚠️ WARNING: AI generated text AND tool calls in first response!');
+      console.log('   First response content:', responseMessage.content);
+      console.log('   This content should be IGNORED - waiting for tool results...');
+    }
 
     if (toolCalls) {
       // Execute tools and continue conversation (pass accountId for multi-tenancy)
@@ -830,7 +837,7 @@ IMPORTANT: Always check tools before answering questions about availability or a
       
       // Send tool results back to the model with structured outputs
       const secondApiParams: any = {
-        model: process.env.OPENAI_MODEL || 'gpt-4-1106-preview',
+        model: process.env.OPENAI_MODEL || 'gpt-4o',
         messages: [
           systemMessage,
           ...conversationHistory,
