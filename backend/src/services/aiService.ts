@@ -313,10 +313,26 @@ const executeTool = async (
           console.log(`⏰ Adjusted for today - ${freeBlocks.length} time blocks still available after ${currentTimeHHmm}`);
         }
         
+        // Generate explicit list of available times (15-min intervals)
+        const explicitTimes: string[] = [];
+        for (const block of freeBlocks) {
+          const [startH, startM] = block.start.split(':').map(Number);
+          const [endH, endM] = block.end.split(':').map(Number);
+          const startMinutes = startH * 60 + startM;
+          const endMinutes = endH * 60 + endM;
+          
+          for (let minutes = startMinutes; minutes <= endMinutes; minutes += 15) {
+            const h = Math.floor(minutes / 60);
+            const m = minutes % 60;
+            explicitTimes.push(`${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`);
+          }
+        }
+        
         return { 
           availableSlots: freeBlocks,
+          availableTimes: explicitTimes,
           message: freeBlocks.length > 0 
-            ? `Free time slots: ${freeBlocks.map((block: { start: string; end: string }) => `${block.start}-${block.end}`).join(', ')}. Customer can book ANY time within these ranges.`
+            ? `Available times for ${date}: ${explicitTimes.join(', ')}. Any of these times can be booked. To verify availability: Customer's requested time must be in this list.`
             : 'No availability on this date.'
         };
       }
@@ -421,10 +437,26 @@ const executeTool = async (
         console.log(`⏰ Adjusted for today - ${freeBlocks.length} time blocks still available after ${currentTimeHHmm}`);
       }
 
+      // Generate explicit list of available times (15-min intervals)
+      const explicitTimes: string[] = [];
+      for (const block of freeBlocks) {
+        const [startH, startM] = block.start.split(':').map(Number);
+        const [endH, endM] = block.end.split(':').map(Number);
+        const startMinutes = startH * 60 + startM;
+        const endMinutes = endH * 60 + endM;
+        
+        for (let minutes = startMinutes; minutes <= endMinutes; minutes += 15) {
+          const h = Math.floor(minutes / 60);
+          const m = minutes % 60;
+          explicitTimes.push(`${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`);
+        }
+      }
+      
       const result = { 
         availableSlots: freeBlocks,
+        availableTimes: explicitTimes,
         message: freeBlocks.length > 0 
-          ? `Free time slots: ${freeBlocks.map((block: { start: string; end: string }) => `${block.start}-${block.end}`).join(', ')}. Customer can book ANY time within these ranges.`
+          ? `Available times for ${date}: ${explicitTimes.join(', ')}. Any of these times can be booked. To verify availability: Customer's requested time must be in this list.`
           : 'No availability on this date.'
       };
       
