@@ -200,7 +200,9 @@ const tools: ChatCompletionTool[] = [
 
 const executeTool = async (
   toolCall: OpenAI.Chat.Completions.ChatCompletionMessageToolCall,
-  accountId: string | null = null
+  accountId: string | null = null,
+  sessionId: string | null = null,
+  whatsappNumber: string | null = null
 ) => {
   const toolName = toolCall.function.name;
   const args = JSON.parse(toolCall.function.arguments);
@@ -469,7 +471,14 @@ const executeTool = async (
       return result;
 
     case 'bookAppointment':
-      const { customerName, customerPhone, customerEmail, datetime, duration: apptDuration, appointmentType, notes } = args;
+      let { customerName, customerPhone, customerEmail, datetime, duration: apptDuration, appointmentType, notes } = args;
+      
+      // ✅ FIX: Auto-use WhatsApp number if available and phone is missing
+      if ((!customerPhone || customerPhone === '') && whatsappNumber) {
+        customerPhone = whatsappNumber;
+        console.log(`✅ Auto-filled customerPhone from WhatsApp session: ${customerPhone}`);
+      }
+      
       console.log(`\n📝 BOOK APPOINTMENT`);
       console.log(`   Customer: ${customerName}`);
       console.log(`   Phone: ${customerPhone}`);
@@ -596,7 +605,14 @@ const executeTool = async (
       }
 
     case 'findAppointments':
-      const { customerPhone: searchPhone } = args;
+      let { customerPhone: searchPhone } = args;
+      
+      // ✅ FIX: Auto-use WhatsApp number if available and phone is missing
+      if ((!searchPhone || searchPhone === '') && whatsappNumber) {
+        searchPhone = whatsappNumber;
+        console.log(`✅ Auto-filled searchPhone from WhatsApp session: ${searchPhone}`);
+      }
+      
       console.log(`🔍 Finding appointments for phone: ${searchPhone} in account: ${accountId}`);
       
       try {
@@ -766,8 +782,12 @@ export class AIService {
 CUSTOMER INFORMATION (WhatsApp Chat)
 - Customer Phone Number: ${whatsappNumber}
 - Communication Channel: WhatsApp
-- WICHTIG: Du kennst bereits die Telefonnummer dieses Kunden! Nutze ${whatsappNumber} automatisch für findAppointments und andere Tools.
-- Der Kunde muss seine Nummer NICHT erneut angeben - du hast sie bereits!
+
+WICHTIG FÜR TERMINBUCHUNGEN:
+- Du kennst bereits die Telefonnummer dieses Kunden: ${whatsappNumber}
+- Wenn du bookAppointment aufrufst, verwende IMMER ${whatsappNumber} als customerPhone
+- Du musst den Kunden NICHT nach seiner Telefonnummer fragen - du hast sie bereits!
+- Beispiel: Wenn der Kunde "Ich heiße Max" sagt, hast du bereits alles für die Buchung: Name=Max, Telefon=${whatsappNumber}
 
 `;
     }
@@ -851,8 +871,8 @@ IMPORTANT: Always check tools before answering questions about availability or a
     }
 
     if (toolCalls) {
-      // Execute tools and continue conversation (pass accountId for multi-tenancy)
-      const toolResults = await Promise.all(toolCalls.map(tc => executeTool(tc, accountId)));
+      // Execute tools and continue conversation (pass accountId, sessionId, whatsappNumber for context)
+      const toolResults = await Promise.all(toolCalls.map(tc => executeTool(tc, accountId, sessionId, whatsappNumber)));
       
       const toolResponseMessage: OpenAI.Chat.ChatCompletionMessageParam = {
         role: 'assistant',
