@@ -45,5 +45,6 @@ COPY backend/database ./database
 
 EXPOSE 5000
 
-CMD ["node", "dist/index.js"]
+# Run migrations before starting the server
+CMD ["sh", "-c", "npx knex migrate:latest --knexfile knexfile.js && node dist/index.js"]
 
