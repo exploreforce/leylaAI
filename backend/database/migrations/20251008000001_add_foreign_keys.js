@@ -6,6 +6,35 @@
 exports.up = async function(knex) {
   console.log('🔗 Adding foreign key constraints...');
   
+  // STEP 1: Clean up invalid data BEFORE adding FK constraints
+  console.log('🧹 Cleaning up invalid foreign key references...');
+  
+  // Fix appointments.account_id: Set NULL for invalid references
+  const invalidAccountIds = await knex.raw(`
+    UPDATE appointments 
+    SET account_id = NULL 
+    WHERE account_id IS NOT NULL 
+    AND account_id NOT IN (SELECT id FROM accounts)
+    RETURNING id, customer_name, account_id
+  `);
+  if (invalidAccountIds.rows && invalidAccountIds.rows.length > 0) {
+    console.log(`🧹 Cleaned ${invalidAccountIds.rows.length} appointments with invalid account_id`);
+  }
+  
+  // Fix appointments.appointment_type: Set NULL for invalid references  
+  const invalidServiceIds = await knex.raw(`
+    UPDATE appointments 
+    SET appointment_type = NULL 
+    WHERE appointment_type IS NOT NULL 
+    AND appointment_type NOT IN (SELECT id FROM services)
+    RETURNING id, customer_name, appointment_type
+  `);
+  if (invalidServiceIds.rows && invalidServiceIds.rows.length > 0) {
+    console.log(`🧹 Cleaned ${invalidServiceIds.rows.length} appointments with invalid appointment_type`);
+  }
+  
+  // STEP 2: Now add FK constraints (data is clean)
+  
   // appointments.appointment_type -> services.id
   const hasAppointmentTypeFK = await knex.schema.hasTable('appointments');
   if (hasAppointmentTypeFK) {
@@ -19,7 +48,7 @@ exports.up = async function(knex) {
       });
       console.log('✅ Added FK: appointments.appointment_type -> services.id');
     } catch (err) {
-      console.log('⚠️ FK might already exist or constraint error:', err.message);
+      console.log('⚠️ FK might already exist:', err.message);
     }
   }
   
@@ -34,7 +63,7 @@ exports.up = async function(knex) {
     });
     console.log('✅ Added FK: appointments.account_id -> accounts.id');
   } catch (err) {
-    console.log('⚠️ FK might already exist or constraint error:', err.message);
+    console.log('⚠️ FK might already exist:', err.message);
   }
   
   // services.account_id -> accounts.id

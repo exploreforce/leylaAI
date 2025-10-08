@@ -9,10 +9,21 @@ exports.up = async function(knex) {
   if (isPostgres) {
     console.log('🔧 Enabling pgcrypto extension for UUID generation...');
     
-    // Enable pgcrypto extension (required for gen_random_uuid())
-    await knex.raw('CREATE EXTENSION IF NOT EXISTS "pgcrypto";');
-    
-    console.log('✅ pgcrypto extension enabled');
+    // Try to enable pgcrypto extension (may fail if no superuser privileges)
+    try {
+      await knex.raw('CREATE EXTENSION IF NOT EXISTS "pgcrypto";');
+      console.log('✅ pgcrypto extension enabled');
+    } catch (err) {
+      console.log('⚠️ Could not create pgcrypto extension (may already exist or need superuser):', err.message);
+      // Check if it exists already
+      const result = await knex.raw("SELECT * FROM pg_extension WHERE extname = 'pgcrypto';");
+      if (result.rows && result.rows.length > 0) {
+        console.log('✅ pgcrypto extension already exists');
+      } else {
+        console.error('❌ pgcrypto extension not available - UUID generation may fail!');
+        throw new Error('pgcrypto extension required but not available');
+      }
+    }
     
     // Ensure all UUID columns have proper defaults
     await knex.raw(`
