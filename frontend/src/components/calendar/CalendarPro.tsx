@@ -843,6 +843,7 @@ const CalendarPro: React.FC<CalendarProProps> = ({ className = '' }) => {
     if (!window.DayPilot || !calendarRef.current) return;
 
     // WICHTIG: Zerstöre die alte Kalenderinstanz, bevor eine neue erstellt wird
+    // Dies verhindert, dass mehrere Kalenderansichten gleichzeitig angezeigt werden
     if (calendar) {
       try {
         if (typeof calendar.dispose === 'function') {
