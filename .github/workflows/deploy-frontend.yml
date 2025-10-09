@@ -4,10 +4,6 @@ on:
   push:
     branches:
       - master
-    paths:
-      - 'frontend/**'
-      - 'Dockerfile.frontend.prod'
-      - '.github/workflows/deploy-frontend.yml'
   workflow_dispatch:  # Manual trigger
 
 env:
