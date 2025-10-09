@@ -33,94 +33,42 @@ exports.up = async function(knex) {
     console.log(`🧹 Cleaned ${invalidServiceIds.rows.length} appointments with invalid appointment_type`);
   }
   
-  // STEP 2: Now add FK constraints (data is clean)
+  // STEP 2: Now add FK constraints using raw SQL (each in separate transaction)
+  console.log('🔗 Adding foreign keys individually...');
   
-  // appointments.appointment_type -> services.id
-  const hasAppointmentTypeFK = await knex.schema.hasTable('appointments');
-  if (hasAppointmentTypeFK) {
+  // Helper function to add FK with raw SQL
+  const addFK = async (constraintName, table, column, refTable, refColumn) => {
     try {
-      await knex.schema.alterTable('appointments', table => {
-        table.foreign('appointment_type')
-          .references('id')
-          .inTable('services')
-          .onDelete('SET NULL')
-          .onUpdate('CASCADE');
-      });
-      console.log('✅ Added FK: appointments.appointment_type -> services.id');
+      await knex.raw(`
+        DO $$ 
+        BEGIN
+          IF NOT EXISTS (
+            SELECT 1 FROM pg_constraint WHERE conname = '${constraintName}'
+          ) THEN
+            ALTER TABLE ${table} 
+            ADD CONSTRAINT ${constraintName}
+            FOREIGN KEY (${column}) 
+            REFERENCES ${refTable}(${refColumn})
+            ON DELETE SET NULL
+            ON UPDATE CASCADE;
+          END IF;
+        END $$;
+      `);
+      console.log(`✅ Added FK: ${table}.${column} -> ${refTable}.${refColumn}`);
     } catch (err) {
-      console.log('⚠️ FK might already exist:', err.message);
+      console.log(`⚠️ Could not add FK ${constraintName}:`, err.message);
     }
-  }
+  };
   
-  // appointments.account_id -> accounts.id
-  try {
-    await knex.schema.alterTable('appointments', table => {
-      table.foreign('account_id')
-        .references('id')
-        .inTable('accounts')
-        .onDelete('SET NULL')
-        .onUpdate('CASCADE');
-    });
-    console.log('✅ Added FK: appointments.account_id -> accounts.id');
-  } catch (err) {
-    console.log('⚠️ FK might already exist:', err.message);
-  }
+  // Add all foreign keys
+  await addFK('appointments_appointment_type_foreign', 'appointments', 'appointment_type', 'services', 'id');
+  await addFK('appointments_account_id_foreign', 'appointments', 'account_id', 'accounts', 'id');
+  await addFK('services_account_id_foreign', 'services', 'account_id', 'accounts', 'id');
+  await addFK('availability_configs_account_id_foreign', 'availability_configs', 'account_id', 'accounts', 'id');
+  await addFK('blackout_dates_account_id_foreign', 'blackout_dates', 'account_id', 'accounts', 'id');
+  await addFK('test_chat_sessions_account_id_foreign', 'test_chat_sessions', 'account_id', 'accounts', 'id');
   
-  // services.account_id -> accounts.id
-  try {
-    await knex.schema.alterTable('services', table => {
-      table.foreign('account_id')
-        .references('id')
-        .inTable('accounts')
-        .onDelete('SET NULL')
-        .onUpdate('CASCADE');
-    });
-    console.log('✅ Added FK: services.account_id -> accounts.id');
-  } catch (err) {
-    console.log('⚠️ FK might already exist or constraint error:', err.message);
-  }
-  
-  // availability_configs.account_id -> accounts.id
-  try {
-    await knex.schema.alterTable('availability_configs', table => {
-      table.foreign('account_id')
-        .references('id')
-        .inTable('accounts')
-        .onDelete('SET NULL')
-        .onUpdate('CASCADE');
-    });
-    console.log('✅ Added FK: availability_configs.account_id -> accounts.id');
-  } catch (err) {
-    console.log('⚠️ FK might already exist or constraint error:', err.message);
-  }
-  
-  // blackout_dates.account_id -> accounts.id
-  try {
-    await knex.schema.alterTable('blackout_dates', table => {
-      table.foreign('account_id')
-        .references('id')
-        .inTable('accounts')
-        .onDelete('SET NULL')
-        .onUpdate('CASCADE');
-    });
-    console.log('✅ Added FK: blackout_dates.account_id -> accounts.id');
-  } catch (err) {
-    console.log('⚠️ FK might already exist or constraint error:', err.message);
-  }
-  
-  // test_chat_sessions.account_id -> accounts.id
-  try {
-    await knex.schema.alterTable('test_chat_sessions', table => {
-      table.foreign('account_id')
-        .references('id')
-        .inTable('accounts')
-        .onDelete('SET NULL')
-        .onUpdate('CASCADE');
-    });
-    console.log('✅ Added FK: test_chat_sessions.account_id -> accounts.id');
-  } catch (err) {
-    console.log('⚠️ FK might already exist or constraint error:', err.message);
-  }
+  console.log('✅ Foreign key migration completed (some FKs may have been skipped if data issues exist)');
 };
 
 exports.down = async function(knex) {
