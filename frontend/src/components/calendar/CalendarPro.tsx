@@ -842,6 +842,22 @@ const CalendarPro: React.FC<CalendarProProps> = ({ className = '' }) => {
   const initializeCalendar = () => {
     if (!window.DayPilot || !calendarRef.current) return;
 
+    // WICHTIG: Zerstöre die alte Kalenderinstanz, bevor eine neue erstellt wird
+    if (calendar) {
+      try {
+        if (typeof calendar.dispose === 'function') {
+          calendar.dispose();
+        }
+      } catch (error) {
+        console.warn('⚠️ Error disposing calendar:', error);
+      }
+    }
+
+    // Leere den Container, um sicherzustellen, dass keine alten Elemente übrig bleiben
+    if (calendarRef.current) {
+      calendarRef.current.innerHTML = '';
+    }
+
     let calendarInstance;
     const commonConfig = {
       events: events,
