@@ -14,7 +14,7 @@ exports.up = async function(knex) {
     UPDATE appointments 
     SET account_id = NULL 
     WHERE account_id IS NOT NULL 
-    AND account_id NOT IN (SELECT id FROM accounts)
+    AND account_id::text NOT IN (SELECT id::text FROM accounts)
     RETURNING id, customer_name, account_id
   `);
   if (invalidAccountIds.rows && invalidAccountIds.rows.length > 0) {
@@ -26,7 +26,7 @@ exports.up = async function(knex) {
     UPDATE appointments 
     SET appointment_type = NULL 
     WHERE appointment_type IS NOT NULL 
-    AND appointment_type NOT IN (SELECT id FROM services)
+    AND appointment_type::text NOT IN (SELECT id::text FROM services)
     RETURNING id, customer_name, appointment_type
   `);
   if (invalidServiceIds.rows && invalidServiceIds.rows.length > 0) {
