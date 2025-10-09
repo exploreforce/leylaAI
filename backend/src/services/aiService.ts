@@ -737,6 +737,16 @@ export class AIService {
       throw new Error('Bot configuration not found.');
     }
 
+    // Load language settings from database
+    const languageSettings = await db('language_settings')
+      .where('is_default', true)
+      .first();
+    
+    const configuredLanguage = languageSettings?.language_code || 'de';
+    const configuredLanguageName = languageSettings?.language_name || 'Deutsch (German)';
+    
+    console.log(`🌍 Configured language: ${configuredLanguageName} (${configuredLanguage})`);
+
     const activeSystemPrompt = botConfig.generatedSystemPrompt || botConfig.systemPrompt || 'You are a helpful AI assistant.';
     const promptType = botConfig.generatedSystemPrompt ? 'generated' : 'legacy';
     
@@ -752,7 +762,8 @@ export class AIService {
       promptType,
       systemPrompt: activeSystemPrompt.substring(0, 50) + '...',
       contentFilterEnabled,
-      servicesAvailable: servicesInfo.length > 0
+      servicesAvailable: servicesInfo.length > 0,
+      configuredLanguage
     });
 
     // Erweitere System Prompt basierend auf Einstellungen
@@ -806,14 +817,46 @@ ${customerContext}SESSION MEMORY
 - Last user language: ${previousUserLanguage || 'unknown'}
 - Last safety flag: ${previousIsFlagged ? 'true' : 'false'}
 
+LANGUAGE SETTINGS - CRITICAL INSTRUCTIONS
+========================================
+DEFAULT LANGUAGE: ${configuredLanguage} (${configuredLanguageName})
+
+WICHTIG - LANGUAGE RULES (HÖCHSTE PRIORITÄT):
+1. **ERKENNE DIE SPRACHE DES BENUTZERS** in seiner Nachricht
+2. **ANTWORTE IN DERSELBEN SPRACHE** wie der Benutzer schreibt
+3. **NUR WENN DIE SPRACHE NICHT ERKENNBAR IST** → Verwende ${configuredLanguageName} als Fallback
+4. Setze user_language auf den erkannten Sprachcode des Benutzers (z.B. 'de', 'en', 'es')
+5. Deine Antwort (chat_response) muss in DERSELBEN SPRACHE sein wie user_language
+
+PRIORITÄT:
+- 1️⃣ ERSTE WAHL: Sprache des Benutzers (erkannt aus seiner Nachricht)
+- 2️⃣ FALLBACK: ${configuredLanguageName} (nur wenn Benutzersprache unklar)
+
+BEISPIELE:
+- Benutzer schreibt: "Hello, I need an appointment"
+  → user_language = 'en'
+  → chat_response = "Hello! I'd be happy to help you book an appointment..." (auf Englisch!)
+
+- Benutzer schreibt: "Hola, necesito una cita"
+  → user_language = 'es'
+  → chat_response = "¡Hola! Con gusto te ayudo a reservar una cita..." (auf Spanisch!)
+
+- Benutzer schreibt: "Guten Tag, ich brauche einen Termin"
+  → user_language = 'de'
+  → chat_response = "Guten Tag! Gerne helfe ich Ihnen bei der Terminbuchung..." (auf Deutsch!)
+
+- Benutzer schreibt: "123 xyz" (keine erkennbare Sprache)
+  → user_language = '${configuredLanguage}' (Fallback)
+  → chat_response in ${configuredLanguageName}
+
 GUIDELINES
-- Detect user's language and reply fully in that language
 - Always return JSON matching the provided schema (no prose outside JSON)
-- chat_response is what the user sees
+- chat_response is what the user sees (MUST match the user_language you detected)
 - user_information is a concise rolling summary to carry across turns
-- user_language is the detected language code (e.g., 'de', 'en')
+- user_language is the DETECTED language code of the USER'S message (e.g., 'de', 'en', 'es')
 - is_flagged true only if content crosses a red line
 - user_sentiment is a short qualitative label
+- Response language = User's language (or fallback to ${configuredLanguageName} if unclear)
 
 IMPORTANT: Always check tools before answering questions about availability or appointments.
 `;

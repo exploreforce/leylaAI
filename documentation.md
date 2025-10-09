@@ -2,7 +2,43 @@
 
 ## 📋 Changelog
 
-### 2025-10-04 (Latest) - GitHub Actions CI/CD Pipeline
+### 2025-10-09 (Latest) - Dynamic Language Detection with Fallback
+
+**🌍 Intelligent Language Response System:**
+- ✨ Bot automatically detects and responds in the **user's language**
+- ✨ Configured language serves as **fallback** when user language is unclear
+- ✨ Multilingual support: Bot adapts to user's preferred language automatically
+- ✨ Language priority: User's Language (detected) > Configured Default Language
+- 🐛 **Fixed:** Bot was responding in German regardless of language settings
+- 🐛 **Fixed:** Bot was not loading language settings from database
+
+**Changes Made:**
+- `backend/src/services/aiService.ts`:
+  - Added language settings loading from `language_settings` table
+  - Enhanced system prompt with intelligent language detection logic
+  - User's detected language is now primary response language
+  - Configured language used as fallback for unclear messages
+
+**How It Works:**
+1. Admin sets default language in Settings UI (stored in database with `is_default: true`)
+2. When user sends a message, AI detects the language automatically
+3. Bot responds in the **same language** as the user's message
+4. If language cannot be detected → Uses configured default language as fallback
+5. Examples:
+   - User writes "Hello, I need an appointment" → Bot responds in English
+   - User writes "Hola, necesito una cita" → Bot responds in Spanish
+   - User writes "Guten Tag" → Bot responds in German
+   - User writes unclear text → Bot responds in configured default language
+
+**Language Priority:**
+- 🥇 **Primary:** Detected user language from message
+- 🥈 **Fallback:** Configured default language (from Settings)
+
+**Status:** ✅ Implemented and tested
+
+---
+
+### 2025-10-04 - GitHub Actions CI/CD Pipeline
 
 **🚀 Automatic Deployment System:**
 - ✨ Implemented GitHub Actions CI/CD workflows for automatic deployment
