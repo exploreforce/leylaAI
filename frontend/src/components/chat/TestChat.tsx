@@ -110,6 +110,16 @@ const TestChat = ({ existingSessionId }: TestChatProps) => {
     initializeSession();
   }, [existingSessionId, router]);
 
+  // Auto-scroll to bottom when chat is first opened/loaded
+  useEffect(() => {
+    if (messages.length > 0 && previousMessageCountRef.current === 0) {
+      // Initial load: scroll to bottom immediately
+      setTimeout(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'auto' });
+      }, 100); // Small delay to ensure DOM is rendered
+    }
+  }, [messages.length]);
+
   // Intelligent auto-scroll: Only scroll when new messages arrive AND user is near bottom
   useEffect(() => {
     const hasNewMessages = messages.length > previousMessageCountRef.current;

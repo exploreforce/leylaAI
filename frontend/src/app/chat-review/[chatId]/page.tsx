@@ -44,6 +44,7 @@ export default function ChatDetailReview() {
   const [isProcessing, setIsProcessing] = useState(false);
   
   const cardRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
   const startX = useRef<number>(0);
   const currentX = useRef<number>(0);
   const isDragging = useRef<boolean>(false);
@@ -64,6 +65,15 @@ export default function ChatDetailReview() {
 
     loadChat();
   }, [chatId]);
+
+  // Auto-scroll to bottom when chat messages are loaded
+  useEffect(() => {
+    if (chat && chat.messages.length > 0) {
+      setTimeout(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'auto' });
+      }, 100);
+    }
+  }, [chat]);
 
   const handleTouchStart = (e: React.TouchEvent) => {
     startX.current = e.touches[0].clientX;
@@ -230,6 +240,7 @@ export default function ChatDetailReview() {
                 }}
               />
             ))}
+            <div ref={messagesEndRef} />
           </div>
         </div>
 
