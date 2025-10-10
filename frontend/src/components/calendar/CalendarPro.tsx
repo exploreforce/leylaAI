@@ -688,15 +688,20 @@ const CalendarPro: React.FC<CalendarProProps> = ({ className = '' }) => {
     if (isScriptLoaded && calendarRef.current && startDate) {
       initializeCalendar();
     }
+    
+    // Cleanup function to dispose calendar when component unmounts or dependencies change
+    return () => {
+      if (calendar) {
+        try {
+          if (typeof calendar.dispose === 'function') {
+            calendar.dispose();
+          }
+        } catch (error) {
+          console.warn('⚠️ Error disposing calendar on cleanup:', error);
+        }
+      }
+    };
   }, [isScriptLoaded, view, startDate, zoomLevel, events, availabilityConfig]);
-
-  // Update events when they change
-  useEffect(() => {
-    if (calendar && events.length >= 0) {
-      calendar.events.list = events;
-      calendar.update();
-    }
-  }, [events, calendar]);
 
   // 🎨 EVENT STYLING FUNCTIONS
   const getDurationPriority = (duration: number): 'short' | 'medium' | 'long' => {
