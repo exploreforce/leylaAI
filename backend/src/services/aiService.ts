@@ -3,6 +3,7 @@ import { ChatCompletionTool } from 'openai/resources/chat/completions';
 import { ChatMessage } from '../types';
 import { Database, db } from '../models/database';
 import { getBusinessDaySlots, isTimeSlotAvailable } from '../utils';
+import { getViennaDate, getViennaTime, getViennaWeekday, getViennaDateTime, calculateRelativeDate } from '../utils/timezone';
 
 // Initialize OpenAI client
 const openai = new OpenAI({
@@ -793,15 +794,23 @@ export class AIService {
     });
 
     // Erweitere System Prompt basierend auf Einstellungen
-    const currentDate = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
-    const currentDateTime = new Date().toLocaleString('de-DE', { 
-      timeZone: 'Europe/Berlin',
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      weekday: 'long'
+    // Use consistent Vienna timezone for all date/time calculations
+    const currentDate = getViennaDate(); // YYYY-MM-DD
+    const currentTime = getViennaTime(); // HH:MM
+    const currentWeekday = getViennaWeekday(); // "Montag", "Dienstag", etc.
+    const currentDateTime = getViennaDateTime(); // Full formatted
+    
+    // Calculate common relative dates for reference in system prompt
+    const tomorrow = calculateRelativeDate(1);
+    const dayAfterTomorrow = calculateRelativeDate(2);
+    const nextWeek = calculateRelativeDate(7);
+    
+    console.log('📅 Vienna Timezone Context:', {
+      date: currentDate,
+      time: currentTime,
+      weekday: currentWeekday,
+      tomorrow,
+      dayAfterTomorrow
     });
     
     // Pull last assistant metadata to seed session memory (handle object or JSON string)
@@ -831,10 +840,45 @@ WICHTIG FÜR TERMINBUCHUNGEN:
 
     let extendedSystemPrompt = activeSystemPrompt + `
     
-CURRENT DATE & TIME
-- Heute ist: ${currentDateTime}
-- Aktuelles Datum: ${currentDate}
-- WICHTIG: Nutze dieses Datum für alle Terminberechnungen und -prüfungen!
+AKTUELLES DATUM & ZEIT (Zeitzone: Europe/Vienna)
+==================================================
+- Datum: ${currentDate} (YYYY-MM-DD Format)
+- Uhrzeit: ${currentTime} Uhr
+- Wochentag: ${currentWeekday}
+- Vollständig: ${currentDateTime}
+
+RELATIVE DATUMSBERECHNUNGEN
+============================
+Für ALLE Terminanfragen mit relativen Datumsangaben musst du diese basierend auf dem aktuellen Datum (${currentDate}) berechnen:
+
+EINFACHE RELATIVE AUSDRÜCKE:
+- "heute" → ${currentDate}
+- "morgen" → ${tomorrow}
+- "übermorgen" / "day after tomorrow" → ${dayAfterTomorrow}
+- "in X Tagen" → ${currentDate} + X Tage
+- "nächste Woche" / "next week" → ${nextWeek} (ca. +7 Tage)
+
+WOCHENTAGS-BASIERTE AUSDRÜCKE:
+Aktueller Wochentag: ${currentWeekday}
+- "nächsten Montag" → Finde den nächsten Montag nach ${currentDate}
+- "diesen Freitag" → Freitag dieser Woche (wenn heute < Freitag) oder nächsten Freitag
+- "kommenden Dienstag" → Nächster Dienstag nach heute
+
+ERWEITERTE AUSDRÜCKE:
+- "in 2 Wochen" → ${currentDate} + 14 Tage
+- "nächsten Monat" → Erster Montag/Tag des nächsten Monats (kontextabhängig)
+- "in einem Monat" → ${currentDate} + 30 Tage (ungefähr)
+
+WICHTIGE REGELN:
+1. Berechne IMMER das absolute Datum im Format YYYY-MM-DD
+2. Verwende dieses berechnete Datum für checkAvailability(date: "YYYY-MM-DD")
+3. Erkläre dem Kunden das berechnete Datum zur Bestätigung
+4. Beispiel: "übermorgen" → "Das wäre der ${dayAfterTomorrow}. Lass mich prüfen..."
+
+BEISPIEL-KONVERSATION:
+Kunde: "Ich möchte übermorgen um 14 Uhr einen Termin"
+Du: "Gerne! Übermorgen ist der ${dayAfterTomorrow}. Ich prüfe die Verfügbarkeit..."
+→ checkAvailability(date: "${dayAfterTomorrow}", duration: 60)
 
 ${servicesInfo}
 
