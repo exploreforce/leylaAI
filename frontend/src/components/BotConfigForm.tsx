@@ -637,7 +637,8 @@ const BotConfigForm = () => {
       const promptText = loaded.generatedSystemPrompt || loaded.systemPrompt || '';
       const extractedBehavior = extractBehaviorSection(promptText);
       const merged = extractedBehavior ? { ...loaded, behaviorGuidelines: extractedBehavior } : loaded;
-      setConfig(merged);
+      // Set default reviewMode if not present
+      setConfig({ reviewMode: 'never', ...merged });
     }
   }, [initialConfig]);
 
@@ -858,6 +859,110 @@ const BotConfigForm = () => {
               />
             </div>
 
+          </div>
+        </div>
+      </Card>
+
+      {/* Review Settings Section */}
+      <Card>
+        <div className="p-6">
+          <div className="flex items-center mb-4">
+            <ClockIcon className="h-6 w-6 text-elysPink-500 mr-2" />
+            <h3 className="text-lg font-semibold text-dark-50">Review-Einstellungen</h3>
+          </div>
+          
+          <p className="text-sm text-dark-300 mb-6">
+            Bestimme, ob gebuchte Termine automatisch bestätigt werden oder einer manuellen Überprüfung bedürfen.
+          </p>
+
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-dark-200 mb-3">
+                Review-Modus
+              </label>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <button
+                  type="button"
+                  onClick={() => handleInputChange('reviewMode', 'never')}
+                  className={`
+                    p-4 border-2 rounded-lg text-left transition-all
+                    ${config.reviewMode === 'never' 
+                      ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20' 
+                      : 'border-dark-700 hover:border-dark-600'
+                    }
+                  `}
+                >
+                  <div className="flex items-center space-x-2 mb-2">
+                    <CheckIcon className={`w-5 h-5 ${config.reviewMode === 'never' ? 'text-blue-600' : 'text-dark-400'}`} />
+                    <span className="font-semibold text-dark-50">Nie</span>
+                  </div>
+                  <p className="text-xs text-dark-300">
+                    Alle Termine werden automatisch bestätigt
+                  </p>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleInputChange('reviewMode', 'on_redflag')}
+                  className={`
+                    p-4 border-2 rounded-lg text-left transition-all
+                    ${config.reviewMode === 'on_redflag' 
+                      ? 'border-yellow-600 bg-yellow-50 dark:bg-yellow-900/20' 
+                      : 'border-dark-700 hover:border-dark-600'
+                    }
+                  `}
+                >
+                  <div className="flex items-center space-x-2 mb-2">
+                    <span className={`text-lg ${config.reviewMode === 'on_redflag' ? '' : 'opacity-50'}`}>🚩</span>
+                    <span className="font-semibold text-dark-50">Bei RedFlag</span>
+                  </div>
+                  <p className="text-xs text-dark-300">
+                    Nur verdächtige Termine zur Review
+                  </p>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleInputChange('reviewMode', 'always')}
+                  className={`
+                    p-4 border-2 rounded-lg text-left transition-all
+                    ${config.reviewMode === 'always' 
+                      ? 'border-purple-600 bg-purple-50 dark:bg-purple-900/20' 
+                      : 'border-dark-700 hover:border-dark-600'
+                    }
+                  `}
+                >
+                  <div className="flex items-center space-x-2 mb-2">
+                    <ClockIcon className={`w-5 h-5 ${config.reviewMode === 'always' ? 'text-purple-600' : 'text-dark-400'}`} />
+                    <span className="font-semibold text-dark-50">Immer</span>
+                  </div>
+                  <p className="text-xs text-dark-300">
+                    Alle Termine benötigen manuelle Freigabe
+                  </p>
+                </button>
+              </div>
+            </div>
+
+            {/* Info Box basierend auf ausgewähltem Modus */}
+            {config.reviewMode === 'always' && (
+              <Alert 
+                type="info" 
+                message="Alle gebuchten Termine haben den Status 'pending' und müssen manuell bestätigt werden."
+              />
+            )}
+            {config.reviewMode === 'on_redflag' && (
+              <Alert 
+                type="warning" 
+                message="Nur Termine mit verdächtigem Verhalten (RedFlags) werden zur manuellen Prüfung markiert."
+              />
+            )}
+            {config.reviewMode === 'never' && (
+              <Alert 
+                type="success" 
+                message="Alle Termine werden automatisch bestätigt - keine manuelle Überprüfung erforderlich."
+              />
+            )}
           </div>
         </div>
       </Card>

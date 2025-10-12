@@ -26,6 +26,8 @@ export type PersonalityTone =
   | 'confident' 
   | 'playful';
 
+export type ReviewMode = 'always' | 'never' | 'on_redflag';
+
 export interface BotConfig {
   id: string;
   // Legacy fields
@@ -47,6 +49,7 @@ export interface BotConfig {
   botLimitations: string;
   behaviorGuidelines?: string;
   generatedSystemPrompt?: string;
+  reviewMode?: ReviewMode;
   
   createdAt: string;
   updatedAt: string;

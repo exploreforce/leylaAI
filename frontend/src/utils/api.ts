@@ -217,6 +217,31 @@ export const servicesApi = {
   },
 };
 
+// Review API
+export const reviewApi = {
+  getPendingAppointments: async (): Promise<ApiResponse<Appointment[]>> => {
+    return api.get('/review/pending-appointments', {
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      }
+    });
+  },
+
+  getReviewStats: async (): Promise<ApiResponse<{ pendingCount: number }>> => {
+    return api.get('/review/stats');
+  },
+
+  approveAppointment: async (appointmentId: string): Promise<ApiResponse<Appointment>> => {
+    return api.post(`/review/approve/${appointmentId}`);
+  },
+
+  rejectAppointment: async (appointmentId: string, reason?: string): Promise<ApiResponse<Appointment>> => {
+    return api.post(`/review/reject/${appointmentId}`, { reason });
+  },
+};
+
 // Health check
 export const healthApi = {
   checkStatus: async (): Promise<{ status: string; timestamp: string; environment: string }> => {

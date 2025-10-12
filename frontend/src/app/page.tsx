@@ -9,7 +9,7 @@ import {
   ExclamationTriangleIcon,
   CogIcon
 } from '@heroicons/react/24/outline';
-import { botApi, appointmentsApi } from '@/utils/api';
+import { botApi, appointmentsApi, reviewApi } from '@/utils/api';
 import { useTranslation } from 'react-i18next';
 import moment from 'moment';
 
@@ -26,9 +26,9 @@ const Dashboard = () => {
   useEffect(() => {
     const loadStats = async () => {
       try {
-        // Load real review stats
-        const reviewResponse = await botApi.getChatsForReview();
-        const pendingReviews = reviewResponse.data?.length || 0;
+        // Load real appointment review stats
+        const reviewResponse = await reviewApi.getReviewStats();
+        const pendingReviews = reviewResponse.data?.pendingCount || 0;
 
         // Load real chat stats
         const chatsResponse = await botApi.getAllTestChatSessions();
@@ -98,7 +98,7 @@ const Dashboard = () => {
                 <span className="hidden sm:inline">{t('quick_actions.start_chat')}</span>
                 <span className="sm:hidden">Chat</span>
               </Link>
-              <Link href="/chat-review" className="text-elysPink-400 hover:text-elysPink-300 px-2 sm:px-3 py-2 rounded-lg flex items-center transition-all duration-300 hover:bg-dark-700 text-sm sm:text-base">
+              <Link href="/appointments-review" className="text-elysPink-400 hover:text-elysPink-300 px-2 sm:px-3 py-2 rounded-lg flex items-center transition-all duration-300 hover:bg-dark-700 text-sm sm:text-base">
                 <span className="hidden sm:inline">{t('reviews.title')}</span>
                 <span className="sm:hidden">Review</span>
                 {stats.reviews.needsReview > 0 && (
@@ -171,7 +171,7 @@ const Dashboard = () => {
             </div>
             <div className="p-4 sm:p-6 pt-0">
               <Link 
-                href="/chat-review" 
+                href="/appointments-review" 
                 className={`block px-4 py-2.5 rounded-lg text-center text-sm font-medium transition-all duration-300 ${
                   stats.reviews.needsReview > 0 
                     ? 'bg-gradient-to-r from-elysPink-600 to-elysViolet-700 text-white hover:from-elysPink-500 hover:to-elysViolet-600 shadow-lg hover:shadow-elysPink-500/25 hover:-translate-y-0.5' 
