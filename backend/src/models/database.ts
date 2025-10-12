@@ -68,6 +68,7 @@ export class Database {
       escalationRules: result.escalation_rules || 'Bei komplexen Anfragen oder Beschwerden weiterleiten',
       botLimitations: result.bot_limitations || 'Keine medizinischen Beratungen, keine Rechtsberatung, keine persönlichen Informationen preisgeben',
       generatedSystemPrompt: result.generated_system_prompt,
+      reviewMode: result.review_mode || 'never',
       
       createdAt: new Date(result.created_at),
       updatedAt: new Date(result.updated_at)
@@ -95,6 +96,7 @@ export class Database {
     if (updates.escalationRules !== undefined) dbUpdates.escalation_rules = updates.escalationRules;
     if (updates.botLimitations !== undefined) dbUpdates.bot_limitations = updates.botLimitations;
     if (updates.generatedSystemPrompt !== undefined) dbUpdates.generated_system_prompt = updates.generatedSystemPrompt;
+    if (updates.reviewMode !== undefined) dbUpdates.review_mode = updates.reviewMode;
     
     dbUpdates.updated_at = new Date();
 

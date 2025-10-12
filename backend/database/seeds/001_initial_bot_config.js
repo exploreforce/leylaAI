@@ -12,7 +12,8 @@ exports.seed = function(knex) {
           timezone: 'UTC',
           max_appointment_duration: 120,
           buffer_time: 15,
-          is_active: true
+          is_active: true,
+          review_mode: 'never'
         }
       ]);
     });

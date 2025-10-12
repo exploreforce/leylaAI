@@ -202,7 +202,8 @@ const executeTool = async (
   toolCall: OpenAI.Chat.Completions.ChatCompletionMessageToolCall,
   accountId: string | null = null,
   sessionId: string | null = null,
-  whatsappNumber: string | null = null
+  whatsappNumber: string | null = null,
+  isFlagged: boolean = false
 ) => {
   const toolName = toolCall.function.name;
   const args = JSON.parse(toolCall.function.arguments);
@@ -546,29 +547,46 @@ const executeTool = async (
           console.log(`✅ appointmentType is already a UUID: ${serviceId}`);
         }
         
-        console.log(`📝 Creating appointment with data:`, {
-          customer_name: customerName,
-          customer_phone: customerPhone,
-          customer_email: customerEmail || null,
-          datetime: localDatetime,
-          duration: apptDuration,
-          appointment_type: serviceId, // <- NOW USING UUID!
-          notes: notes || null,
-          status: 'confirmed',
-          account_id: accountId
-        });
-        
-        const newAppointment = await Database.createAppointment({
-          customer_name: customerName,
-          customer_phone: customerPhone,
-          customer_email: customerEmail || null,
-          datetime: localDatetime,
-          duration: apptDuration,
-          appointment_type: serviceId, // <- USE UUID INSTEAD OF NAME!
-          notes,
-          status: 'confirmed', // ✅ FIX: Use valid ENUM value ('pending', 'confirmed', 'cancelled', 'completed')
-          account_id: accountId, // Use session's account_id for multi-tenant isolation
-        });
+      // Load bot config to determine review mode
+      const botConfig = await Database.getBotConfig();
+      const reviewMode = botConfig?.reviewMode || 'never';
+      
+      // Determine appointment status based on review mode and flag status
+      let appointmentStatus: 'pending' | 'confirmed' = 'confirmed';
+      
+      if (reviewMode === 'always') {
+        appointmentStatus = 'pending';
+        console.log('🔍 Review mode: ALWAYS - Setting appointment status to pending');
+      } else if (reviewMode === 'on_redflag' && isFlagged) {
+        appointmentStatus = 'pending';
+        console.log('🚩 RedFlag detected & review mode: ON_REDFLAG - Setting appointment status to pending');
+      } else {
+        console.log(`✅ Review mode: ${reviewMode}, isFlagged: ${isFlagged} - Setting appointment status to confirmed`);
+      }
+      
+      console.log(`📝 Creating appointment with data:`, {
+        customer_name: customerName,
+        customer_phone: customerPhone,
+        customer_email: customerEmail || null,
+        datetime: localDatetime,
+        duration: apptDuration,
+        appointment_type: serviceId, // <- NOW USING UUID!
+        notes: notes || null,
+        status: appointmentStatus,
+        account_id: accountId
+      });
+      
+      const newAppointment = await Database.createAppointment({
+        customer_name: customerName,
+        customer_phone: customerPhone,
+        customer_email: customerEmail || null,
+        datetime: localDatetime,
+        duration: apptDuration,
+        appointment_type: serviceId, // <- USE UUID INSTEAD OF NAME!
+        notes,
+        status: appointmentStatus, // Dynamic status based on review mode
+        account_id: accountId, // Use session's account_id for multi-tenant isolation
+      });
         const appointmentResult = { 
           success: true, 
           message: `Appointment booked successfully for ${customerName} on ${localDatetime}`,
@@ -914,8 +932,18 @@ IMPORTANT: Always check tools before answering questions about availability or a
     }
 
     if (toolCalls) {
-      // Execute tools and continue conversation (pass accountId, sessionId, whatsappNumber for context)
-      const toolResults = await Promise.all(toolCalls.map(tc => executeTool(tc, accountId, sessionId, whatsappNumber)));
+      // Parse structured response early to get is_flagged status for review mode
+      let isFlagged = false;
+      try {
+        const earlyStructuredResponse = JSON.parse(responseMessage.content || '{}') as BotResponse;
+        isFlagged = earlyStructuredResponse.is_flagged || false;
+        console.log(`🚩 Early parsing: is_flagged = ${isFlagged}`);
+      } catch (error) {
+        console.log('⚠️ Could not parse early structured response for flag status, defaulting to false');
+      }
+      
+      // Execute tools and continue conversation (pass accountId, sessionId, whatsappNumber, isFlagged for context)
+      const toolResults = await Promise.all(toolCalls.map(tc => executeTool(tc, accountId, sessionId, whatsappNumber, isFlagged)));
       
       const toolResponseMessage: OpenAI.Chat.ChatCompletionMessageParam = {
         role: 'assistant',
