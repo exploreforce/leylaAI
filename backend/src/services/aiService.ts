@@ -324,7 +324,11 @@ const executeTool = async (
           const startMinutes = startH * 60 + startM;
           const endMinutes = endH * 60 + endM;
           
-          for (let minutes = startMinutes; minutes <= endMinutes; minutes += 15) {
+          // ✅ FIX: Appointment must fit completely within block
+          // Stop `duration` minutes before block end
+          const maxStartTime = endMinutes - duration;
+          
+          for (let minutes = startMinutes; minutes <= maxStartTime; minutes += 15) {
             const h = Math.floor(minutes / 60);
             const m = minutes % 60;
             explicitTimes.push(`${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`);
@@ -448,7 +452,11 @@ const executeTool = async (
         const startMinutes = startH * 60 + startM;
         const endMinutes = endH * 60 + endM;
         
-        for (let minutes = startMinutes; minutes <= endMinutes; minutes += 15) {
+        // ✅ FIX: Appointment must fit completely within block
+        // Stop `duration` minutes before block end
+        const maxStartTime = endMinutes - duration;
+        
+        for (let minutes = startMinutes; minutes <= maxStartTime; minutes += 15) {
           const h = Math.floor(minutes / 60);
           const m = minutes % 60;
           explicitTimes.push(`${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`);
