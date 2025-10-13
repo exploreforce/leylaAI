@@ -1,7 +1,10 @@
 /**
- * Timezone utility functions for UTC conversion and account-specific timezone handling
+ * Timezone utility functions using date-fns-tz
+ * Battle-tested library for accurate timezone conversions
  */
 
+import { toZonedTime, fromZonedTime, format as formatTz } from 'date-fns-tz';
+import { parseISO, format, addDays } from 'date-fns';
 import { db } from '../models/database';
 
 /**
@@ -11,55 +14,29 @@ import { db } from '../models/database';
  * @returns Date object in UTC
  */
 export function convertToUTC(datetimeStr: string, fromTimezone: string): Date {
-  // Handle different input formats
-  let cleanedStr = datetimeStr;
-  
-  // If it's already an ISO string with timezone, parse directly
-  if (datetimeStr.includes('T') && (datetimeStr.includes('+') || datetimeStr.includes('Z'))) {
-    return new Date(datetimeStr);
+  // If it's already an ISO string with timezone indicator, parse directly
+  if (datetimeStr.includes('Z') || (datetimeStr.includes('+') && datetimeStr.includes('T'))) {
+    return parseISO(datetimeStr);
   }
   
-  // Convert space to T for ISO format
-  if (datetimeStr.includes(' ') && !datetimeStr.includes('T')) {
-    cleanedStr = datetimeStr.replace(' ', 'T');
+  // Normalize format: replace space with T
+  let normalized = datetimeStr.trim();
+  if (normalized.includes(' ') && !normalized.includes('T')) {
+    normalized = normalized.replace(' ', 'T');
   }
   
-  // Create date in the specified timezone
-  // We use Intl.DateTimeFormat to handle timezone conversion
-  const parts = cleanedStr.split(/[T\s]/);
-  const datePart = parts[0]; // YYYY-MM-DD
-  const timePart = parts[1] || '00:00'; // HH:mm or HH:mm:ss
+  // Ensure we have seconds (date-fns-tz expects full ISO format)
+  if (!normalized.includes(':00:') && normalized.split(':').length === 2) {
+    normalized += ':00';
+  }
   
-  // Parse components
-  const [year, month, day] = datePart.split('-').map(Number);
-  const [hour, minute, second = 0] = timePart.split(':').map(Number);
+  // Use date-fns-tz to convert from source timezone to UTC
+  // This handles DST transitions and all edge cases automatically
+  const utcDate = fromZonedTime(normalized, fromTimezone);
   
-  // Create a date string that will be interpreted in the specified timezone
-  const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}T${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}:${String(second).padStart(2, '0')}`;
+  console.log(`🕐 Timezone conversion: "${datetimeStr}" in ${fromTimezone} → UTC ${utcDate.toISOString()}`);
   
-  // Get the offset for this timezone at this date/time
-  const testDate = new Date(dateStr + 'Z'); // Start with UTC
-  const formatter = new Intl.DateTimeFormat('en-US', {
-    timeZone: fromTimezone,
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    hour12: false
-  });
-  
-  // Create the local date in the target timezone
-  const localDate = new Date(year, month - 1, day, hour, minute, second);
-  
-  // Calculate offset
-  const utcDate = new Date(localDate.toLocaleString('en-US', { timeZone: 'UTC' }));
-  const tzDate = new Date(localDate.toLocaleString('en-US', { timeZone: fromTimezone }));
-  const offset = utcDate.getTime() - tzDate.getTime();
-  
-  // Apply offset to get UTC time
-  return new Date(localDate.getTime() - offset);
+  return utcDate;
 }
 
 /**
@@ -69,27 +46,11 @@ export function convertToUTC(datetimeStr: string, fromTimezone: string): Date {
  * @returns ISO datetime string in the target timezone
  */
 export function convertFromUTC(utcDate: Date, toTimezone: string): string {
-  // Format the date in the target timezone
-  const formatter = new Intl.DateTimeFormat('en-CA', {
-    timeZone: toTimezone,
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    hour12: false
-  });
+  // Convert UTC date to target timezone
+  const zonedDate = toZonedTime(utcDate, toTimezone);
   
-  const parts = formatter.formatToParts(utcDate);
-  const year = parts.find(p => p.type === 'year')?.value;
-  const month = parts.find(p => p.type === 'month')?.value;
-  const day = parts.find(p => p.type === 'day')?.value;
-  const hour = parts.find(p => p.type === 'hour')?.value;
-  const minute = parts.find(p => p.type === 'minute')?.value;
-  const second = parts.find(p => p.type === 'second')?.value;
-  
-  return `${year}-${month}-${day}T${hour}:${minute}:${second}`;
+  // Format as ISO string without timezone suffix
+  return formatTz(zonedDate, "yyyy-MM-dd'T'HH:mm:ss", { timeZone: toTimezone });
 }
 
 /**
@@ -123,7 +84,7 @@ export async function getAccountTimezone(accountId: string | undefined): Promise
 
 /**
  * Format a datetime string for database storage (converts to UTC Date)
- * @param datetime - DateTime string from frontend (e.g., "2025-10-20T09:00")
+ * @param datetime - DateTime string from AI or frontend (e.g., "2025-10-20T09:00")
  * @param accountTimezone - Account's timezone
  * @returns Date object in UTC for database storage
  */
@@ -138,7 +99,7 @@ export function formatForDatabase(datetime: string, accountTimezone: string): Da
  * @returns ISO datetime string in account timezone
  */
 export function formatForClient(utcDate: Date | string, accountTimezone: string): string {
-  const date = typeof utcDate === 'string' ? new Date(utcDate) : utcDate;
+  const date = typeof utcDate === 'string' ? parseISO(utcDate) : utcDate;
   return convertFromUTC(date, accountTimezone);
 }
 
@@ -149,22 +110,19 @@ export function formatForClient(utcDate: Date | string, accountTimezone: string)
  */
 export function getCurrentDateInTimezone(timezone: string): string {
   const now = new Date();
-  return now.toLocaleDateString('en-CA', { timeZone: timezone });
+  const zonedDate = toZonedTime(now, timezone);
+  return format(zonedDate, 'yyyy-MM-dd');
 }
 
 /**
  * Get current time in a specific timezone
  * @param timezone - IANA timezone string
- * @returns Time string in HH:MM format
+ * @returns Time string in HH:mm format
  */
 export function getCurrentTimeInTimezone(timezone: string): string {
   const now = new Date();
-  return now.toLocaleTimeString('de-AT', {
-    timeZone: timezone,
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false
-  }).replace(/\./g, ':');
+  const zonedDate = toZonedTime(now, timezone);
+  return format(zonedDate, 'HH:mm');
 }
 
 /**
@@ -174,7 +132,10 @@ export function getCurrentTimeInTimezone(timezone: string): string {
  */
 export function getCurrentWeekdayInTimezone(timezone: string): string {
   const now = new Date();
-  return now.toLocaleDateString('de-AT', {
+  const zonedDate = toZonedTime(now, timezone);
+  
+  // Use Intl for German weekday names
+  return zonedDate.toLocaleDateString('de-AT', {
     timeZone: timezone,
     weekday: 'long'
   });
@@ -183,11 +144,13 @@ export function getCurrentWeekdayInTimezone(timezone: string): string {
 /**
  * Get full formatted date/time in a specific timezone
  * @param timezone - IANA timezone string
- * @returns Full formatted date/time string
+ * @returns Full formatted date/time string in German
  */
 export function getCurrentDateTimeInTimezone(timezone: string): string {
   const now = new Date();
-  return now.toLocaleString('de-AT', {
+  const zonedDate = toZonedTime(now, timezone);
+  
+  return zonedDate.toLocaleString('de-AT', {
     timeZone: timezone,
     year: 'numeric',
     month: '2-digit',
@@ -207,13 +170,8 @@ export function getCurrentDateTimeInTimezone(timezone: string): string {
  */
 export function calculateRelativeDateInTimezone(daysOffset: number, timezone: string): string {
   const now = new Date();
-  // Get current date in the timezone
-  const currentDate = getCurrentDateInTimezone(timezone);
+  const zonedDate = toZonedTime(now, timezone);
+  const offsetDate = addDays(zonedDate, daysOffset);
   
-  // Parse and add offset
-  const date = new Date(currentDate);
-  date.setDate(date.getDate() + daysOffset);
-  
-  return date.toISOString().split('T')[0];
+  return format(offsetDate, 'yyyy-MM-dd');
 }
-
