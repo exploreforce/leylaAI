@@ -143,12 +143,15 @@ export class Database {
     endDateStr?: string;
     status?: string;
     accountId?: string;
+    includeInactive?: boolean; // If false (default), only return active appointments (pending, booked, confirmed)
   } = {}): Promise<Appointment[]> {
     try {
       console.log('🔍 Database.getAppointments called with STRING filters:', {
         startDateStr: filters.startDateStr,
         endDateStr: filters.endDateStr,
-        status: filters.status
+        status: filters.status,
+        accountId: filters.accountId,
+        includeInactive: filters.includeInactive
       });
 
       let query = db('appointments')
@@ -171,14 +174,28 @@ export class Database {
         console.log('🔍 Adding endDate filter (LOCAL STRING): datetime <=', endDateTimeStr);
         query = query.where('appointments.datetime', '<=', endDateTimeStr);
       }
+      
+      // Status filtering logic
       if (filters.status) {
-        console.log('🔍 Adding status filter:', filters.status);
+        // If explicit status is provided, use it
+        console.log('🔍 Adding explicit status filter:', filters.status);
         query = query.where('appointments.status', filters.status);
+      } else if (filters.includeInactive === false || filters.includeInactive === undefined) {
+        // Default behavior: only include active appointments (exclude cancelled, completed, noshow)
+        const activeStatuses = ['pending', 'booked', 'confirmed'];
+        console.log('🔍 Adding active status filter (excluding cancelled/completed/noshow):', activeStatuses);
+        query = query.whereIn('appointments.status', activeStatuses);
       }
+      // If includeInactive is true and no explicit status, return all statuses
+      
+      // AccountId filtering with NULL handling
+      // NULL accountIds should block ALL accounts (system-wide bookings)
       if (filters.accountId) {
-        console.log('🔍 Adding account filter:', filters.accountId);
-        // Direct UUID comparison - both columns are now proper UUID type
-        query = query.where('appointments.account_id', filters.accountId);
+        console.log('🔍 Adding account filter (including NULL accountIds):', filters.accountId);
+        query = query.where(function() {
+          this.where('appointments.account_id', filters.accountId)
+            .orWhereNull('appointments.account_id');
+        });
       }
       
       console.log('🔍 Executing query:', query.toString());

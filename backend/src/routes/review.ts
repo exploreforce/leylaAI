@@ -83,8 +83,10 @@ router.post('/approve/:appointmentId', asyncHandler(async (req: Request, res: Re
   console.log(`✅ Approving appointment ${appointmentId}`);
   
   // First, verify the appointment exists and belongs to this account
+  // Include all appointments to provide better error messages for non-pending appointments
   const allAppointments = await Database.getAppointments({
-    accountId: accountId || undefined
+    accountId: accountId || undefined,
+    includeInactive: true
   });
   const appointment = allAppointments.find(apt => apt.id === appointmentId);
   
@@ -150,8 +152,10 @@ router.post('/reject/:appointmentId', asyncHandler(async (req: Request, res: Res
   console.log(`❌ Rejecting appointment ${appointmentId}, reason: ${reason || 'No reason provided'}`);
   
   // First, verify the appointment exists and belongs to this account
+  // Include all appointments to provide better error messages for non-pending appointments
   const allAppointments = await Database.getAppointments({
-    accountId: accountId || undefined
+    accountId: accountId || undefined,
+    includeInactive: true
   });
   const appointment = allAppointments.find(apt => apt.id === appointmentId);
   

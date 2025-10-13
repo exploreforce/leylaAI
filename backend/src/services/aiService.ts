@@ -270,7 +270,8 @@ const executeTool = async (
         const booked = await Database.getAppointments({ 
           startDateStr: date, 
           endDateStr: date,
-          accountId: accountId || undefined
+          accountId: accountId || undefined,
+          includeInactive: false // Only include active appointments (pending, booked, confirmed)
         });
         
         // Helper functions for default case
@@ -411,11 +412,12 @@ const executeTool = async (
         return `${hh}:${mm}`;
       };
 
-      // Get booked appointments for the day (filtered by account)
+      // Get booked appointments for the day (filtered by account, only active appointments)
       const booked = await Database.getAppointments({ 
         startDateStr: date, 
         endDateStr: date,
-        accountId: accountId || undefined
+        accountId: accountId || undefined,
+        includeInactive: false // Only include active appointments (pending, booked, confirmed)
       });
       const bookedSlots = booked.map(appt => {
         const start = toHHmm(String(appt.datetime));
@@ -645,24 +647,20 @@ const executeTool = async (
       console.log(`🔍 Finding appointments for phone: ${searchPhone} in account: ${accountId}`);
       
       try {
-        // Get appointments filtered by account
+        // Get only active appointments (includeInactive: false filters out cancelled, completed, noshow)
         const allAppointments = await Database.getAppointments({
-          accountId: accountId || undefined
+          accountId: accountId || undefined,
+          includeInactive: false
         });
         
         // Filter by phone number (handle different formats)
         const normalizedSearchPhone = searchPhone.replace(/[^0-9+]/g, '');
-        const customerAppointments = allAppointments.filter(apt => {
+        const activeAppointments = allAppointments.filter(apt => {
           const aptPhone = (apt.customerPhone || '').replace(/[^0-9+]/g, '');
           return aptPhone === normalizedSearchPhone || 
                  aptPhone === `+${normalizedSearchPhone}` ||
                  `+${aptPhone}` === normalizedSearchPhone;
         });
-        
-        // Filter out cancelled appointments for cleaner results
-        const activeAppointments = customerAppointments.filter(apt => 
-          apt.status !== 'cancelled' && apt.status !== 'noshow'
-        );
         
         console.log(`✅ Found ${activeAppointments.length} active appointments for ${searchPhone}`);
         
@@ -692,9 +690,10 @@ const executeTool = async (
       console.log(`🗑️ Cancelling appointment: ${appointmentId} for account: ${accountId}`, reason ? `Reason: ${reason}` : '');
       
       try {
-        // First, get the appointment to verify it exists and belongs to this account
+        // Get all appointments (including inactive) to find the one to cancel
         const allAppointmentsForCancel = await Database.getAppointments({
-          accountId: accountId || undefined
+          accountId: accountId || undefined,
+          includeInactive: true // Need to find even cancelled appointments to prevent double-cancellation
         });
         const appointmentToCancel = allAppointmentsForCancel.find(apt => apt.id === appointmentId);
         

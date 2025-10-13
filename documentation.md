@@ -2,7 +2,70 @@
 
 ## 📋 Changelog
 
-### 2025-10-13 (Latest) - Calendar View Header Improvements - FINAL FIX
+### 2025-10-13 (Latest) - Availability Check Fix: Status Filtering & Multi-Tenant Isolation
+
+**🐛 Bug Fix: Inactive Appointments Blocking Availability:**
+- Fixed issue where cancelled, completed, and noshow appointments were incorrectly blocking available time slots
+- Implemented status-based filtering in availability checks
+- Added multi-tenant isolation with NULL accountId handling for system-wide bookings
+
+**Problem:**
+- `checkAvailability` tool showed all appointments as blocking availability regardless of status
+- Cancelled appointments (status: "cancelled") were preventing new bookings
+- Completed and noshow appointments were also incorrectly blocking time slots
+
+**Solution:**
+- Added `includeInactive` parameter to `Database.getAppointments()`
+- Default behavior now filters for active statuses only: "pending", "booked", "confirmed"
+- Inactive statuses excluded by default: "cancelled", "completed", "noshow"
+- NULL accountIds now block ALL accounts (for system-wide bookings/maintenance)
+- AccountId filtering maintains multi-tenant isolation
+
+**Changes Made:**
+
+*Backend Database Layer:*
+- `backend/src/models/database.ts`:
+  - Added `includeInactive?: boolean` parameter to `getAppointments()` method
+  - Implemented status filtering: active statuses only when `includeInactive === false` (default)
+  - Enhanced accountId filtering: includes NULL accountIds (system-wide bookings)
+  - Added detailed logging for status and account filters
+
+*Backend AI Service:*
+- `backend/src/services/aiService.ts`:
+  - Updated both `checkAvailability` tool calls to use `includeInactive: false`
+  - Ensures only active appointments block availability
+  - Lines 274 and 420: Added explicit status filtering
+
+*Backend Calendar Routes:*
+- `backend/src/routes/calendar.ts`:
+  - Updated availability endpoint to filter inactive appointments
+  - Updated overview endpoint with same filtering
+  - Added comments documenting NULL accountId behavior
+  - Lines 34 and 86: Implemented active-only filtering
+
+*Diagnostic Tool:*
+- `backend/diagnose-availability.ts`:
+  - New diagnostic script for testing availability logic
+  - Tests status filtering, accountId handling, and availability calculations
+  - Usage: `npx ts-node backend/diagnose-availability.ts [date]`
+  - Provides detailed breakdown of appointments by status and account
+
+**Status Filtering Logic:**
+- Active Statuses (block availability): pending, booked, confirmed
+- Inactive Statuses (don't block): cancelled, completed, noshow
+- Explicit status parameter overrides default filtering
+- `includeInactive: true` returns all appointments (for admin views)
+
+**Multi-Tenant Architecture:**
+- AccountId filtering isolates appointments per account
+- NULL accountIds block ALL accounts (system-wide bookings)
+- Maintains data privacy and scalability for multi-tenant usage
+
+**Status:** ✅ Implemented & Tested
+
+---
+
+### 2025-10-13 - Calendar View Header Improvements - FINAL FIX
 
 **📅 Calendar UX Improvements:**
 - ✨ **Week View:** Simplified column headers to show only day numbers instead of full dates

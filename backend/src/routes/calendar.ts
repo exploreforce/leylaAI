@@ -26,9 +26,12 @@ router.get('/availability', asyncHandler(async (req: Request, res: Response) => 
     return res.json({ date: requestedDate.format('YYYY-MM-DD'), availableSlots: [] });
   }
 
+  // Get only active appointments (excludes cancelled, completed, noshow)
+  // NULL accountIds will block all accounts (system-wide bookings)
   const allAppointments: Appointment[] = await Database.getAppointments({
     startDateStr: requestedDate.format('YYYY-MM-DD'),
-    endDateStr: requestedDate.format('YYYY-MM-DD')
+    endDateStr: requestedDate.format('YYYY-MM-DD'),
+    includeInactive: false
   }) || []; // Fallback to empty array if undefined
 
   const potentialSlots = generateTimeSlots(requestedDate, config.weeklySchedule, parseInt(duration as string, 10)) || []; // Fallback to empty array
@@ -76,9 +79,11 @@ router.get('/overview', asyncHandler(async (req: Request, res: Response) => {
   const start = moment(String(startDate)).startOf('day');
   const end = moment(String(endDate)).endOf('day');
 
+  // Get only active appointments for overview (excludes cancelled, completed, noshow)
   const appointments: Appointment[] = await Database.getAppointments({
     startDateStr: start.format('YYYY-MM-DD'),
-    endDateStr: end.format('YYYY-MM-DD')
+    endDateStr: end.format('YYYY-MM-DD'),
+    includeInactive: false
   }) || []; // Fallback to empty array if undefined
 
   let totalAvailableSlots = 0;

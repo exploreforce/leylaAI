@@ -42,6 +42,7 @@ router.get('/', asyncHandler(async (req: Request, res: Response) => {
     endDateStr: endDateStr,
     status: status as 'confirmed' | 'cancelled' | undefined,
     accountId,
+    includeInactive: true // Admin endpoint: show all appointments including cancelled/completed
   });
   
   // Convert UTC datetimes to ISO format for client
