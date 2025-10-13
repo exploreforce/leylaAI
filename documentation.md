@@ -2,17 +2,20 @@
 
 ## 📋 Changelog
 
-### 2025-10-13 (Latest) - Calendar Week View Header Format Simplification
+### 2025-10-13 (Latest) - Calendar View Header Improvements
 
-**📅 Calendar UX Improvement:**
-- ✨ Simplified week view column headers to show only day numbers instead of full dates
+**📅 Calendar UX Improvements:**
+- ✨ **Week View:** Simplified column headers to show only day numbers instead of full dates
 - ✨ Changed from "10/12/10/13/10/14/..." to just "12, 13, 14, ..."
-- ✨ Cleaner, more readable calendar interface
+- ✨ **Month View:** Removed overlapping day names header (Monday, Tuesday, etc.)
+- ✨ Cleaner, more readable calendar interface across all views
 
 **Changes Made:**
 - `frontend/src/components/calendar/CalendarPro.tsx`:
   - Added `headerDateFormat: "d"` to Week and Day view configuration
-  - Shows only the day number in column headers for better readability
+  - Added `dayHeaderHeight: 0` to Month view to hide day names row
+  - Shows only day numbers in column headers for better readability
+  - Eliminated visual overlap and clutter in month view
 
 **Status:** ✅ Implemented
 

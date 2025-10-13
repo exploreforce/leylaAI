@@ -1070,6 +1070,7 @@ const CalendarPro: React.FC<CalendarProProps> = ({ className = '' }) => {
         startDate: startDate,
         cellHeight: cellHeight,
         weekStarts: 1,
+        dayHeaderHeight: 0, // Hide day names row (Monday, Tuesday, etc.)
         headerHeight: Math.max(25, Math.floor(cellHeight * 0.3)),
         cellHeaderHeight: Math.max(20, Math.floor(cellHeight * 0.25)),
         showWeekend: true,
