@@ -46,5 +46,5 @@ COPY backend/database ./database
 EXPOSE 5000
 
 # Run migrations with error handling, then start server
-CMD ["sh", "-c", "npx knex migrate:latest --knexfile knexfile.js || echo 'Migration failed, starting server anyway...' && node dist/index.js"]
+CMD ["sh", "-c", "echo '🔄 Running database migrations...' && npx knex migrate:latest --knexfile knexfile.js && echo '✅ Migrations completed successfully' || echo '⚠️ Migrations failed or already applied'; echo '🚀 Starting server...'; node dist/index.js"]
 
