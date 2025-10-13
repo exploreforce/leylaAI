@@ -952,7 +952,7 @@ IMPORTANT: Always check tools before answering questions about availability or a
 
     // OpenAI API Call mit Structured Outputs
     const apiParams: any = {
-      model: process.env.OPENAI_MODEL || 'gpt-4o', // Use gpt-4o (better tool calling than mini)
+      model: process.env.OPENAI_MODEL || 'gpt-5-mini', // Use GPT-5-mini as default
       messages: [systemMessage, ...conversationHistory],
       tools: tools,
       tool_choice: 'auto',
@@ -1012,7 +1012,7 @@ IMPORTANT: Always check tools before answering questions about availability or a
       
       // Send tool results back to the model with structured outputs
       const secondApiParams: any = {
-        model: process.env.OPENAI_MODEL || 'gpt-4o',
+        model: process.env.OPENAI_MODEL || 'gpt-5-mini',
         messages: [
           systemMessage,
           ...conversationHistory,
