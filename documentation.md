@@ -13,7 +13,8 @@
 **Changes Made:**
 - `frontend/src/components/calendar/CalendarPro.tsx`:
   - Added `headerDateFormat: "d"` to Week and Day view configuration
-  - Added `dayHeaderHeight: 0` to Month view to hide day names row
+  - Added CSS-based hiding of day names row in Month view via `onAfterRender`
+  - Hides `.calendar_default_dayheader` and `.calendar_rouge_district_dayheader` elements
   - Shows only day numbers in column headers for better readability
   - Eliminated visual overlap and clutter in month view
 
