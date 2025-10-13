@@ -354,25 +354,13 @@ button {
   height: 0 !important;      /* Ensure no space is reserved */
 }
 
-/* === NUCLEAR OPTION: Hide Month Day Headers === */
-/* CRITICAL FIX: DayPilot uses THEME-PREFIXED class names when theme is set! */
-/* For theme "calendar_rouge_district", classes are .calendar_rouge_district_month_* */
+/* === CORRECT FIX: Hide Month Day Headers === */
+/* FOUND IT! The actual class names are calendar_rouge_district_header (NOT dayheader!) */
+/* Discovered via DOM inspection: div.calendar_rouge_district_header_inner contains "Monday" text */
 
-/* Target the theme-specific classes (PRIMARY) */
-.calendar_rouge_district_month_dayheader,
-.calendar_rouge_district_month_dayheader_inner,
-.calendar_rouge_district_month_headerrow,
-.calendar_rouge_district_dayheader,
-
-/* Also target default classes (FALLBACK if theme is removed) */
-.daypilot_month_dayheader,
-.daypilot_month_dayheader_inner,
-.daypilot_month_headerrow,
-
-/* Wildcard catch-all for any variant */
-div[class*="month_dayheader"],
-div[class*="month_headerrow"],
-div[class*="_dayheader"][class*="_month"] {
+/* Target the CORRECT theme-specific classes */
+.calendar_rouge_district_main .calendar_rouge_district_header,
+.calendar_rouge_district_main .calendar_rouge_district_header_inner {
   display: none !important;
   visibility: hidden !important;
   opacity: 0 !important;
@@ -391,13 +379,12 @@ div[class*="_dayheader"][class*="_month"] {
   user-select: none !important;
 }
 
-/* High specificity override for themed calendar */
-html body .calendar_rouge_district_main .calendar_rouge_district_month_dayheader,
-html body .calendar_rouge_district_main div[class*="dayheader"],
-html body .daypilot_month_main .daypilot_month_dayheader,
-html body .daypilot_month_main div[class*="dayheader"] {
+/* Also hide with high specificity */
+html body .calendar_rouge_district_main .calendar_rouge_district_header,
+html body .calendar_rouge_district_main .calendar_rouge_district_header_inner {
   display: none !important;
   visibility: hidden !important;
+  height: 0 !important;
 }
 
 .daypilot_month_cell {
@@ -432,14 +419,9 @@ html body .daypilot_month_main div[class*="dayheader"] {
     font-size: 12px !important;
   }
   
-  /* Theme-specific classes for mobile */
-  .calendar_rouge_district_month_dayheader,
-  .calendar_rouge_district_month_dayheader_inner,
-  .daypilot_month_dayheader,
-  div[class*="month_dayheader"],
-  div[class*="month_headerrow"] {
-    font-size: 10px !important;
-    padding: 4px 2px !important;
+  /* CORRECT: Hide day headers on mobile */
+  .calendar_rouge_district_main .calendar_rouge_district_header,
+  .calendar_rouge_district_main .calendar_rouge_district_header_inner {
     display: none !important; /* Hide day names on mobile */
     visibility: hidden !important;
     height: 0 !important;      /* No reserved space on mobile */

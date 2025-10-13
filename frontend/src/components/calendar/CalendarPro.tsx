@@ -1098,42 +1098,15 @@ const CalendarPro: React.FC<CalendarProProps> = ({ className = '' }) => {
               cell.style.borderTop = '1px solid rgba(236, 72, 153, 0.15)'; // Subtle pink border for month
             });
             
-            // === DEBUG: Find where day names are rendered ===
-            console.log('🔍 DOM INSPECTION - Finding day names in calendar');
-            const allElements = calendarRef.current.querySelectorAll('*');
-            allElements.forEach((el: any) => {
-              const text = el.textContent?.trim();
-              if (text && (text.includes('Monday') || text.includes('Tuesday') || text.includes('Wednesday'))) {
-                console.log('🎯 FOUND DAY NAME:', {
-                  element: el.tagName,
-                  className: el.className,
-                  textContent: text.substring(0, 100),
-                  innerHTML: el.innerHTML.substring(0, 150)
-                });
-              }
-            });
-            
-            // === NUCLEAR OPTION: Hide day headers with MutationObserver ===
+            // === CORRECT FIX: Hide day headers with the RIGHT selectors ===
             const hideDayHeaders = () => {
               if (!calendarRef.current) return;
               
-              // CRITICAL: Target THEME-SPECIFIC class names (calendar_rouge_district_*)
+              // CORRECT selectors based on DOM inspection:
+              // The day names are in .calendar_rouge_district_header_inner (NOT dayheader!)
               const selectors = [
-                // Theme-specific classes (PRIMARY - these are what DayPilot actually uses!)
-                '.calendar_rouge_district_month_dayheader',
-                '.calendar_rouge_district_month_dayheader_inner',
-                '.calendar_rouge_district_month_headerrow',
-                '.calendar_rouge_district_dayheader',
-                
-                // Default classes (FALLBACK)
-                '.daypilot_month_dayheader',
-                '.daypilot_month_dayheader_inner',
-                '.daypilot_month_headerrow',
-                
-                // Wildcard selectors
-                'div[class*="month_dayheader"]',
-                'div[class*="month_headerrow"]',
-                'div[class*="rouge_district"][class*="dayheader"]'
+                '.calendar_rouge_district_header',
+                '.calendar_rouge_district_header_inner'
               ];
               
               let hiddenCount = 0;

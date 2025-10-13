@@ -2,7 +2,7 @@
 
 ## 📋 Changelog
 
-### 2025-10-13 (Latest) - Calendar View Header Improvements - CRITICAL FIX
+### 2025-10-13 (Latest) - Calendar View Header Improvements - FINAL FIX
 
 **📅 Calendar UX Improvements:**
 - ✨ **Week View:** Simplified column headers to show only day numbers instead of full dates
@@ -10,35 +10,35 @@
 - ✨ **Month View:** Removed overlapping day names header (Monday, Tuesday, etc.)
 - ✨ Cleaner, more readable calendar interface across all views
 
-**🔧 Critical Root Cause Discovery:**
-- **Problem:** Previous fixes targeted `.daypilot_month_dayheader` class names
-- **Root Cause:** DayPilot uses **THEME-PREFIXED** class names when a custom theme is set
-- **Solution:** With `theme: "calendar_rouge_district"`, actual classes are `.calendar_rouge_district_month_dayheader`
-- **Why Previous Fixes Failed:** All CSS and JavaScript selectors were targeting wrong class names!
+**🎯 ACTUAL Root Cause Discovery via DOM Inspection:**
+- **What We Thought:** Day names were in `.calendar_rouge_district_month_dayheader`
+- **Reality Check:** Used browser DevTools to inspect actual DOM structure
+- **FOUND IT:** Day names are in `.calendar_rouge_district_header_inner` (NOT `*_dayheader`!)
+- **Why ALL Previous Fixes Failed:** We searched for `*_dayheader` and `*_month_dayheader` classes that don't exist!
+- **The Actual DOM Structure:**
+  ```html
+  <div class="calendar_rouge_district_header">
+    <div class="calendar_rouge_district_header_inner">Monday</div>
+  </div>
+  ```
 
 **Changes Made:**
 - `frontend/src/app/globals.css`:
-  - **FIXED:** Now targeting theme-prefixed classes `.calendar_rouge_district_month_*` as PRIMARY selectors
-  - Kept default `.daypilot_*` classes as fallback
-  - Nuclear CSS rules with 11 different selector variants (lines 357-401)
-  - Multiple hiding techniques: display, visibility, opacity, position, height
-  - High specificity rules (html body .calendar_rouge_district_main) to override library CSS
-  - Mobile breakpoint with theme-specific selectors (lines 435-446)
+  - **CORRECT FIX:** Now targeting `.calendar_rouge_district_header` and `.calendar_rouge_district_header_inner`
+  - Aggressive hiding: display, visibility, opacity, height, position (lines 357-388)
+  - High specificity: `html body .calendar_rouge_district_main .calendar_rouge_district_header`
+  - Mobile breakpoint updated with correct selectors (lines 422-428)
 - `frontend/public/themes/calendar_rouge_district.css`:
-  - **FIXED:** Theme-specific class names as primary targets
-  - Duplicate nuclear rules loaded last to override everything (lines 184-211)
+  - **CORRECT FIX:** Updated to target `.calendar_rouge_district_header` classes
+  - Theme-level CSS loaded last to override everything (lines 184-200)
 - `frontend/src/components/calendar/CalendarPro.tsx`:
-  - **FIXED:** Updated MutationObserver to target theme-prefixed classes first
-  - Now targets 11 different selector variants including `.calendar_rouge_district_*`
-  - MutationObserver for persistent DOM monitoring (lines 1101-1146)
-  - Automatic re-hiding on any DOM mutation (childList, attributes, subtree)
-  - Console logging for verification
-  - Cleanup on component unmount
-  - Added `headerDateFormat: "d"` to Week and Day view configuration
-  - Shows only day numbers in column headers for better readability
-- Multi-layer defense with CORRECT selectors ensures day names are hidden
+  - **CORRECT FIX:** MutationObserver now targets the RIGHT classes
+  - Simplified to 2 correct selectors instead of 11 wrong ones (lines 1107-1110)
+  - Removed debug code, kept only the working solution
+  - Added `headerDateFormat: "d"` to Week and Day view for day numbers only
+- Multi-layer defense with **CORRECT** selectors finally solves the issue
 
-**Status:** ✅ Critical Fix Implemented - Should Now Work!
+**Status:** ✅ FINAL FIX - Targeting Correct CSS Classes Based on DOM Inspection!
 
 ---
 

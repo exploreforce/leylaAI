@@ -181,22 +181,10 @@
 
 /* 🎭 Professional Dark Theme Complete */
 
-/* === NUCLEAR OVERRIDE: Hide Day Headers (Loaded Last) === */
-/* CRITICAL: Use theme-specific class names since this file defines the theme */
-.calendar_rouge_district_month_dayheader,
-.calendar_rouge_district_month_dayheader_inner,
-.calendar_rouge_district_month_headerrow,
-.calendar_rouge_district_dayheader,
-
-/* Also cover default classes */
-.daypilot_month_dayheader,
-.daypilot_month_dayheader_inner,
-.daypilot_month_headerrow,
-
-/* Wildcard catch-all */
-div[class*="month_dayheader"],
-div[class*="month_headerrow"],
-div[class*="rouge_district"][class*="dayheader"] {
+/* === CORRECT FIX: Hide Day Headers === */
+/* The actual classes are .calendar_rouge_district_header (NOT dayheader!) */
+.calendar_rouge_district_main .calendar_rouge_district_header,
+.calendar_rouge_district_main .calendar_rouge_district_header_inner {
   display: none !important;
   visibility: hidden !important;
   height: 0 !important;
@@ -208,4 +196,5 @@ div[class*="rouge_district"][class*="dayheader"] {
   overflow: hidden !important;
   padding: 0 !important;
   margin: 0 !important;
+  line-height: 0 !important;
 }
