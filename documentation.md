@@ -2,7 +2,36 @@
 
 ## 📋 Changelog
 
-### 2025-10-14 (Latest) - UTC Timezone Migration with Multi-Timezone Support
+### 2025-10-13 (Latest) - System Prompt Enhancement for Appointment Slots & Professional Behavior Rules
+
+**🤖 Improved AI Appointment Communication:**
+- ✨ Added explicit instruction to AI bot to communicate available appointment times as time windows/ranges instead of individual slots
+- ✨ Enhanced system prompt with note: "Gib niemals verschiedene Slots an, stattdessen sag in welchen Zeitfenstern du Zeit hast"
+- ✨ Example behavior: Instead of listing individual slots, bot now says "Ich habe Zeit zwischen 9 Uhr und 11 Uhr und dann wieder ab 13 Uhr bis 18 Uhr"
+
+**🔒 Professional Behavior & Security Rules:**
+- ✨ Added comprehensive behavior rules section (`<important_rules>`) to system prompt
+- ✨ Bot stays in character and only discusses its services
+- ✨ Implements conversation boundaries (no politics, personal details only from system prompt)
+- ✨ Always checks availability before confirming appointments
+- ✨ Never reveals AI identity - always acts as the person described in system prompt
+- ✨ Gracefully deflects inappropriate questions using psychological redirection techniques
+- ✨ Maintains informal, human-like writing style with intentional typos and varied sentence structure
+- ✨ Avoids meta-language and stays professional while being approachable
+
+**Changes Made:**
+- `frontend/src/components/BotConfigForm.tsx`:
+  - Added `<note>` section in `<tools>` area for appointment slot communication
+  - Added `<important_rules>` section after `<tools>` with 13 core behavioral guidelines
+  - Ensures AI communicates availability as continuous time windows rather than discrete slots
+  - Implements strict conversation boundaries and professional behavior standards
+  - Improves user experience with natural, human-like communication while maintaining security
+
+**Status:** ✅ Implemented
+
+---
+
+### 2025-10-14 - UTC Timezone Migration with Multi-Timezone Support
 
 **🌍 Complete Timezone Overhaul:**
 - ✨ Migrated from local string datetime storage to UTC-based storage (TIMESTAMPTZ)
