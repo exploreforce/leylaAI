@@ -1103,6 +1103,9 @@ const CalendarPro: React.FC<CalendarProProps> = ({ className = '' }) => {
         viewType: view,
         startDate: startDate,
         
+        // Date format in column headers - show only day number
+        headerDateFormat: "d",
+        
         // Dynamic time range based on actual appointments
         businessBeginsHour: parseInt(timeRange.businessBegin.split(':')[0]),
         businessEndsHour: parseInt(timeRange.businessEnd.split(':')[0]),

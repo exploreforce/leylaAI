@@ -2,7 +2,23 @@
 
 ## 📋 Changelog
 
-### 2025-10-13 (Latest) - System Prompt Enhancement for Appointment Slots & Professional Behavior Rules
+### 2025-10-13 (Latest) - Calendar Week View Header Format Simplification
+
+**📅 Calendar UX Improvement:**
+- ✨ Simplified week view column headers to show only day numbers instead of full dates
+- ✨ Changed from "10/12/10/13/10/14/..." to just "12, 13, 14, ..."
+- ✨ Cleaner, more readable calendar interface
+
+**Changes Made:**
+- `frontend/src/components/calendar/CalendarPro.tsx`:
+  - Added `headerDateFormat: "d"` to Week and Day view configuration
+  - Shows only the day number in column headers for better readability
+
+**Status:** ✅ Implemented
+
+---
+
+### 2025-10-13 - System Prompt Enhancement for Appointment Slots & Professional Behavior Rules
 
 **🤖 Improved AI Appointment Communication:**
 - ✨ Added explicit instruction to AI bot to communicate available appointment times as time windows/ranges instead of individual slots
