@@ -1295,7 +1295,7 @@ const CalendarPro: React.FC<CalendarProProps> = ({ className = '' }) => {
 UID:${appointment.id}@whatsappbot
 DTSTART:${startTime}
 DTEND:${endTime}
-SUMMARY:${appointment.customerName} - ${appointment.appointmentType}
+SUMMARY:${appointment.customerName} - ${appointment.serviceName || appointment.appointmentType || 'Appointment'}
 DESCRIPTION:${appointment.notes || 'Leyla AI Appointment'}
 LOCATION:Leyla AI
 STATUS:${appointment.status.toUpperCase()}
@@ -1623,6 +1623,27 @@ const AppointmentModal: React.FC<{
     }
   }, [services, formData.serviceId]);
 
+  // Helper function to get service display name with fallback chain
+  const getServiceDisplayName = (appointment: Appointment | null): string => {
+    if (!appointment) return 'N/A';
+    
+    // 1. Priority: serviceName from backend (already resolved via JOIN)
+    if (appointment.serviceName) {
+      return appointment.serviceName;
+    }
+    
+    // 2. Fallback: Lookup in local services list with enhanced display
+    if (appointment.appointmentType && services.length > 0) {
+      const service = services.find(s => s.id === appointment.appointmentType);
+      if (service) {
+        return `${service.name} - $${service.price} (${service.durationMinutes}min)`;
+      }
+    }
+    
+    // 3. Last fallback: show appointmentType (UUID) or 'Unknown Service'
+    return appointment.appointmentType || 'Unknown Service';
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -1711,7 +1732,7 @@ const AppointmentModal: React.FC<{
               
               <div>
                 <label className="block text-sm font-medium text-dark-200 mb-1">Service</label>
-                <p className="text-dark-50">{appointment?.appointmentType}</p>
+                <p className="text-dark-50">{getServiceDisplayName(appointment)}</p>
               </div>
               
               <div>
