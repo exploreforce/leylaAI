@@ -24,12 +24,18 @@ router.get('/pending-appointments', asyncHandler(async (req: Request, res: Respo
     accountId,
   });
   
-  console.log(`✅ Found ${appointments.length} pending appointments`);
+  // Convert UTC datetimes to ISO format for client
+  const formattedAppointments = appointments.map(apt => ({
+    ...apt,
+    datetime: apt.datetime instanceof Date ? apt.datetime.toISOString() : apt.datetime
+  }));
+  
+  console.log(`✅ Found ${formattedAppointments.length} pending appointments`);
   
   return res.json({
     success: true,
-    data: appointments,
-    total: appointments.length,
+    data: formattedAppointments,
+    total: formattedAppointments.length,
   });
 }));
 
@@ -101,12 +107,20 @@ router.post('/approve/:appointmentId', asyncHandler(async (req: Request, res: Re
     status: 'confirmed',
   });
   
+  // Format datetime for response
+  const response = {
+    ...updatedAppointment,
+    datetime: updatedAppointment.datetime instanceof Date 
+      ? updatedAppointment.datetime.toISOString() 
+      : updatedAppointment.datetime
+  };
+  
   console.log(`✅ Appointment ${appointmentId} approved and confirmed`);
   
   return res.json({
     success: true,
     message: 'Appointment approved successfully',
-    data: updatedAppointment,
+    data: response,
   });
 }));
 
@@ -158,12 +172,20 @@ router.post('/reject/:appointmentId', asyncHandler(async (req: Request, res: Res
     notes: updatedNotes,
   });
   
+  // Format datetime for response
+  const response = {
+    ...updatedAppointment,
+    datetime: updatedAppointment.datetime instanceof Date 
+      ? updatedAppointment.datetime.toISOString() 
+      : updatedAppointment.datetime
+  };
+  
   console.log(`❌ Appointment ${appointmentId} rejected and cancelled`);
   
   return res.json({
     success: true,
     message: 'Appointment rejected successfully',
-    data: updatedAppointment,
+    data: response,
   });
 }));
 

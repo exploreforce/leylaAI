@@ -3,6 +3,7 @@ import { asyncHandler } from '../middleware/errorHandler';
 import { Database } from '../models/database';
 import { Appointment, TimeSlot } from '../types';
 import { generateTimeSlots, isBlackoutDate } from '../utils/calendarUtils';
+import { convertToUTC, convertFromUTC, formatForDatabase } from '../utils/timezoneUtils';
 import moment from 'moment';
 
 const router = Router();
@@ -43,10 +44,18 @@ router.get('/', asyncHandler(async (req: Request, res: Response) => {
     accountId,
   });
   
+  // Convert UTC datetimes to ISO format for client
+  // Database now stores UTC, we return ISO 8601 strings
+  const formattedAppointments = appointments.map(apt => ({
+    ...apt,
+    // Ensure datetime is returned as ISO string (frontend expects this)
+    datetime: apt.datetime instanceof Date ? apt.datetime.toISOString() : apt.datetime
+  }));
+  
   console.log('🔍 Database query result:', {
-    appointmentsCount: appointments?.length || 0,
+    appointmentsCount: formattedAppointments?.length || 0,
     accountIdUsed: accountId,
-    appointments: appointments?.map(apt => ({
+    appointments: formattedAppointments?.map(apt => ({
       id: apt.id,
       customerName: apt.customerName,
       datetime: apt.datetime,
@@ -56,8 +65,8 @@ router.get('/', asyncHandler(async (req: Request, res: Response) => {
   
   return res.json({
     success: true,
-    data: appointments,
-    total: appointments.length,
+    data: formattedAppointments,
+    total: formattedAppointments.length,
   });
 }));
 
@@ -86,69 +95,90 @@ router.post('/', asyncHandler(async (req: Request, res: Response) => {
   
   if (!config) {
     console.log('❌ No availability configuration found - allowing appointment anyway');
-    // For now, allow appointments even without availability config
-    // NO TIMEZONE CONVERSION - store datetime as local string
-    const datetimeStr = datetime.replace('T', ' ').slice(0, 16);
+    
+    // Convert datetime to UTC for storage
+    const accountTimezone = await Database.getAccountTimezone(accountId);
+    const utcDate = formatForDatabase(datetime, accountTimezone);
+    
     const newAppointmentData = {
       customer_name: customerName,
       customer_phone: customerPhone,
       customer_email: customerEmail,
-      datetime: datetimeStr, // Store as local datetime string
+      datetime: utcDate, // Store as UTC Date object
       duration,
       status: 'confirmed',
       notes,
       appointment_type: appointmentType,
-      account_id: accountId, // ← ENABLED: Column added via migration
+      account_id: accountId,
     };
     
-    console.log('📝 Creating appointment with LOCAL datetime:', datetimeStr);
+    console.log('📝 Creating appointment with UTC datetime:', {
+      input: datetime,
+      accountTimezone,
+      utcDate: utcDate.toISOString()
+    });
     console.log('👤 With account_id:', accountId);
 
     const newAppointment = await Database.createAppointment(newAppointmentData);
     
+    // Return with ISO datetime format
+    const response = {
+      ...newAppointment,
+      datetime: newAppointment.datetime instanceof Date 
+        ? newAppointment.datetime.toISOString() 
+        : newAppointment.datetime
+    };
+    
     return res.status(201).json({
       success: true,
       message: 'Appointment created successfully (no availability config)',
-      data: newAppointment,
+      data: response,
     });
   }
 
-  // NO TIMEZONE CONVERSION - use local datetime strings only
-  const datetimeStr = datetime.replace('T', ' ');
-  console.log('📅 Processing datetime as LOCAL STRING:', datetimeStr);
+  // Convert datetime to UTC for storage
+  const accountTimezone = await Database.getAccountTimezone(accountId);
+  const utcDate = formatForDatabase(datetime, accountTimezone);
   
-  console.log('📅 SIMPLIFIED PROCESSING - NO MOMENT.JS:', {
-    datetimeInput: datetime,
-    datetimeLocal: datetimeStr,
+  console.log('📅 Processing datetime with timezone conversion:', {
+    input: datetime,
+    accountTimezone,
+    utcDate: utcDate.toISOString(),
     duration
   });
   
   // SIMPLIFIED: Skip complex availability validation to eliminate timezone issues
   console.log('📅 SKIPPING AVAILABILITY CHECKS - CREATING APPOINTMENT DIRECTLY');
 
-  // NO TIMEZONE CONVERSION - store datetime as local string
-  const finalDatetimeStr = datetime.replace('T', ' ').slice(0, 16);
   const newAppointmentData = {
     customer_name: customerName,
     customer_phone: customerPhone,
     customer_email: customerEmail,
-    datetime: finalDatetimeStr, // Store as local datetime string
+    datetime: utcDate, // Store as UTC Date object
     duration,
     status: 'confirmed',
     notes,
     appointment_type: appointmentType,
-    account_id: accountId, // ← ENABLED: Column added via migration
+    account_id: accountId,
   };
   
-  console.log('📝 Creating appointment with LOCAL datetime:', finalDatetimeStr);
+  console.log('📝 Creating appointment with UTC datetime:', utcDate.toISOString());
   console.log('👤 With account_id:', accountId);
 
   const newAppointment = await Database.createAppointment(newAppointmentData);
   
+  // Return with ISO datetime format
+  const response = {
+    ...newAppointment,
+    datetime: newAppointment.datetime instanceof Date 
+      ? newAppointment.datetime.toISOString() 
+      : newAppointment.datetime
+  };
+  
   return res.status(201).json({
     success: true,
     message: 'Appointment created successfully',
-    data: newAppointment,
+    data: response,
   });
 }));
 

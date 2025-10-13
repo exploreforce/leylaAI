@@ -3,7 +3,8 @@ import { ChatCompletionTool } from 'openai/resources/chat/completions';
 import { ChatMessage } from '../types';
 import { Database, db } from '../models/database';
 import { getBusinessDaySlots, isTimeSlotAvailable } from '../utils';
-import { getViennaDate, getViennaTime, getViennaWeekday, getViennaDateTime, calculateRelativeDate } from '../utils/timezone';
+import { getViennaDate, getViennaTime, getViennaWeekday, getViennaDateTime, calculateRelativeDate, getAccountDate, getAccountTime, getAccountWeekday, getAccountDateTime, calculateAccountRelativeDate } from '../utils/timezone';
+import { formatForDatabase } from '../utils/timezoneUtils';
 
 // Initialize OpenAI client
 const openai = new OpenAI({
@@ -498,9 +499,10 @@ const executeTool = async (
       console.log(`   Service: ${appointmentType}`);
       console.log(`   Notes: ${notes || 'N/A'}`);
       
-      // Normalize incoming datetime to local string 'YYYY-MM-DD HH:mm'
-      const localDatetime = String(datetime).replace('T', ' ').replace('Z', '').slice(0, 16);
-      console.log(`📅 Normalized datetime: "${datetime}" → "${localDatetime}"`);
+      // Convert datetime to UTC for storage
+      const accountTimezone = await Database.getAccountTimezone(accountId || undefined);
+      const utcDate = formatForDatabase(datetime, accountTimezone);
+      console.log(`📅 Timezone conversion: "${datetime}" (${accountTimezone}) → "${utcDate.toISOString()}" (UTC)`);
       
       try {
         // Use the account ID from the current session
@@ -511,14 +513,14 @@ const executeTool = async (
         }
         
         // Validate the appointment data
-        if (!customerName || !customerPhone || !localDatetime || !apptDuration || !appointmentType) {
-          console.error('❌ Missing required appointment fields:', { customerName, customerPhone, localDatetime, apptDuration, appointmentType });
+        if (!customerName || !customerPhone || !datetime || !apptDuration || !appointmentType) {
+          console.error('❌ Missing required appointment fields:', { customerName, customerPhone, datetime, apptDuration, appointmentType });
           return { 
             error: 'Missing required appointment information. Please provide: customer name, phone number, date/time, duration, and service type.',
             details: {
               hasName: !!customerName,
               hasPhone: !!customerPhone,
-              hasDatetime: !!localDatetime,
+              hasDatetime: !!datetime,
               hasDuration: !!apptDuration,
               hasServiceType: !!appointmentType
             }
@@ -577,7 +579,7 @@ const executeTool = async (
         customer_name: customerName,
         customer_phone: customerPhone,
         customer_email: customerEmail || null,
-        datetime: localDatetime,
+        datetime: utcDate,
         duration: apptDuration,
         appointment_type: serviceId, // <- NOW USING UUID!
         notes: notes || null,
@@ -589,16 +591,16 @@ const executeTool = async (
         customer_name: customerName,
         customer_phone: customerPhone,
         customer_email: customerEmail || null,
-        datetime: localDatetime,
+        datetime: utcDate,
         duration: apptDuration,
         appointment_type: serviceId, // <- USE UUID INSTEAD OF NAME!
-        notes,
+        notes: notes || null,
         status: appointmentStatus, // Dynamic status based on review mode
         account_id: accountId, // Use session's account_id for multi-tenant isolation
       });
         const appointmentResult = { 
           success: true, 
-          message: `Appointment booked successfully for ${customerName} on ${localDatetime}`,
+          message: `Appointment booked successfully for ${customerName} on ${datetime}`,
           appointment: {
             id: newAppointment.id,
             customerName: newAppointment.customerName,
@@ -794,18 +796,19 @@ export class AIService {
     });
 
     // Erweitere System Prompt basierend auf Einstellungen
-    // Use consistent Vienna timezone for all date/time calculations
-    const currentDate = getViennaDate(); // YYYY-MM-DD
-    const currentTime = getViennaTime(); // HH:MM
-    const currentWeekday = getViennaWeekday(); // "Montag", "Dienstag", etc.
-    const currentDateTime = getViennaDateTime(); // Full formatted
+    // Use account-specific timezone for all date/time calculations
+    const accountTimezone = await Database.getAccountTimezone(accountId);
+    const currentDate = await getAccountDate(accountId); // YYYY-MM-DD
+    const currentTime = await getAccountTime(accountId); // HH:MM
+    const currentWeekday = await getAccountWeekday(accountId); // "Montag", "Dienstag", etc.
+    const currentDateTime = await getAccountDateTime(accountId); // Full formatted
     
     // Calculate common relative dates for reference in system prompt
-    const tomorrow = calculateRelativeDate(1);
-    const dayAfterTomorrow = calculateRelativeDate(2);
-    const nextWeek = calculateRelativeDate(7);
+    const tomorrow = await calculateAccountRelativeDate(1, accountId);
+    const dayAfterTomorrow = await calculateAccountRelativeDate(2, accountId);
+    const nextWeek = await calculateAccountRelativeDate(7, accountId);
     
-    console.log('📅 Vienna Timezone Context:', {
+    console.log(`📅 Account Timezone Context (${accountTimezone}):`, {
       date: currentDate,
       time: currentTime,
       weekday: currentWeekday,
@@ -840,7 +843,7 @@ WICHTIG FÜR TERMINBUCHUNGEN:
 
     let extendedSystemPrompt = activeSystemPrompt + `
     
-AKTUELLES DATUM & ZEIT (Zeitzone: Europe/Vienna)
+AKTUELLES DATUM & ZEIT (Zeitzone: ${accountTimezone})
 ==================================================
 - Datum: ${currentDate} (YYYY-MM-DD Format)
 - Uhrzeit: ${currentTime} Uhr

@@ -12,7 +12,7 @@ import {
   EnvelopeIcon,
   CalendarIcon
 } from '@heroicons/react/24/outline';
-import moment from 'moment';
+import { formatAppointmentDate, formatAppointmentTime } from '@/utils/timezone';
 
 interface AppointmentReviewCardProps {
   appointment: Appointment;
@@ -29,8 +29,9 @@ const AppointmentReviewCard: React.FC<AppointmentReviewCardProps> = ({
   isLoading = false,
   showRedFlagBadge = false,
 }) => {
-  const formattedDate = moment(appointment.datetime).format('DD.MM.YYYY');
-  const formattedTime = moment(appointment.datetime).format('HH:mm');
+  // Parse UTC datetime from backend and display in local timezone
+  const formattedDate = formatAppointmentDate(appointment.datetime);
+  const formattedTime = formatAppointmentTime(appointment.datetime);
   const formattedDateTime = `${formattedDate} um ${formattedTime} Uhr`;
 
   return (

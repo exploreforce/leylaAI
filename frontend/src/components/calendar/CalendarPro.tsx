@@ -381,20 +381,26 @@ const AvailabilitySettings = () => {
   );
 };
 
-// Helper function to format datetime safely
+// Helper function to format datetime safely - expects UTC from backend
 const formatDateTime = (datetime: string | Date) => {
   try {
     let dateObj: Date;
     
     if (typeof datetime === 'string') {
-      // Handle different string formats
-      if (datetime.includes('T')) {
-        // ISO format: "2025-08-12T11:00:00.000Z" or "2025-08-12T11:00:00"
-        dateObj = new Date(datetime.replace('Z', ''));
-      } else {
-        // Local format: "2025-08-12 11:00" -> "2025-08-12T11:00"
-        dateObj = new Date(datetime.replace(' ', 'T'));
+      // Backend sends UTC ISO strings - parse them correctly
+      let isoString = datetime;
+      
+      // Convert space to T if needed
+      if (datetime.includes(' ') && !datetime.includes('T')) {
+        isoString = datetime.replace(' ', 'T');
       }
+      
+      // Ensure UTC indicator if not present
+      if (!isoString.includes('Z') && !isoString.includes('+')) {
+        isoString += 'Z';
+      }
+      
+      dateObj = new Date(isoString);
     } else {
       dateObj = new Date(datetime);
     }
@@ -404,6 +410,7 @@ const formatDateTime = (datetime: string | Date) => {
       return 'Invalid Date';
     }
     
+    // Display in local timezone
     return dateObj.toLocaleDateString('de-DE', {
       year: 'numeric',
       month: '2-digit',
@@ -1540,18 +1547,30 @@ const AppointmentModal: React.FC<{
   isLoading: boolean;
 }> = ({ appointment, mode, services, selectedSlot, onSave, onDelete, onNoShow, onClose, isLoading }) => {
   
-  // Safe datetime conversion (NO TIMEZONE CONVERSION - ONLY STRINGS!)
+  // Safe datetime conversion - converts UTC from backend to local for input
   const getSafeDateTime = (appointment: Appointment | null, selectedSlot: {start: any, end: any} | null): string => {
     if (appointment?.datetime) {
       try {
         const datetimeStr = appointment.datetime.toString();
         
-        if (datetimeStr.includes('T')) {
-          // ISO format: "2025-08-12T11:00:00.000Z" or "2025-08-12T11:00:00"
-          return datetimeStr.replace('Z', '').slice(0, 16);
-        } else {
-          // Local format: "2025-08-12 11:00" -> "2025-08-12T11:00"
-          return datetimeStr.replace(' ', 'T').slice(0, 16);
+        // Parse UTC datetime from backend and convert to local for datetime-local input
+        let isoString = datetimeStr;
+        if (datetimeStr.includes(' ') && !datetimeStr.includes('T')) {
+          isoString = datetimeStr.replace(' ', 'T');
+        }
+        if (!isoString.includes('Z') && !isoString.includes('+')) {
+          isoString += 'Z'; // Assume UTC
+        }
+        
+        const utcDate = new Date(isoString);
+        if (!isNaN(utcDate.getTime())) {
+          // Convert to local time for datetime-local input
+          const year = utcDate.getFullYear();
+          const month = String(utcDate.getMonth() + 1).padStart(2, '0');
+          const day = String(utcDate.getDate()).padStart(2, '0');
+          const hour = String(utcDate.getHours()).padStart(2, '0');
+          const minute = String(utcDate.getMinutes()).padStart(2, '0');
+          return `${year}-${month}-${day}T${hour}:${minute}`;
         }
       } catch (error) {
         console.warn('⚠️ Invalid appointment datetime:', appointment.datetime, error);

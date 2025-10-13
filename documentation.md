@@ -2,7 +2,92 @@
 
 ## 📋 Changelog
 
-### 2025-10-13 (Latest) - Calendar Service Names Display Fix
+### 2025-10-14 (Latest) - UTC Timezone Migration with Multi-Timezone Support
+
+**🌍 Complete Timezone Overhaul:**
+- ✨ Migrated from local string datetime storage to UTC-based storage (TIMESTAMPTZ)
+- ✨ Implemented multi-timezone support per account
+- ✨ Fixed timezone bug: Appointments no longer show incorrect times (e.g., 9:00 → 11:00)
+- ✨ All datetimes stored in UTC, displayed in user's local timezone
+- ✨ Account-specific timezone configuration in database
+
+**Timezone Handling Architecture:**
+- **Database:** All `datetime` columns migrated to `TIMESTAMPTZ` (UTC storage)
+- **Accounts Table:** New `timezone` column (default: 'Europe/Vienna')
+- **Backend:** Converts between account timezone and UTC automatically
+- **Frontend:** Parses UTC and displays in browser's local timezone
+- **AI Service:** Uses account timezone for context and datetime calculations
+
+**Changes Made:**
+
+*Backend Migrations:*
+- `backend/database/migrations/20251014000000_add_timezone_to_accounts.js`
+  - Added `timezone` VARCHAR(50) column to `accounts` table
+- `backend/database/migrations/20251014000001_convert_datetime_to_timestamptz.js`
+  - Converted `appointments.datetime` to TIMESTAMPTZ
+  - Migrated existing data (interpreted as Europe/Vienna, converted to UTC)
+  - Handles both PostgreSQL and SQLite
+
+*Backend Utilities:*
+- `backend/src/utils/timezoneUtils.ts` (NEW)
+  - `convertToUTC()`: Convert from any timezone to UTC
+  - `convertFromUTC()`: Convert from UTC to any timezone
+  - `getAccountTimezone()`: Fetch account's timezone from DB
+  - `formatForDatabase()`: Prepare datetime for UTC storage
+  - `formatForClient()`: Format UTC date for API response
+- `backend/src/utils/timezone.ts` (UPDATED)
+  - Added account-based functions: `getAccountDate()`, `getAccountTime()`, etc.
+  - Legacy Vienna functions preserved for backward compatibility
+
+*Backend Routes:*
+- `backend/src/routes/appointments.ts`
+  - GET: Converts UTC datetimes to ISO strings for clients
+  - POST: Converts account timezone to UTC before storage
+- `backend/src/routes/review.ts`
+  - All responses format datetimes as ISO strings
+- `backend/src/services/aiService.ts`
+  - Uses account timezone for AI context (current date/time)
+  - Converts appointment datetimes to UTC before database insertion
+
+*Frontend Utilities:*
+- `frontend/src/utils/timezone.ts` (NEW)
+  - `parseUTCToLocal()`: Parse UTC string to Date
+  - `formatAppointmentDate()`: Display date in local timezone
+  - `formatAppointmentTime()`: Display time in local timezone
+  - `convertLocalToUTC()`: Convert datetime-local input to UTC
+  - `getRelativeTime()`: Relative time descriptions
+
+*Frontend Components:*
+- `frontend/src/components/review/AppointmentReviewCard.tsx`
+  - Now uses `formatAppointmentDate()` and `formatAppointmentTime()`
+  - Correctly displays UTC datetimes in local timezone
+- `frontend/src/components/calendar/CalendarPro.tsx`
+  - Updated `formatDateTime()` to parse UTC properly
+  - Updated `getSafeDateTime()` to convert UTC to local for inputs
+
+**How It Works:**
+1. **Storage:** All datetimes stored as UTC TIMESTAMPTZ in database
+2. **API:** Backend returns ISO 8601 strings (UTC)
+3. **Display:** Frontend parses UTC and displays in user's browser timezone
+4. **Input:** User creates appointment in local time → Backend converts to UTC → Stores in DB
+5. **AI Context:** AI uses account timezone for "current date/time" context
+
+**Multi-Timezone Support:**
+- Each account has its own timezone setting (`accounts.timezone`)
+- AI bot uses account timezone for date/time calculations
+- Frontend always displays in user's browser timezone
+- Example: Account in New York (EST) sees different times than account in Tokyo (JST)
+
+**Migration Safety:**
+- Existing appointments interpreted as Europe/Vienna time during migration
+- Automatic conversion to UTC preserves correct times
+- Both PostgreSQL and SQLite supported
+
+**Status:** ✅ Implemented and ready for testing
+
+---
+
+### 2025-10-13 - Calendar Service Names Display Fix
 
 **🔧 Fixed Service Display in Calendar:**
 - 🐛 **Fixed:** Calendar appointment popup was showing service UUIDs instead of readable service names

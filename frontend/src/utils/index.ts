@@ -30,8 +30,14 @@ export const formatTime = (time: string): string => {
   }
   
   // Handle ISO timestamp format (e.g., "2025-01-23T23:21:18.000Z")
+  // These are UTC times from the backend, parse and convert to local
   if (time.includes('T') || time.includes('-')) {
-    const date = new Date(time);
+    // Parse as UTC and convert to local time
+    let isoString = time;
+    if (!time.includes('Z') && !time.includes('+')) {
+      isoString += 'Z'; // Assume UTC if no timezone indicator
+    }
+    const date = new Date(isoString);
     const hours = date.getHours();
     const minutes = date.getMinutes().toString().padStart(2, '0');
     const ampm = hours >= 12 ? 'PM' : 'AM';
@@ -39,7 +45,7 @@ export const formatTime = (time: string): string => {
     return `${displayHour}:${minutes} ${ampm}`;
   }
   
-  // Handle time string format (e.g., "14:30")
+  // Handle time string format (e.g., "14:30") - assume local time
   const [hours, minutes] = time.split(':');
   const hour = parseInt(hours, 10);
   const ampm = hour >= 12 ? 'PM' : 'AM';

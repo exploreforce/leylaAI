@@ -39,6 +39,35 @@ export class Database {
     return token;
   }
 
+  /**
+   * Get the timezone for a specific account
+   * @param accountId - Account ID
+   * @returns Promise<string> - IANA timezone string (defaults to 'Europe/Vienna')
+   */
+  static async getAccountTimezone(accountId: string | undefined): Promise<string> {
+    if (!accountId) {
+      console.warn('⚠️ No accountId provided for timezone lookup, using default: Europe/Vienna');
+      return 'Europe/Vienna';
+    }
+
+    try {
+      const account = await db('accounts')
+        .select('timezone')
+        .where('id', accountId)
+        .first();
+
+      if (!account || !account.timezone) {
+        console.warn(`⚠️ No timezone found for account ${accountId}, using default: Europe/Vienna`);
+        return 'Europe/Vienna';
+      }
+
+      return account.timezone;
+    } catch (error) {
+      console.error(`❌ Error fetching timezone for account ${accountId}:`, error);
+      return 'Europe/Vienna';
+    }
+  }
+
   // Bot Config operations
   static async getBotConfig(): Promise<BotConfig | null> {
     const result = await db('bot_configs')
