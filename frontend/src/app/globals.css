@@ -350,6 +350,8 @@ button {
   font-weight: 600 !important;
   color: rgb(var(--gold-primary-rgb)) !important;
   background: linear-gradient(135deg, rgb(var(--background-secondary-rgb)), rgba(var(--rouge-primary-rgb), 0.1)) !important;
+  display: none !important; /* Hide day names row */
+  height: 0 !important;      /* Ensure no space is reserved */
 }
 
 .daypilot_month_cell {
@@ -387,6 +389,8 @@ button {
   .daypilot_month_dayheader {
     font-size: 10px !important;
     padding: 4px 2px !important;
+    display: none !important; /* Hide day names on mobile */
+    height: 0 !important;      /* No reserved space on mobile */
   }
   
   .daypilot_month_cell {

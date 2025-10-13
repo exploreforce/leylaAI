@@ -11,10 +11,14 @@
 - ✨ Cleaner, more readable calendar interface across all views
 
 **Changes Made:**
+- `frontend/src/app/globals.css`:
+  - Added `display: none !important` to `.daypilot_month_dayheader` (line 353)
+  - Added `height: 0 !important` to prevent space reservation
+  - Applied same rules to mobile breakpoint (lines 392-393)
 - `frontend/src/components/calendar/CalendarPro.tsx`:
   - Added `headerDateFormat: "d"` to Week and Day view configuration
-  - Added CSS-based hiding of day names row in Month view via `onAfterRender`
-  - Hides `.calendar_default_dayheader` and `.calendar_rouge_district_dayheader` elements
+  - Enhanced JavaScript fallback using `setProperty()` with 'important' flag
+  - Added parent container hiding as final layer (three-layer defense)
   - Shows only day numbers in column headers for better readability
   - Eliminated visual overlap and clutter in month view
 
