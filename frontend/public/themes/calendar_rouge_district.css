@@ -180,3 +180,20 @@
 }
 
 /* 🎭 Professional Dark Theme Complete */
+
+/* === NUCLEAR OVERRIDE: Hide Day Headers (Loaded Last) === */
+.daypilot_month_dayheader,
+.daypilot_month_dayheader_inner,
+.daypilot_month_headerrow,
+div[class*="month_dayheader"],
+div[class*="month_headerrow"],
+.calendar_rouge_district_dayheader,
+.calendar_rouge_district_month_dayheader {
+  display: none !important;
+  visibility: hidden !important;
+  height: 0 !important;
+  opacity: 0 !important;
+  position: absolute !important;
+  left: -9999px !important;
+  overflow: hidden !important;
+}

@@ -707,6 +707,16 @@ const CalendarPro: React.FC<CalendarProProps> = ({ className = '' }) => {
           console.warn('⚠️ Error disposing calendar on cleanup:', error);
         }
       }
+      
+      // Cleanup MutationObserver
+      if (calendarRef.current && (calendarRef.current as any).__dayHeaderObserver) {
+        try {
+          (calendarRef.current as any).__dayHeaderObserver.disconnect();
+          console.log('✅ MutationObserver disconnected');
+        } catch (error) {
+          console.warn('⚠️ Error disconnecting MutationObserver:', error);
+        }
+      }
     };
   }, [isScriptLoaded, view, startDate, zoomLevel, events, availabilityConfig]);
 
@@ -1088,22 +1098,64 @@ const CalendarPro: React.FC<CalendarProProps> = ({ className = '' }) => {
               cell.style.borderTop = '1px solid rgba(236, 72, 153, 0.15)'; // Subtle pink border for month
             });
             
-            // Hide day names row (Monday, Tuesday, etc.) - Multi-layer approach
-            const dayHeaders = calendarRef.current.querySelectorAll('.daypilot_month_dayheader');
-            if (dayHeaders.length > 0) {
-              dayHeaders.forEach((header: any) => {
-                // Layer 2: JavaScript with !important
-                header.style.setProperty('display', 'none', 'important');
-                header.style.setProperty('height', '0', 'important');
+            // === NUCLEAR OPTION: Hide day headers with MutationObserver ===
+            const hideDayHeaders = () => {
+              if (!calendarRef.current) return;
+              
+              // Target all possible selectors
+              const selectors = [
+                '.daypilot_month_dayheader',
+                '.daypilot_month_dayheader_inner',
+                '.daypilot_month_headerrow',
+                'div[class*="month_dayheader"]',
+                'div[class*="month_headerrow"]',
+                '.calendar_rouge_district_dayheader'
+              ];
+              
+              let hiddenCount = 0;
+              selectors.forEach(selector => {
+                const elements = calendarRef.current!.querySelectorAll(selector);
+                elements.forEach((el: any) => {
+                  // Multiple hiding techniques
+                  el.style.setProperty('display', 'none', 'important');
+                  el.style.setProperty('visibility', 'hidden', 'important');
+                  el.style.setProperty('opacity', '0', 'important');
+                  el.style.setProperty('height', '0', 'important');
+                  el.style.setProperty('max-height', '0', 'important');
+                  el.style.setProperty('overflow', 'hidden', 'important');
+                  el.style.setProperty('position', 'absolute', 'important');
+                  el.style.setProperty('left', '-9999px', 'important');
+                  
+                  // Also hide parent
+                  if (el.parentElement) {
+                    el.parentElement.style.setProperty('display', 'none', 'important');
+                  }
+                  hiddenCount++;
+                });
               });
               
-              // Layer 3: Hide parent container as final fallback
-              const firstHeader = dayHeaders[0];
-              const parentRow = firstHeader?.parentElement;
-              if (parentRow) {
-                parentRow.style.setProperty('display', 'none', 'important');
+              if (hiddenCount > 0) {
+                console.log(`✅ Day headers hidden (${hiddenCount} elements)`);
               }
-            }
+            };
+
+            // Initial hide
+            hideDayHeaders();
+
+            // MutationObserver: Re-hide if DOM changes
+            const observer = new MutationObserver(() => {
+              hideDayHeaders();
+            });
+
+            observer.observe(calendarRef.current, {
+              childList: true,
+              subtree: true,
+              attributes: true,
+              attributeFilter: ['class', 'style']
+            });
+
+            // Store observer for cleanup
+            (calendarRef.current as any).__dayHeaderObserver = observer;
           }
         },
         

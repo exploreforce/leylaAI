@@ -354,6 +354,40 @@ button {
   height: 0 !important;      /* Ensure no space is reserved */
 }
 
+/* === NUCLEAR OPTION: Hide Month Day Headers === */
+/* Multiple selectors to catch all variants */
+.daypilot_month_dayheader,
+.daypilot_month_dayheader_inner,
+.daypilot_month_headerrow,
+div[class*="month_dayheader"],
+div[class*="month_headerrow"],
+.calendar_rouge_district_dayheader,
+.calendar_rouge_district_month_dayheader {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  height: 0 !important;
+  max-height: 0 !important;
+  min-height: 0 !important;
+  line-height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  overflow: hidden !important;
+  position: absolute !important;
+  left: -9999px !important;
+  top: -9999px !important;
+  pointer-events: none !important;
+  user-select: none !important;
+}
+
+/* High specificity override */
+html body .daypilot_month_main .daypilot_month_dayheader,
+html body .daypilot_month_main div[class*="dayheader"] {
+  display: none !important;
+  visibility: hidden !important;
+}
+
 .daypilot_month_cell {
   border-color: #e5e7eb !important;
 }
@@ -386,10 +420,13 @@ button {
     font-size: 12px !important;
   }
   
-  .daypilot_month_dayheader {
+  .daypilot_month_dayheader,
+  div[class*="month_dayheader"],
+  div[class*="month_headerrow"] {
     font-size: 10px !important;
     padding: 4px 2px !important;
     display: none !important; /* Hide day names on mobile */
+    visibility: hidden !important;
     height: 0 !important;      /* No reserved space on mobile */
   }
   

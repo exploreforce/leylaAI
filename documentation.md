@@ -12,15 +12,21 @@
 
 **Changes Made:**
 - `frontend/src/app/globals.css`:
-  - Added `display: none !important` to `.daypilot_month_dayheader` (line 353)
-  - Added `height: 0 !important` to prevent space reservation
-  - Applied same rules to mobile breakpoint (lines 392-393)
+  - Nuclear CSS rules targeting 7 different selector variants (lines 357-389)
+  - Multiple hiding techniques: display, visibility, opacity, position, height
+  - High specificity rules (html body) to override any library CSS
+  - Mobile breakpoint with wildcard selectors (lines 423-431)
+- `frontend/public/themes/calendar_rouge_district.css`:
+  - Duplicate nuclear rules loaded last to override everything (lines 184-199)
 - `frontend/src/components/calendar/CalendarPro.tsx`:
+  - MutationObserver for persistent DOM monitoring (lines 1134-1146)
+  - Automatic re-hiding on any DOM mutation (childList, attributes, subtree)
+  - Targets 6 different selector variants including wildcards
+  - Console logging for verification (line 1126)
+  - Cleanup on component unmount (lines 712-719)
   - Added `headerDateFormat: "d"` to Week and Day view configuration
-  - Enhanced JavaScript fallback using `setProperty()` with 'important' flag
-  - Added parent container hiding as final layer (three-layer defense)
   - Shows only day numbers in column headers for better readability
-  - Eliminated visual overlap and clutter in month view
+- Five-layer defense strategy ensures day names are hidden in all scenarios
 
 **Status:** ✅ Implemented
 
