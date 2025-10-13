@@ -2,7 +2,63 @@
 
 ## 📋 Changelog
 
-### 2025-10-13 (Latest) - Availability Check Fix: Status Filtering & Multi-Tenant Isolation
+### 2025-10-13 (Latest) - Availability Check Fix: Overlap Detection & Status Filtering
+
+**🐛 Bug Fix: Incorrect Overlap Detection Allowing Double-Bookings:**
+- Fixed critical overlap detection logic that was allowing overlapping appointments
+- Problem: Only checked if new slot START was inside existing appointment
+- Missing checks: slot END overlapping, slot encompassing appointment, appointment encompassing slot
+- Implemented correct overlap logic: `slotStart < apptEnd AND slotEnd > apptStart`
+
+**Problem Examples:**
+- Appointment at 14:30-15:30 (60 min) existed
+- System incorrectly showed 14:30 and 14:45 as available for 60-min bookings
+- Would have resulted in overlapping appointments: 14:45-15:45 overlaps 14:30-15:30
+
+**Solution:**
+- Updated overlap detection in calendar routes with correct two-range comparison
+- Old logic: `slotStart.isBetween(apptStart, apptEnd, '[)')`
+- New logic: `slotStart.isBefore(apptEnd) && slotEnd.isAfter(apptStart)`
+- Handles all overlap scenarios including edge cases
+
+**Overlap Detection Rules:**
+- Two time periods overlap if: `slotStart < apptEnd AND slotEnd > apptStart`
+- Adjacent appointments (end time = start time) do NOT overlap ✓
+- Handles: slot starts during appointment, slot ends during appointment, full enclosure both ways
+
+**Changes Made:**
+
+*Backend Calendar Routes:*
+- `backend/src/routes/calendar.ts`:
+  - Lines 39-58: Fixed availability endpoint overlap detection
+  - Lines 105-119: Fixed overview endpoint overlap detection
+  - Added slotEnd calculation: `slotStart.add(duration, 'minutes')`
+  - Replaced isBetween with proper two-range comparison
+
+*Backend AI Service:*
+- `backend/src/services/aiService.ts`:
+  - Verified `calculateFreeTimeBlocks` already uses correct logic (lines 78-80)
+  - Uses string comparison: `booking.start < periodEnd && booking.end > currentStart` ✓
+
+*Enhanced Diagnostic Tool:*
+- `backend/diagnose-availability.ts`:
+  - Added comprehensive overlap detection tests
+  - Tests 7 different slot scenarios per appointment
+  - Detects overlapping appointments in database
+  - Shows which slots would be blocked/allowed and why
+
+**Edge Cases Handled:**
+- Exact same start time: 14:30 appointment vs 14:30 slot → BLOCKS ✓
+- Adjacent appointments: 14:00-15:00 appointment, 15:00 new slot → ALLOWS ✓
+- Slot before appointment: 13:00-14:00 slot, 14:00 appointment → ALLOWS ✓
+- Partial overlap: 14:30 slot (60min), 14:45 appointment → BLOCKS ✓
+- Full enclosure: 10:00-16:00 appointment, 14:00 slot → BLOCKS ✓
+
+**Status:** ✅ Implemented & Tested
+
+---
+
+### 2025-10-13 - Availability Check Fix: Status Filtering & Multi-Tenant Isolation
 
 **🐛 Bug Fix: Inactive Appointments Blocking Availability:**
 - Fixed issue where cancelled, completed, and noshow appointments were incorrectly blocking available time slots

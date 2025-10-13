@@ -123,7 +123,71 @@ async function diagnoseAvailability(testDate: string) {
       console.log('   ℹ️ No appointments with accountId found');
     }
     
-    // 7. Summary
+    // 7. Test Overlap Detection
+    console.log('\n🔍 7. OVERLAP DETECTION TEST:');
+    console.log('-'.repeat(80));
+    
+    if (activeAppointments.length > 0) {
+      console.log('Testing overlap logic with active appointments:\n');
+      
+      activeAppointments.forEach((appt, idx) => {
+        const apptStart = moment(String(appt.datetime));
+        const apptEnd = apptStart.clone().add(appt.duration, 'minutes');
+        
+        console.log(`Appointment ${idx + 1}: ${appt.customerName}`);
+        console.log(`  Time: ${apptStart.format('HH:mm')} - ${apptEnd.format('HH:mm')} (${appt.duration} min)`);
+        console.log(`  Status: ${appt.status}`);
+        
+        // Test various slot scenarios
+        const testSlots = [
+          { start: apptStart.clone().subtract(60, 'minutes'), name: '1h before' },
+          { start: apptStart.clone().subtract(30, 'minutes'), name: '30min before (would overlap end)' },
+          { start: apptStart.clone(), name: 'exact same time' },
+          { start: apptStart.clone().add(15, 'minutes'), name: '15min after start (overlap)' },
+          { start: apptStart.clone().add(30, 'minutes'), name: '30min after start (overlap)' },
+          { start: apptEnd.clone(), name: 'exact end time (should NOT overlap)' },
+          { start: apptEnd.clone().add(30, 'minutes'), name: '30min after end' },
+        ];
+        
+        testSlots.forEach(test => {
+          const slotStart = test.start;
+          const slotEnd = slotStart.clone().add(60, 'minutes'); // 60-min test slot
+          
+          // Correct overlap logic: slotStart < apptEnd AND slotEnd > apptStart
+          const overlaps = slotStart.isBefore(apptEnd) && slotEnd.isAfter(apptStart);
+          const symbol = overlaps ? '❌ BLOCKS' : '✅ ALLOWS';
+          
+          console.log(`    ${symbol} ${test.name}: ${slotStart.format('HH:mm')}-${slotEnd.format('HH:mm')}`);
+        });
+        console.log('');
+      });
+      
+      // Check for overlapping appointments
+      console.log('\nChecking for overlapping appointments:');
+      for (let i = 0; i < activeAppointments.length; i++) {
+        for (let j = i + 1; j < activeAppointments.length; j++) {
+          const appt1Start = moment(String(activeAppointments[i].datetime));
+          const appt1End = appt1Start.clone().add(activeAppointments[i].duration, 'minutes');
+          const appt2Start = moment(String(activeAppointments[j].datetime));
+          const appt2End = appt2Start.clone().add(activeAppointments[j].duration, 'minutes');
+          
+          const overlaps = appt1Start.isBefore(appt2End) && appt1End.isAfter(appt2Start);
+          
+          if (overlaps) {
+            console.log(`  ⚠️  OVERLAP DETECTED!`);
+            console.log(`     ${activeAppointments[i].customerName}: ${appt1Start.format('HH:mm')}-${appt1End.format('HH:mm')}`);
+            console.log(`     ${activeAppointments[j].customerName}: ${appt2Start.format('HH:mm')}-${appt2End.format('HH:mm')}`);
+          }
+        }
+      }
+      if (activeAppointments.length < 2) {
+        console.log('  (Need at least 2 appointments to test overlaps)');
+      }
+    } else {
+      console.log('No active appointments to test overlap detection.');
+    }
+    
+    // 8. Summary
     console.log('\n📋 SUMMARY:');
     console.log('='.repeat(80));
     console.log(`Total appointments: ${allAppointments.length}`);
@@ -132,6 +196,9 @@ async function diagnoseAvailability(testDate: string) {
     console.log('\nActive statuses: pending, booked, confirmed');
     console.log('Inactive statuses: cancelled, completed, noshow');
     console.log('\nNULL accountIds block ALL accounts (system-wide bookings)');
+    console.log('\nOverlap Detection Logic:');
+    console.log('  Two time periods overlap if: slotStart < apptEnd AND slotEnd > apptStart');
+    console.log('  Adjacent appointments (end time = start time) do NOT overlap');
     
   } catch (error) {
     console.error('❌ Error during diagnosis:', error);

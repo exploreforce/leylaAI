@@ -41,11 +41,19 @@ router.get('/availability', asyncHandler(async (req: Request, res: Response) => 
       hour: parseInt(slot.start.split(':')[0], 10),
       minute: parseInt(slot.start.split(':')[1], 10),
     });
+    const slotEnd = slotStart.clone().add(parseInt(duration as string, 10), 'minutes');
 
     return !allAppointments.some((appt: Appointment) => {
       const apptStart = moment(String(appt.datetime));
       const apptEnd = apptStart.clone().add(appt.duration, 'minutes');
-      return slotStart.isBetween(apptStart, apptEnd, undefined, '[)');
+      
+      // Two time periods overlap if: slotStart < apptEnd AND slotEnd > apptStart
+      // This correctly handles all overlap scenarios including:
+      // - Slot starts during appointment
+      // - Slot ends during appointment
+      // - Slot completely encompasses appointment
+      // - Appointment completely encompasses slot
+      return slotStart.isBefore(apptEnd) && slotEnd.isAfter(apptStart);
     });
   });
 
@@ -99,11 +107,14 @@ router.get('/overview', asyncHandler(async (req: Request, res: Response) => {
         hour: parseInt(slot.start.split(':')[0], 10),
         minute: parseInt(slot.start.split(':')[1], 10),
       });
+      const slotEnd = slotStart.clone().add(30, 'minutes'); // Overview uses 30-min slots
 
       return !dayAppointments.some((appt: Appointment) => {
         const apptStart = moment(String(appt.datetime));
         const apptEnd = apptStart.clone().add(appt.duration, 'minutes');
-        return slotStart.isBetween(apptStart, apptEnd, undefined, '[)');
+        
+        // Two time periods overlap if: slotStart < apptEnd AND slotEnd > apptStart
+        return slotStart.isBefore(apptEnd) && slotEnd.isAfter(apptStart);
       });
     }).length;
 
