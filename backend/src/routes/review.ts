@@ -107,6 +107,13 @@ router.post('/approve/:appointmentId', asyncHandler(async (req: Request, res: Re
     status: 'confirmed',
   });
   
+  if (!updatedAppointment) {
+    return res.status(500).json({
+      success: false,
+      error: 'Failed to update appointment'
+    });
+  }
+  
   // Format datetime for response
   const response = {
     ...updatedAppointment,
@@ -171,6 +178,13 @@ router.post('/reject/:appointmentId', asyncHandler(async (req: Request, res: Res
     status: 'cancelled',
     notes: updatedNotes,
   });
+  
+  if (!updatedAppointment) {
+    return res.status(500).json({
+      success: false,
+      error: 'Failed to update appointment'
+    });
+  }
   
   // Format datetime for response
   const response = {
