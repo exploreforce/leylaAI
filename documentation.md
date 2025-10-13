@@ -2,7 +2,33 @@
 
 ## 📋 Changelog
 
-### 2025-10-09 (Latest) - Dynamic Language Detection with Fallback
+### 2025-10-13 (Latest) - Calendar Service Names Display Fix
+
+**🔧 Fixed Service Display in Calendar:**
+- 🐛 **Fixed:** Calendar appointment popup was showing service UUIDs instead of readable service names
+- 🐛 **Fixed:** ICS calendar exports were showing service UUIDs in appointment summaries
+- ✨ Implemented robust 3-tier fallback system for service name resolution
+- ✨ Backend already resolves service names via LEFT JOIN, now properly used in frontend
+
+**Changes Made:**
+- `frontend/src/components/calendar/CalendarPro.tsx`:
+  - Added `getServiceDisplayName()` helper function with fallback chain:
+    1. Primary: Use `serviceName` from backend (resolved via JOIN)
+    2. Fallback: Client-side lookup in services list
+    3. Last resort: Display appointmentType (UUID) or 'Unknown Service'
+  - Fixed appointment modal view mode (Line 1735)
+  - Fixed ICS export service names (Line 1298)
+
+**Affected Areas:**
+- ✅ Appointment detail popup now shows service names
+- ✅ ICS exports now include readable service names in summaries
+- ✅ Maintains backward compatibility with appointments without assigned services
+
+**Status:** ✅ Deployed to AWS production
+
+---
+
+### 2025-10-09 - Dynamic Language Detection with Fallback
 
 **🌍 Intelligent Language Response System:**
 - ✨ Bot automatically detects and responds in the **user's language**
