@@ -1098,6 +1098,21 @@ const CalendarPro: React.FC<CalendarProProps> = ({ className = '' }) => {
               cell.style.borderTop = '1px solid rgba(236, 72, 153, 0.15)'; // Subtle pink border for month
             });
             
+            // === DEBUG: Find where day names are rendered ===
+            console.log('🔍 DOM INSPECTION - Finding day names in calendar');
+            const allElements = calendarRef.current.querySelectorAll('*');
+            allElements.forEach((el: any) => {
+              const text = el.textContent?.trim();
+              if (text && (text.includes('Monday') || text.includes('Tuesday') || text.includes('Wednesday'))) {
+                console.log('🎯 FOUND DAY NAME:', {
+                  element: el.tagName,
+                  className: el.className,
+                  textContent: text.substring(0, 100),
+                  innerHTML: el.innerHTML.substring(0, 150)
+                });
+              }
+            });
+            
             // === NUCLEAR OPTION: Hide day headers with MutationObserver ===
             const hideDayHeaders = () => {
               if (!calendarRef.current) return;
