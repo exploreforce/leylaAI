@@ -1088,17 +1088,11 @@ const CalendarPro: React.FC<CalendarProProps> = ({ className = '' }) => {
               cell.style.borderTop = '1px solid rgba(236, 72, 153, 0.15)'; // Subtle pink border for month
             });
             
-            // Hide day names row (Monday, Tuesday, etc.)
-            const dayHeaders = calendarRef.current.querySelectorAll('.calendar_default_dayheader, .calendar_rouge_district_dayheader');
+            // Hide day names row (Monday, Tuesday, etc.) - using correct DayPilot class
+            const dayHeaders = calendarRef.current.querySelectorAll('.daypilot_month_dayheader');
             dayHeaders.forEach((header: any) => {
               header.style.display = 'none';
             });
-            
-            // Also hide the container row for day headers
-            const dayHeaderRow = calendarRef.current.querySelector('.calendar_default_dayheader_inner, .calendar_rouge_district_dayheader_inner');
-            if (dayHeaderRow && dayHeaderRow.parentElement) {
-              dayHeaderRow.parentElement.style.display = 'none';
-            }
           }
         },
         
