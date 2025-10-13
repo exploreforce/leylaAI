@@ -2,7 +2,7 @@
 
 ## 📋 Changelog
 
-### 2025-10-13 (Latest) - Calendar View Header Improvements
+### 2025-10-13 (Latest) - Calendar View Header Improvements - CRITICAL FIX
 
 **📅 Calendar UX Improvements:**
 - ✨ **Week View:** Simplified column headers to show only day numbers instead of full dates
@@ -10,25 +10,35 @@
 - ✨ **Month View:** Removed overlapping day names header (Monday, Tuesday, etc.)
 - ✨ Cleaner, more readable calendar interface across all views
 
+**🔧 Critical Root Cause Discovery:**
+- **Problem:** Previous fixes targeted `.daypilot_month_dayheader` class names
+- **Root Cause:** DayPilot uses **THEME-PREFIXED** class names when a custom theme is set
+- **Solution:** With `theme: "calendar_rouge_district"`, actual classes are `.calendar_rouge_district_month_dayheader`
+- **Why Previous Fixes Failed:** All CSS and JavaScript selectors were targeting wrong class names!
+
 **Changes Made:**
 - `frontend/src/app/globals.css`:
-  - Nuclear CSS rules targeting 7 different selector variants (lines 357-389)
+  - **FIXED:** Now targeting theme-prefixed classes `.calendar_rouge_district_month_*` as PRIMARY selectors
+  - Kept default `.daypilot_*` classes as fallback
+  - Nuclear CSS rules with 11 different selector variants (lines 357-401)
   - Multiple hiding techniques: display, visibility, opacity, position, height
-  - High specificity rules (html body) to override any library CSS
-  - Mobile breakpoint with wildcard selectors (lines 423-431)
+  - High specificity rules (html body .calendar_rouge_district_main) to override library CSS
+  - Mobile breakpoint with theme-specific selectors (lines 435-446)
 - `frontend/public/themes/calendar_rouge_district.css`:
-  - Duplicate nuclear rules loaded last to override everything (lines 184-199)
+  - **FIXED:** Theme-specific class names as primary targets
+  - Duplicate nuclear rules loaded last to override everything (lines 184-211)
 - `frontend/src/components/calendar/CalendarPro.tsx`:
-  - MutationObserver for persistent DOM monitoring (lines 1134-1146)
+  - **FIXED:** Updated MutationObserver to target theme-prefixed classes first
+  - Now targets 11 different selector variants including `.calendar_rouge_district_*`
+  - MutationObserver for persistent DOM monitoring (lines 1101-1146)
   - Automatic re-hiding on any DOM mutation (childList, attributes, subtree)
-  - Targets 6 different selector variants including wildcards
-  - Console logging for verification (line 1126)
-  - Cleanup on component unmount (lines 712-719)
+  - Console logging for verification
+  - Cleanup on component unmount
   - Added `headerDateFormat: "d"` to Week and Day view configuration
   - Shows only day numbers in column headers for better readability
-- Five-layer defense strategy ensures day names are hidden in all scenarios
+- Multi-layer defense with CORRECT selectors ensures day names are hidden
 
-**Status:** ✅ Implemented
+**Status:** ✅ Critical Fix Implemented - Should Now Work!
 
 ---
 

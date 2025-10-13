@@ -1102,14 +1102,23 @@ const CalendarPro: React.FC<CalendarProProps> = ({ className = '' }) => {
             const hideDayHeaders = () => {
               if (!calendarRef.current) return;
               
-              // Target all possible selectors
+              // CRITICAL: Target THEME-SPECIFIC class names (calendar_rouge_district_*)
               const selectors = [
+                // Theme-specific classes (PRIMARY - these are what DayPilot actually uses!)
+                '.calendar_rouge_district_month_dayheader',
+                '.calendar_rouge_district_month_dayheader_inner',
+                '.calendar_rouge_district_month_headerrow',
+                '.calendar_rouge_district_dayheader',
+                
+                // Default classes (FALLBACK)
                 '.daypilot_month_dayheader',
                 '.daypilot_month_dayheader_inner',
                 '.daypilot_month_headerrow',
+                
+                // Wildcard selectors
                 'div[class*="month_dayheader"]',
                 'div[class*="month_headerrow"]',
-                '.calendar_rouge_district_dayheader'
+                'div[class*="rouge_district"][class*="dayheader"]'
               ];
               
               let hiddenCount = 0;
