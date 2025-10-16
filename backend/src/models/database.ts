@@ -1040,13 +1040,13 @@ export class Database {
       .count('appointments.id as bookingCount')
       .leftJoin('appointments', function(this: any) {
         this.on('services.id', '=', 'appointments.appointment_type')
-          .andOn('appointments.account_id', '=', db.raw('?', [accountId]))
-          .modify((qb: any) => {
-            if (filters.startDate) qb.andOn('appointments.created_at', '>=', db.raw('?', [filters.startDate]));
-            if (filters.endDate) qb.andOn('appointments.created_at', '<=', db.raw('?', [filters.endDate]));
-          });
+          .andOn('appointments.account_id', '=', db.raw('?', [accountId]));
       })
       .join('bot_configs', 'services.bot_config_id', 'bot_configs.id')
+      .modify((qb: any) => {
+        if (filters.startDate) qb.where('appointments.created_at', '>=', filters.startDate);
+        if (filters.endDate) qb.where('appointments.created_at', '<=', filters.endDate);
+      })
       .groupBy('services.id', 'services.name')
       .orderBy('bookingCount', 'desc')
       .limit(10);
@@ -1188,13 +1188,13 @@ export class Database {
             this.on('appointments.status', '=', db.raw('?', ['confirmed']))
               .orOn('appointments.status', '=', db.raw('?', ['booked']))
               .orOn('appointments.status', '=', db.raw('?', ['completed']));
-          })
-          .modify((qb: any) => {
-            if (filters.startDate) qb.andOn('appointments.created_at', '>=', db.raw('?', [filters.startDate]));
-            if (filters.endDate) qb.andOn('appointments.created_at', '<=', db.raw('?', [filters.endDate]));
           });
       })
       .join('bot_configs', 'services.bot_config_id', 'bot_configs.id')
+      .modify((qb: any) => {
+        if (filters.startDate) qb.where('appointments.created_at', '>=', filters.startDate);
+        if (filters.endDate) qb.where('appointments.created_at', '<=', filters.endDate);
+      })
       .groupBy('services.id', 'services.name', 'services.price', 'services.currency', 'services.duration_minutes')
       .orderBy('bookingCount', 'desc');
 
@@ -1220,15 +1220,15 @@ export class Database {
     // Determine date truncation function based on DB client and period
     let dateTrunc: string;
     if (dbClient === 'pg' || dbClient === 'postgresql') {
-      dateTrunc = `DATE_TRUNC('${filters.period}', created_at)`;
+      dateTrunc = `DATE_TRUNC('${filters.period}', appointments.created_at)`;
     } else {
       // SQLite: Use date() for day, and custom logic for week/month
       if (filters.period === 'day') {
-        dateTrunc = "DATE(created_at)";
+        dateTrunc = "DATE(appointments.created_at)";
       } else if (filters.period === 'week') {
-        dateTrunc = "DATE(created_at, 'weekday 0', '-6 days')";
+        dateTrunc = "DATE(appointments.created_at, 'weekday 0', '-6 days')";
       } else {
-        dateTrunc = "DATE(created_at, 'start of month')";
+        dateTrunc = "DATE(appointments.created_at, 'start of month')";
       }
     }
 
