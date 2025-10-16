@@ -89,6 +89,17 @@ jobs:
           aws apprunner list-operations --service-arn ${{ env.SERVICE_ARN }} --region ${{ env.AWS_REGION }} --max-results 5 || true
           exit 1
 
+      - name: Run Database Migrations
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          NODE_ENV: production
+        run: |
+          echo "🗄️ Running database migrations..."
+          cd backend
+          npm ci --only=production
+          npx knex migrate:latest
+          echo "✅ Migrations completed successfully!"
+
       - name: Summary
         run: |
           echo "## 🚀 Backend Deployment Summary" >> $GITHUB_STEP_SUMMARY
@@ -100,4 +111,6 @@ jobs:
           echo "- **Image:** ${{ steps.build-image.outputs.image }}" >> $GITHUB_STEP_SUMMARY
           echo "- **URL:** https://wnn8pretct.eu-central-1.awsapprunner.com" >> $GITHUB_STEP_SUMMARY
           echo "- **Health Check:** https://wnn8pretct.eu-central-1.awsapprunner.com/health" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "🗄️ **Database migrations:** Completed" >> $GITHUB_STEP_SUMMARY
 
