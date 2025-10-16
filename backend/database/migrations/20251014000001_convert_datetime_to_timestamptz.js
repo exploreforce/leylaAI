@@ -12,7 +12,7 @@ exports.up = async function(knex) {
     
     // 1. Add temporary column
     await knex.schema.table('appointments', table => {
-      table.timestamptz('datetime_utc');
+      table.timestamp('datetime_utc', { useTz: true });
     });
     
     // 2. Convert existing data: interpret as Vienna time, convert to UTC
@@ -39,7 +39,7 @@ exports.up = async function(knex) {
       if (hasDateColumn) {
         // Add temporary column
         await knex.schema.table('blackout_dates', table => {
-          table.timestamptz('date_utc');
+          table.timestamp('date_utc', { useTz: true });
         });
         
         // Convert existing data
