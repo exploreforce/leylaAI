@@ -15,10 +15,39 @@ exports.up = async function(knex) {
   });
   
   // Add GIN index for metadata JSON queries (PostgreSQL only)
-  // For SQLite, this will be skipped as it doesn't support GIN indexes
+  // Check if metadata column is JSONB before creating index
   const dbClient = knex.client.config.client;
   if (dbClient === 'pg' || dbClient === 'postgresql') {
-    await knex.raw('CREATE INDEX IF NOT EXISTS idx_messages_metadata ON chat_messages USING gin (metadata jsonb_path_ops)');
+    // Check if chat_messages table and metadata column exist
+    const hasTable = await knex.schema.hasTable('chat_messages');
+    if (hasTable) {
+      const hasColumn = await knex.schema.hasColumn('chat_messages', 'metadata');
+      if (hasColumn) {
+        // Check metadata column data type
+        const columnInfo = await knex.raw(`
+          SELECT data_type 
+          FROM information_schema.columns 
+          WHERE table_name = 'chat_messages' 
+          AND column_name = 'metadata'
+        `);
+        
+        const dataType = columnInfo.rows[0]?.data_type;
+        console.log(`Current chat_messages.metadata column type: ${dataType}`);
+        
+        // Only create GIN index if column is jsonb
+        if (dataType === 'jsonb') {
+          console.log('🔄 Creating GIN index on metadata column...');
+          await knex.raw('CREATE INDEX IF NOT EXISTS idx_messages_metadata ON chat_messages USING gin (metadata jsonb_path_ops)');
+          console.log('✅ GIN index on metadata created successfully');
+        } else {
+          console.log(`⚠️ Skipping GIN index - metadata column is ${dataType}, not jsonb`);
+        }
+      } else {
+        console.log('⚠️ Skipping GIN index - metadata column does not exist');
+      }
+    } else {
+      console.log('⚠️ Skipping GIN index - chat_messages table does not exist');
+    }
   }
 };
 
