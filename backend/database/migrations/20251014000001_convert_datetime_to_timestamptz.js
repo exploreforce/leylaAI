@@ -7,56 +7,96 @@ exports.up = async function(knex) {
   const client = knex.client.config.client;
   
   if (client === 'pg' || client === 'postgresql') {
-    // PostgreSQL: Convert datetime strings to timestamptz
-    // Assuming existing data is in Europe/Vienna timezone
+    // PostgreSQL: Convert datetime strings to timestamptz with intelligent type detection
     
-    // 1. Add temporary column
-    await knex.schema.table('appointments', table => {
-      table.timestamp('datetime_utc', { useTz: true });
-    });
-    
-    // 2. Convert existing data: interpret as Vienna time, convert to UTC
-    await knex.raw(`
-      UPDATE appointments 
-      SET datetime_utc = (datetime::text || ' Europe/Vienna')::timestamptz
-      WHERE datetime IS NOT NULL
+    // Step 1: Check current data type of datetime column
+    const columnInfo = await knex.raw(`
+      SELECT data_type 
+      FROM information_schema.columns 
+      WHERE table_name = 'appointments' 
+      AND column_name = 'datetime'
     `);
     
-    // 3. Drop old column
-    await knex.schema.table('appointments', table => {
-      table.dropColumn('datetime');
-    });
+    const dataType = columnInfo.rows[0]?.data_type;
+    console.log(`Current datetime column type: ${dataType}`);
     
-    // 4. Rename new column to datetime
-    await knex.schema.table('appointments', table => {
-      table.renameColumn('datetime_utc', 'datetime');
-    });
+    // Step 2: If already timestamptz, skip migration
+    if (dataType === 'timestamp with time zone') {
+      console.log('✅ datetime column is already timestamptz, skipping migration');
+      return;
+    }
     
-    // Handle blackout_dates if it exists
+    // Step 3: If string type, perform conversion
+    if (dataType === 'character varying' || dataType === 'text') {
+      console.log('🔄 Converting datetime from string to timestamptz...');
+      
+      // Add temporary column with correct type
+      await knex.schema.table('appointments', table => {
+        table.timestamp('datetime_utc', { useTz: true });
+      });
+      
+      // Convert existing data - NO ::text casting needed since it's already a string
+      await knex.raw(`
+        UPDATE appointments 
+        SET datetime_utc = (datetime || ' Europe/Vienna')::timestamptz
+        WHERE datetime IS NOT NULL
+      `);
+      
+      // Drop old column
+      await knex.schema.table('appointments', table => {
+        table.dropColumn('datetime');
+      });
+      
+      // Rename new column to datetime
+      await knex.schema.table('appointments', table => {
+        table.renameColumn('datetime_utc', 'datetime');
+      });
+      
+      console.log('✅ appointments.datetime conversion completed');
+    }
+    
+    // Step 4: Handle blackout_dates table (same logic)
     const hasBlackoutDates = await knex.schema.hasTable('blackout_dates');
     if (hasBlackoutDates) {
       const hasDateColumn = await knex.schema.hasColumn('blackout_dates', 'date');
       if (hasDateColumn) {
-        // Add temporary column
-        await knex.schema.table('blackout_dates', table => {
-          table.timestamp('date_utc', { useTz: true });
-        });
-        
-        // Convert existing data
-        await knex.raw(`
-          UPDATE blackout_dates 
-          SET date_utc = (date::text || ' Europe/Vienna')::timestamptz
-          WHERE date IS NOT NULL
+        // Check blackout_dates.date column type
+        const bdColumnInfo = await knex.raw(`
+          SELECT data_type 
+          FROM information_schema.columns 
+          WHERE table_name = 'blackout_dates' 
+          AND column_name = 'date'
         `);
         
-        // Drop old column and rename
-        await knex.schema.table('blackout_dates', table => {
-          table.dropColumn('date');
-        });
+        const bdDataType = bdColumnInfo.rows[0]?.data_type;
+        console.log(`Current blackout_dates.date column type: ${bdDataType}`);
         
-        await knex.schema.table('blackout_dates', table => {
-          table.renameColumn('date_utc', 'date');
-        });
+        // If already timestamptz, skip
+        if (bdDataType === 'timestamp with time zone') {
+          console.log('✅ blackout_dates.date is already timestamptz, skipping');
+        } else if (bdDataType === 'character varying' || bdDataType === 'text') {
+          console.log('🔄 Converting blackout_dates.date from string to timestamptz...');
+          
+          await knex.schema.table('blackout_dates', table => {
+            table.timestamp('date_utc', { useTz: true });
+          });
+          
+          await knex.raw(`
+            UPDATE blackout_dates 
+            SET date_utc = (date || ' Europe/Vienna')::timestamptz
+            WHERE date IS NOT NULL
+          `);
+          
+          await knex.schema.table('blackout_dates', table => {
+            table.dropColumn('date');
+          });
+          
+          await knex.schema.table('blackout_dates', table => {
+            table.renameColumn('date_utc', 'date');
+          });
+          
+          console.log('✅ blackout_dates.date conversion completed');
+        }
       }
     }
   } else {
