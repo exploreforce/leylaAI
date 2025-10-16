@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { db } from '../models/database';
 import { v4 as uuidv4 } from 'uuid';
+import { requireAuth, AuthRequest } from '../middleware/auth';
 
 const router = Router();
 
@@ -43,6 +44,33 @@ router.post('/login', async (req, res) => {
   if (!ok) return res.status(401).json({ error: 'Invalid credentials' });
   const token = jwt.sign({ userId: user.id, accountId: user.account_id }, process.env.JWT_SECRET || 'dev-secret', { expiresIn: '7d' });
   return res.json({ token });
+});
+
+router.get('/me', requireAuth as any, async (req: AuthRequest, res) => {
+  try {
+    const user = await db('users')
+      .select('id', 'account_id', 'email', 'preferred_language', 'role')
+      .where('id', req.userId)
+      .first();
+    
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    return res.json({
+      success: true,
+      data: {
+        userId: user.id,
+        accountId: user.account_id,
+        email: user.email,
+        preferredLanguage: user.preferred_language,
+        role: user.role || 'user'
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching current user:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
 });
 
 export default router;

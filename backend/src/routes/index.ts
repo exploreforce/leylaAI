@@ -8,6 +8,7 @@ import authRoutes from './auth';
 import webhooksRoutes from './webhooks';
 import adminRoutes from './admin';
 import reviewRoutes from './review';
+import statsRoutes from './stats';
 
 const router = Router();
 
@@ -21,6 +22,7 @@ router.use('/auth', authRoutes);
 router.use('/webhooks', webhooksRoutes);
 router.use('/admin', adminRoutes);
 router.use('/review', reviewRoutes);
+router.use('/stats', statsRoutes);
 
 // API info endpoint
 router.get('/', (req, res) => {

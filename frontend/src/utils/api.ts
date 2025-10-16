@@ -242,6 +242,13 @@ export const reviewApi = {
   },
 };
 
+// Auth API
+export const authApi = {
+  getCurrentUser: async (): Promise<ApiResponse<{ userId: string; accountId: string; email: string; role: string }>> => {
+    return api.get('/auth/me');
+  },
+};
+
 // Health check
 export const healthApi = {
   checkStatus: async (): Promise<{ status: string; timestamp: string; environment: string }> => {

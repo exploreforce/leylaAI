@@ -829,6 +829,477 @@ export class Database {
       .where('id', serviceId)
       .update({ is_active: false, updated_at: new Date() });
   }
+
+  // ================== STATS & ANALYTICS ==================
+
+  /**
+   * Get appointment statistics for dashboard
+   */
+  static async getAppointmentStats(accountId: string, filters: {
+    startDate?: string;
+    endDate?: string;
+  }) {
+    const baseQuery = db('appointments')
+      .where('account_id', accountId)
+      .modify(qb => {
+        if (filters.startDate) qb.where('created_at', '>=', filters.startDate);
+        if (filters.endDate) qb.where('created_at', '<=', filters.endDate);
+      });
+
+    const [
+      total,
+      confirmed,
+      cancelled,
+      noshow,
+      completed,
+      pending,
+      uniqueCustomers
+    ] = await Promise.all([
+      baseQuery.clone().count('* as count'),
+      baseQuery.clone().whereIn('status', ['confirmed', 'booked']).count('* as count'),
+      baseQuery.clone().where('status', 'cancelled').count('* as count'),
+      baseQuery.clone().where('status', 'noshow').count('* as count'),
+      baseQuery.clone().where('status', 'completed').count('* as count'),
+      baseQuery.clone().where('status', 'pending').count('* as count'),
+      baseQuery.clone().countDistinct('customer_phone as count')
+    ]);
+
+    const totalCount = parseInt(total[0].count as string) || 0;
+    const confirmedCount = parseInt(confirmed[0].count as string) || 0;
+    const cancelledCount = parseInt(cancelled[0].count as string) || 0;
+    const noshowCount = parseInt(noshow[0].count as string) || 0;
+    const completedCount = parseInt(completed[0].count as string) || 0;
+    const pendingCount = parseInt(pending[0].count as string) || 0;
+    const uniqueCustomersCount = parseInt(uniqueCustomers[0].count as string) || 0;
+
+    return {
+      total: totalCount,
+      confirmed: confirmedCount,
+      cancelled: cancelledCount,
+      noshow: noshowCount,
+      completed: completedCount,
+      pending: pendingCount,
+      conversionRate: totalCount > 0 ? ((confirmedCount / totalCount) * 100).toFixed(2) : '0.00',
+      noshowRate: totalCount > 0 ? ((noshowCount / totalCount) * 100).toFixed(2) : '0.00',
+      uniqueCustomers: uniqueCustomersCount
+    };
+  }
+
+  /**
+   * Get chat statistics
+   */
+  static async getChatStats(accountId: string, filters: {
+    startDate?: string;
+    endDate?: string;
+  }) {
+    const sessionQuery = db('test_chat_sessions')
+      .where('account_id', accountId)
+      .modify(qb => {
+        if (filters.startDate) qb.where('created_at', '>=', filters.startDate);
+        if (filters.endDate) qb.where('created_at', '<=', filters.endDate);
+      });
+
+    const [totalSessions, whatsappSessions, avgMessages] = await Promise.all([
+      sessionQuery.clone().count('* as count'),
+      sessionQuery.clone().where('session_type', 'whatsapp').count('* as count'),
+      db('chat_messages')
+        .join('test_chat_sessions', 'chat_messages.session_id', 'test_chat_sessions.id')
+        .where('test_chat_sessions.account_id', accountId)
+        .count('chat_messages.id as count')
+    ]);
+
+    const totalSessionsCount = parseInt(totalSessions[0].count as string) || 0;
+    const whatsappSessionsCount = parseInt(whatsappSessions[0].count as string) || 0;
+    const totalMessages = parseInt(avgMessages[0].count as string) || 0;
+
+    return {
+      totalSessions: totalSessionsCount,
+      whatsappSessions: whatsappSessionsCount,
+      testSessions: totalSessionsCount - whatsappSessionsCount,
+      avgMessagesPerSession: totalSessionsCount > 0 ? (totalMessages / totalSessionsCount).toFixed(1) : '0'
+    };
+  }
+
+  /**
+   * Get red flag statistics
+   */
+  static async getRedFlagStats(accountId: string, filters: {
+    startDate?: string;
+    endDate?: string;
+  }) {
+    const dbClient = db.client.config.client;
+    
+    let redFlagsQuery = db('chat_messages')
+      .join('test_chat_sessions', 'chat_messages.session_id', 'test_chat_sessions.id')
+      .where('test_chat_sessions.account_id', accountId)
+      .modify(qb => {
+        if (filters.startDate) qb.where('chat_messages.timestamp', '>=', filters.startDate);
+        if (filters.endDate) qb.where('chat_messages.timestamp', '<=', filters.endDate);
+      });
+
+    // Different JSON query syntax for PostgreSQL vs SQLite
+    if (dbClient === 'pg' || dbClient === 'postgresql') {
+      redFlagsQuery = redFlagsQuery.whereRaw("metadata::jsonb @> '{\"isFlagged\": true}'");
+    } else {
+      // SQLite: Use JSON_EXTRACT
+      redFlagsQuery = redFlagsQuery.whereRaw("JSON_EXTRACT(metadata, '$.isFlagged') = 1");
+    }
+
+    const totalMessagesQuery = db('chat_messages')
+      .join('test_chat_sessions', 'chat_messages.session_id', 'test_chat_sessions.id')
+      .where('test_chat_sessions.account_id', accountId);
+
+    const [redFlags, totalMessages, recentFlags] = await Promise.all([
+      redFlagsQuery.clone().count('chat_messages.id as count'),
+      totalMessagesQuery.count('chat_messages.id as count'),
+      redFlagsQuery.clone()
+        .select(
+          'chat_messages.id',
+          'chat_messages.timestamp',
+          'chat_messages.content',
+          'chat_messages.metadata',
+          'test_chat_sessions.whatsapp_number'
+        )
+        .orderBy('chat_messages.timestamp', 'desc')
+        .limit(10)
+    ]);
+
+    const redFlagsCount = parseInt(redFlags[0].count as string) || 0;
+    const totalMessagesCount = parseInt(totalMessages[0].count as string) || 0;
+
+    return {
+      total: redFlagsCount,
+      rate: totalMessagesCount > 0 ? ((redFlagsCount / totalMessagesCount) * 100).toFixed(2) : '0.00',
+      recentFlags: recentFlags.map(flag => {
+        let metadata: any = {};
+        try {
+          metadata = typeof flag.metadata === 'string' ? JSON.parse(flag.metadata) : flag.metadata;
+        } catch (e) {
+          console.error('Failed to parse metadata:', e);
+        }
+        return {
+          id: flag.id,
+          timestamp: flag.timestamp,
+          customerPhone: flag.whatsapp_number || 'N/A',
+          content: flag.content,
+          sentiment: metadata.userSentiment || 'N/A'
+        };
+      })
+    };
+  }
+
+  /**
+   * Get revenue statistics
+   */
+  static async getRevenueStats(accountId: string, filters: {
+    startDate?: string;
+    endDate?: string;
+  }) {
+    const revenueQuery = db('appointments')
+      .join('services', 'appointments.appointment_type', 'services.id')
+      .where('appointments.account_id', accountId)
+      .whereIn('appointments.status', ['confirmed', 'booked', 'completed'])
+      .modify(qb => {
+        if (filters.startDate) qb.where('appointments.created_at', '>=', filters.startDate);
+        if (filters.endDate) qb.where('appointments.created_at', '<=', filters.endDate);
+      });
+
+    const [totalRevenue, byService] = await Promise.all([
+      revenueQuery.clone().sum('services.price as total'),
+      revenueQuery.clone()
+        .select('services.name', 'services.currency')
+        .sum('services.price as revenue')
+        .count('appointments.id as bookings')
+        .groupBy('services.id', 'services.name', 'services.currency')
+        .orderBy('revenue', 'desc')
+    ]);
+
+    return {
+      total: parseFloat(totalRevenue[0]?.total as string) || 0,
+      byService: byService.map(s => ({
+        name: s.name,
+        revenue: parseFloat(s.revenue as string) || 0,
+        bookings: parseInt(s.bookings as string) || 0,
+        currency: s.currency
+      }))
+    };
+  }
+
+  /**
+   * Get top services by booking count
+   */
+  static async getTopServices(accountId: string, filters: {
+    startDate?: string;
+    endDate?: string;
+  }) {
+    const services = await db('services')
+      .select(
+        'services.name',
+        'services.id'
+      )
+      .count('appointments.id as bookingCount')
+      .leftJoin('appointments', function() {
+        this.on('services.id', '=', 'appointments.appointment_type')
+          .andOn('appointments.account_id', '=', db.raw('?', [accountId]))
+          .modify((qb: any) => {
+            if (filters.startDate) qb.andOn('appointments.created_at', '>=', db.raw('?', [filters.startDate]));
+            if (filters.endDate) qb.andOn('appointments.created_at', '<=', db.raw('?', [filters.endDate]));
+          });
+      })
+      .join('bot_configs', 'services.bot_config_id', 'bot_configs.id')
+      .groupBy('services.id', 'services.name')
+      .orderBy('bookingCount', 'desc')
+      .limit(10);
+
+    return services.map(s => ({
+      name: s.name,
+      bookingCount: parseInt(s.bookingCount as string) || 0
+    }));
+  }
+
+  /**
+   * Get weekday distribution
+   */
+  static async getWeekdayDistribution(accountId: string, filters: {
+    startDate?: string;
+    endDate?: string;
+  }) {
+    const dbClient = db.client.config.client;
+    const extractFunction = (dbClient === 'pg' || dbClient === 'postgresql') 
+      ? "EXTRACT(DOW FROM datetime)" 
+      : "CAST(strftime('%w', datetime) AS INTEGER)";
+
+    const distribution = await db('appointments')
+      .select(db.raw(`${extractFunction} as day_of_week`))
+      .count('* as count')
+      .where('account_id', accountId)
+      .modify(qb => {
+        if (filters.startDate) qb.where('created_at', '>=', filters.startDate);
+        if (filters.endDate) qb.where('created_at', '<=', filters.endDate);
+      })
+      .groupBy('day_of_week')
+      .orderBy('day_of_week');
+
+    const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    
+    return distribution.map(d => ({
+      dayOfWeek: parseInt(d.day_of_week as string),
+      dayName: dayNames[parseInt(d.day_of_week as string)],
+      count: parseInt(d.count as string) || 0
+    }));
+  }
+
+  /**
+   * Get hour distribution for heatmap
+   */
+  static async getHourDistribution(accountId: string, filters: {
+    startDate?: string;
+    endDate?: string;
+  }) {
+    const dbClient = db.client.config.client;
+    const extractFunction = (dbClient === 'pg' || dbClient === 'postgresql')
+      ? "EXTRACT(HOUR FROM datetime)"
+      : "CAST(strftime('%H', datetime) AS INTEGER)";
+
+    const distribution = await db('appointments')
+      .select(db.raw(`${extractFunction} as hour`))
+      .count('* as count')
+      .where('account_id', accountId)
+      .modify(qb => {
+        if (filters.startDate) qb.where('created_at', '>=', filters.startDate);
+        if (filters.endDate) qb.where('created_at', '<=', filters.endDate);
+      })
+      .groupBy('hour')
+      .orderBy('hour');
+
+    return distribution.map(d => ({
+      hour: parseInt(d.hour as string),
+      count: parseInt(d.count as string) || 0
+    }));
+  }
+
+  /**
+   * Get top customers
+   */
+  static async getTopCustomers(accountId: string, filters: {
+    startDate?: string;
+    endDate?: string;
+  }) {
+    const customers = await db('appointments')
+      .select(
+        'customer_name as name',
+        'customer_phone as phone'
+      )
+      .count('* as bookings')
+      .max('datetime as lastBooking')
+      .sum('duration as totalDuration')
+      .where('account_id', accountId)
+      .modify(qb => {
+        if (filters.startDate) qb.where('created_at', '>=', filters.startDate);
+        if (filters.endDate) qb.where('created_at', '<=', filters.endDate);
+      })
+      .groupBy('customer_phone', 'customer_name')
+      .orderBy('bookings', 'desc')
+      .limit(10);
+
+    // Calculate revenue per customer
+    const customersWithRevenue = await Promise.all(customers.map(async (customer) => {
+      const revenue = await db('appointments')
+        .join('services', 'appointments.appointment_type', 'services.id')
+        .where('appointments.customer_phone', customer.phone)
+        .where('appointments.account_id', accountId)
+        .whereIn('appointments.status', ['confirmed', 'booked', 'completed'])
+        .sum('services.price as totalRevenue')
+        .first();
+
+      return {
+        name: customer.name,
+        phone: customer.phone,
+        bookings: parseInt(customer.bookings as string) || 0,
+        totalRevenue: parseFloat(revenue?.totalRevenue as string) || 0,
+        lastBooking: customer.lastBooking
+      };
+    }));
+
+    return customersWithRevenue;
+  }
+
+  /**
+   * Get service statistics
+   */
+  static async getServiceStats(accountId: string, filters: {
+    startDate?: string;
+    endDate?: string;
+  }) {
+    const services = await db('services')
+      .select(
+        'services.id',
+        'services.name',
+        'services.price',
+        'services.currency',
+        'services.duration_minutes'
+      )
+      .count('appointments.id as bookingCount')
+      .sum('services.price as totalRevenue')
+      .leftJoin('appointments', function() {
+        this.on('services.id', '=', 'appointments.appointment_type')
+          .andOn('appointments.account_id', '=', db.raw('?', [accountId]))
+          .andOn(function() {
+            this.on('appointments.status', '=', db.raw('?', ['confirmed']))
+              .orOn('appointments.status', '=', db.raw('?', ['booked']))
+              .orOn('appointments.status', '=', db.raw('?', ['completed']));
+          })
+          .modify((qb: any) => {
+            if (filters.startDate) qb.andOn('appointments.created_at', '>=', db.raw('?', [filters.startDate]));
+            if (filters.endDate) qb.andOn('appointments.created_at', '<=', db.raw('?', [filters.endDate]));
+          });
+      })
+      .join('bot_configs', 'services.bot_config_id', 'bot_configs.id')
+      .groupBy('services.id', 'services.name', 'services.price', 'services.currency', 'services.duration_minutes')
+      .orderBy('bookingCount', 'desc');
+
+    return services.map(s => ({
+      id: s.id,
+      name: s.name,
+      bookingCount: parseInt(s.bookingCount as string) || 0,
+      totalRevenue: parseFloat(s.totalRevenue as string) || 0,
+      avgDuration: s.duration_minutes || 0
+    }));
+  }
+
+  /**
+   * Get timeline data for charts
+   */
+  static async getTimelineData(accountId: string, filters: {
+    startDate?: string;
+    endDate?: string;
+    period: 'day' | 'week' | 'month';
+  }) {
+    const dbClient = db.client.config.client;
+    
+    // Determine date truncation function based on DB client and period
+    let dateTrunc: string;
+    if (dbClient === 'pg' || dbClient === 'postgresql') {
+      dateTrunc = `DATE_TRUNC('${filters.period}', created_at)`;
+    } else {
+      // SQLite: Use date() for day, and custom logic for week/month
+      if (filters.period === 'day') {
+        dateTrunc = "DATE(created_at)";
+      } else if (filters.period === 'week') {
+        dateTrunc = "DATE(created_at, 'weekday 0', '-6 days')";
+      } else {
+        dateTrunc = "DATE(created_at, 'start of month')";
+      }
+    }
+
+    const bookingsTimeline = await db('appointments')
+      .select(db.raw(`${dateTrunc} as period`))
+      .count('* as count')
+      .where('account_id', accountId)
+      .modify(qb => {
+        if (filters.startDate) qb.where('created_at', '>=', filters.startDate);
+        if (filters.endDate) qb.where('created_at', '<=', filters.endDate);
+      })
+      .groupBy('period')
+      .orderBy('period');
+
+    const cancellationsTimeline = await db('appointments')
+      .select(db.raw(`${dateTrunc} as period`))
+      .count('* as count')
+      .where('account_id', accountId)
+      .where('status', 'cancelled')
+      .modify(qb => {
+        if (filters.startDate) qb.where('created_at', '>=', filters.startDate);
+        if (filters.endDate) qb.where('created_at', '<=', filters.endDate);
+      })
+      .groupBy('period')
+      .orderBy('period');
+
+    const revenueTimeline = await db('appointments')
+      .join('services', 'appointments.appointment_type', 'services.id')
+      .select(db.raw(`${dateTrunc} as period`))
+      .sum('services.price as revenue')
+      .where('appointments.account_id', accountId)
+      .whereIn('appointments.status', ['confirmed', 'booked', 'completed'])
+      .modify((qb: any) => {
+        if (filters.startDate) qb.where('appointments.created_at', '>=', filters.startDate);
+        if (filters.endDate) qb.where('appointments.created_at', '<=', filters.endDate);
+      })
+      .groupBy('period')
+      .orderBy('period');
+
+    // Combine all timelines
+    const allPeriods = new Set([
+      ...bookingsTimeline.map(b => b.period),
+      ...cancellationsTimeline.map(c => c.period),
+      ...revenueTimeline.map(r => r.period)
+    ]);
+
+    const labels: string[] = [];
+    const bookings: number[] = [];
+    const cancellations: number[] = [];
+    const revenue: number[] = [];
+
+    Array.from(allPeriods).sort().forEach(period => {
+      const periodStr = period instanceof Date ? period.toISOString().split('T')[0] : String(period);
+      labels.push(periodStr);
+      
+      const bookingData = bookingsTimeline.find(b => String(b.period) === periodStr);
+      const cancellationData = cancellationsTimeline.find(c => String(c.period) === periodStr);
+      const revenueData = revenueTimeline.find(r => String(r.period) === periodStr);
+      
+      bookings.push(parseInt(bookingData?.count as string) || 0);
+      cancellations.push(parseInt(cancellationData?.count as string) || 0);
+      revenue.push(parseFloat(revenueData?.revenue as string) || 0);
+    });
+
+    return {
+      labels,
+      bookings,
+      cancellations,
+      revenue
+    };
+  }
 }
 
 export default db; 

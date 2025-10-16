@@ -4,12 +4,13 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { getToken, clearToken } from '@/utils/auth';
-import { reviewApi } from '@/utils/api';
-import { ClockIcon } from '@heroicons/react/24/outline';
+import { reviewApi, authApi } from '@/utils/api';
+import { ClockIcon, ChartBarIcon } from '@heroicons/react/24/outline';
 
 export default function HeaderAuth() {
   const [hasToken, setHasToken] = useState(false);
   const [pendingCount, setPendingCount] = useState(0);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     setHasToken(!!getToken());
@@ -32,6 +33,21 @@ export default function HeaderAuth() {
     // Poll every 30 seconds
     const interval = setInterval(loadPendingCount, 30000);
     return () => clearInterval(interval);
+  }, [hasToken]);
+
+  useEffect(() => {
+    if (!hasToken) return;
+
+    const checkAdminStatus = async () => {
+      try {
+        const response = await authApi.getCurrentUser();
+        setIsAdmin(response.data?.role === 'admin');
+      } catch (error) {
+        console.error('Failed to check admin status:', error);
+      }
+    };
+
+    checkAdminStatus();
   }, [hasToken]);
 
   const handleLogout = () => {
@@ -61,6 +77,12 @@ export default function HeaderAuth() {
             </>
           ) : (
             <>
+              {isAdmin && (
+                <Link href="/dashboard" className="text-elysViolet-400 hover:text-elysViolet-300 transition-colors duration-300 px-3 py-1 rounded-lg hover:bg-dark-700 flex items-center space-x-1">
+                  <ChartBarIcon className="h-5 w-5" />
+                  <span className="hidden sm:inline">Dashboard</span>
+                </Link>
+              )}
               <Link href="/appointments-review" className="relative text-elysViolet-400 hover:text-elysViolet-300 transition-colors duration-300 px-3 py-1 rounded-lg hover:bg-dark-700 flex items-center space-x-1">
                 <ClockIcon className="h-5 w-5" />
                 <span className="hidden sm:inline">Review</span>
