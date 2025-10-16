@@ -1143,7 +1143,7 @@ export class Database {
       .limit(10);
 
     // Calculate revenue per customer
-    const customersWithRevenue = await Promise.all(customers.map(async (customer) => {
+    const customersWithRevenue = await Promise.all(customers.map(async (customer: any) => {
       const revenue = await db('appointments')
         .join('services', 'appointments.appointment_type', 'services.id')
         .where('appointments.customer_phone', customer.phone)
