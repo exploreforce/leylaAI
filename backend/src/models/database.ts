@@ -970,7 +970,7 @@ export class Database {
     return {
       total: redFlagsCount,
       rate: totalMessagesCount > 0 ? ((redFlagsCount / totalMessagesCount) * 100).toFixed(2) : '0.00',
-      recentFlags: recentFlags.map(flag => {
+      recentFlags: recentFlags.map((flag: any) => {
         let metadata: any = {};
         try {
           metadata = typeof flag.metadata === 'string' ? JSON.parse(flag.metadata) : flag.metadata;
@@ -1016,7 +1016,7 @@ export class Database {
 
     return {
       total: parseFloat(totalRevenue[0]?.total as string) || 0,
-      byService: byService.map(s => ({
+      byService: byService.map((s: any) => ({
         name: s.name,
         revenue: parseFloat(s.revenue as string) || 0,
         bookings: parseInt(s.bookings as string) || 0,
@@ -1051,7 +1051,7 @@ export class Database {
       .orderBy('bookingCount', 'desc')
       .limit(10);
 
-    return services.map(s => ({
+    return services.map((s: any) => ({
       name: s.name,
       bookingCount: parseInt(s.bookingCount as string) || 0
     }));
@@ -1082,7 +1082,7 @@ export class Database {
 
     const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     
-    return distribution.map(d => ({
+    return distribution.map((d: any) => ({
       dayOfWeek: parseInt(d.day_of_week as string),
       dayName: dayNames[parseInt(d.day_of_week as string)],
       count: parseInt(d.count as string) || 0
@@ -1112,7 +1112,7 @@ export class Database {
       .groupBy('hour')
       .orderBy('hour');
 
-    return distribution.map(d => ({
+    return distribution.map((d: any) => ({
       hour: parseInt(d.hour as string),
       count: parseInt(d.count as string) || 0
     }));
@@ -1198,7 +1198,7 @@ export class Database {
       .groupBy('services.id', 'services.name', 'services.price', 'services.currency', 'services.duration_minutes')
       .orderBy('bookingCount', 'desc');
 
-    return services.map(s => ({
+    return services.map((s: any) => ({
       id: s.id,
       name: s.name,
       bookingCount: parseInt(s.bookingCount as string) || 0,
@@ -1270,9 +1270,9 @@ export class Database {
 
     // Combine all timelines
     const allPeriods = new Set([
-      ...bookingsTimeline.map(b => b.period),
-      ...cancellationsTimeline.map(c => c.period),
-      ...revenueTimeline.map(r => r.period)
+      ...bookingsTimeline.map((b: any) => b.period),
+      ...cancellationsTimeline.map((c: any) => c.period),
+      ...revenueTimeline.map((r: any) => r.period)
     ]);
 
     const labels: string[] = [];
@@ -1280,13 +1280,13 @@ export class Database {
     const cancellations: number[] = [];
     const revenue: number[] = [];
 
-    Array.from(allPeriods).sort().forEach(period => {
+    Array.from(allPeriods).sort().forEach((period: any) => {
       const periodStr = period instanceof Date ? period.toISOString().split('T')[0] : String(period);
       labels.push(periodStr);
       
-      const bookingData = bookingsTimeline.find(b => String(b.period) === periodStr);
-      const cancellationData = cancellationsTimeline.find(c => String(c.period) === periodStr);
-      const revenueData = revenueTimeline.find(r => String(r.period) === periodStr);
+      const bookingData = bookingsTimeline.find((b: any) => String(b.period) === periodStr);
+      const cancellationData = cancellationsTimeline.find((c: any) => String(c.period) === periodStr);
+      const revenueData = revenueTimeline.find((r: any) => String(r.period) === periodStr);
       
       bookings.push(parseInt(bookingData?.count as string) || 0);
       cancellations.push(parseInt(cancellationData?.count as string) || 0);
