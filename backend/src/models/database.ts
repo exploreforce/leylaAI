@@ -841,7 +841,7 @@ export class Database {
   }) {
     const baseQuery = db('appointments')
       .where('account_id', accountId)
-      .modify(qb => {
+      .modify((qb: any) => {
         if (filters.startDate) qb.where('created_at', '>=', filters.startDate);
         if (filters.endDate) qb.where('created_at', '<=', filters.endDate);
       });
@@ -894,7 +894,7 @@ export class Database {
   }) {
     const sessionQuery = db('test_chat_sessions')
       .where('account_id', accountId)
-      .modify(qb => {
+      .modify((qb: any) => {
         if (filters.startDate) qb.where('created_at', '>=', filters.startDate);
         if (filters.endDate) qb.where('created_at', '<=', filters.endDate);
       });
@@ -932,7 +932,7 @@ export class Database {
     let redFlagsQuery = db('chat_messages')
       .join('test_chat_sessions', 'chat_messages.session_id', 'test_chat_sessions.id')
       .where('test_chat_sessions.account_id', accountId)
-      .modify(qb => {
+      .modify((qb: any) => {
         if (filters.startDate) qb.where('chat_messages.timestamp', '>=', filters.startDate);
         if (filters.endDate) qb.where('chat_messages.timestamp', '<=', filters.endDate);
       });
@@ -999,7 +999,7 @@ export class Database {
       .join('services', 'appointments.appointment_type', 'services.id')
       .where('appointments.account_id', accountId)
       .whereIn('appointments.status', ['confirmed', 'booked', 'completed'])
-      .modify(qb => {
+      .modify((qb: any) => {
         if (filters.startDate) qb.where('appointments.created_at', '>=', filters.startDate);
         if (filters.endDate) qb.where('appointments.created_at', '<=', filters.endDate);
       });
@@ -1038,7 +1038,7 @@ export class Database {
         'services.id'
       )
       .count('appointments.id as bookingCount')
-      .leftJoin('appointments', function() {
+      .leftJoin('appointments', function(this: any) {
         this.on('services.id', '=', 'appointments.appointment_type')
           .andOn('appointments.account_id', '=', db.raw('?', [accountId]))
           .modify((qb: any) => {
@@ -1073,7 +1073,7 @@ export class Database {
       .select(db.raw(`${extractFunction} as day_of_week`))
       .count('* as count')
       .where('account_id', accountId)
-      .modify(qb => {
+      .modify((qb: any) => {
         if (filters.startDate) qb.where('created_at', '>=', filters.startDate);
         if (filters.endDate) qb.where('created_at', '<=', filters.endDate);
       })
@@ -1105,7 +1105,7 @@ export class Database {
       .select(db.raw(`${extractFunction} as hour`))
       .count('* as count')
       .where('account_id', accountId)
-      .modify(qb => {
+      .modify((qb: any) => {
         if (filters.startDate) qb.where('created_at', '>=', filters.startDate);
         if (filters.endDate) qb.where('created_at', '<=', filters.endDate);
       })
@@ -1134,7 +1134,7 @@ export class Database {
       .max('datetime as lastBooking')
       .sum('duration as totalDuration')
       .where('account_id', accountId)
-      .modify(qb => {
+      .modify((qb: any) => {
         if (filters.startDate) qb.where('created_at', '>=', filters.startDate);
         if (filters.endDate) qb.where('created_at', '<=', filters.endDate);
       })
@@ -1181,10 +1181,10 @@ export class Database {
       )
       .count('appointments.id as bookingCount')
       .sum('services.price as totalRevenue')
-      .leftJoin('appointments', function() {
+      .leftJoin('appointments', function(this: any) {
         this.on('services.id', '=', 'appointments.appointment_type')
           .andOn('appointments.account_id', '=', db.raw('?', [accountId]))
-          .andOn(function() {
+          .andOn(function(this: any) {
             this.on('appointments.status', '=', db.raw('?', ['confirmed']))
               .orOn('appointments.status', '=', db.raw('?', ['booked']))
               .orOn('appointments.status', '=', db.raw('?', ['completed']));
@@ -1236,7 +1236,7 @@ export class Database {
       .select(db.raw(`${dateTrunc} as period`))
       .count('* as count')
       .where('account_id', accountId)
-      .modify(qb => {
+      .modify((qb: any) => {
         if (filters.startDate) qb.where('created_at', '>=', filters.startDate);
         if (filters.endDate) qb.where('created_at', '<=', filters.endDate);
       })
@@ -1248,7 +1248,7 @@ export class Database {
       .count('* as count')
       .where('account_id', accountId)
       .where('status', 'cancelled')
-      .modify(qb => {
+      .modify((qb: any) => {
         if (filters.startDate) qb.where('created_at', '>=', filters.startDate);
         if (filters.endDate) qb.where('created_at', '<=', filters.endDate);
       })
