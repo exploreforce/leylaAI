@@ -5,6 +5,8 @@ import { AdminRoute } from '@/components/ProtectedRoute';
 import StatsCard from '@/components/dashboard/StatsCard';
 import AppointmentChart from '@/components/dashboard/AppointmentChart';
 import ServiceRanking from '@/components/dashboard/ServiceRanking';
+import WeekdayChart from '@/components/dashboard/WeekdayChart';
+import HourChart from '@/components/dashboard/HourChart';
 import DateRangeFilter from '@/components/dashboard/DateRangeFilter';
 import ExportButton from '@/components/dashboard/ExportButton';
 import RedFlagLog from '@/components/dashboard/RedFlagLog';
@@ -74,7 +76,7 @@ function AdminDashboard() {
   if (!stats || !detailedStats || !timelineData) {
     return (
       <div className="text-center py-12">
-        <p className="text-gray-400">Fehler beim Laden der Statistiken.</p>
+        <p className="text-gray-300">Fehler beim Laden der Statistiken.</p>
       </div>
     );
   }
@@ -84,8 +86,8 @@ function AdminDashboard() {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-white mb-2">Admin Dashboard</h1>
-          <p className="text-gray-400">Übersicht aller Statistiken und Metriken</p>
+          <h1 className="text-3xl font-bold text-gray-100 mb-2">Admin Dashboard</h1>
+          <p className="text-gray-300">Übersicht aller Statistiken und Metriken</p>
         </div>
         <ExportButton filters={filters} />
       </div>
@@ -183,10 +185,16 @@ function AdminDashboard() {
         />
       </div>
 
-      {/* Charts Grid */}
+      {/* Timeline & Services Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <AppointmentChart data={timelineData} />
         <ServiceRanking services={detailedStats.topServices} />
+      </div>
+
+      {/* Distribution Charts */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <WeekdayChart distribution={detailedStats.weekdayDistribution} />
+        <HourChart distribution={detailedStats.hourDistribution} />
       </div>
 
       {/* Tables Section */}

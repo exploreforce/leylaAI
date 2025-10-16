@@ -11,18 +11,18 @@ export default function RedFlagLog({ flags }: RedFlagLogProps) {
   if (flags.length === 0) {
     return (
       <div className="bg-dark-800 rounded-lg p-6 border border-dark-700">
-        <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+        <h3 className="text-lg font-semibold text-gray-100 mb-4 flex items-center gap-2">
           <FlagIcon className="h-5 w-5 text-yellow-500" />
           Letzte Red Flags
         </h3>
-        <p className="text-gray-400 text-center py-4">Keine Red Flags vorhanden</p>
+        <p className="text-gray-300 text-center py-4">Keine Red Flags vorhanden</p>
       </div>
     );
   }
 
   return (
     <div className="bg-dark-800 rounded-lg p-6 border border-dark-700">
-      <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+      <h3 className="text-lg font-semibold text-gray-100 mb-4 flex items-center gap-2">
         <FlagIcon className="h-5 w-5 text-yellow-500" />
         Letzte Red Flags ({flags.length})
       </h3>

@@ -29,10 +29,10 @@ export default function StatsCard({ title, value, icon, trend, color = 'blue' }:
     <div className="bg-dark-800 rounded-lg p-6 border border-dark-700 hover:border-elysPink-600 transition-all duration-300">
       <div className="flex items-start justify-between">
         <div className="flex-1">
-          <p className="text-sm text-gray-400 mb-1">{title}</p>
-          <p className="text-3xl font-bold text-white mb-2">{value}</p>
+          <p className="text-sm text-gray-300 mb-1">{title}</p>
+          <p className="text-3xl font-bold text-gray-100 mb-2">{value}</p>
           {trend && (
-            <p className="text-xs text-gray-500">{trend}</p>
+            <p className="text-xs text-gray-400">{trend}</p>
           )}
         </div>
         <div className={`p-3 rounded-lg bg-gradient-to-br ${colorClasses[color]} bg-opacity-10`}>

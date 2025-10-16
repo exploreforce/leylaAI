@@ -12,7 +12,7 @@ import {
   Legend,
   ChartOptions,
 } from 'chart.js';
-import { TimelineData } from '@/types/stats';
+import { HourDistribution } from '@/types/stats';
 
 ChartJS.register(
   CategoryScale,
@@ -24,27 +24,30 @@ ChartJS.register(
   Legend
 );
 
-interface AppointmentChartProps {
-  data: TimelineData;
+interface HourChartProps {
+  distribution: HourDistribution[];
 }
 
-export default function AppointmentChart({ data }: AppointmentChartProps) {
+export default function HourChart({ distribution }: HourChartProps) {
+  // Create labels for 24 hours (00:00 - 23:00)
+  const hourLabels = Array.from({ length: 24 }, (_, i) => `${i.toString().padStart(2, '0')}:00`);
+  
+  // Ensure we have data for all 24 hours
+  const hourData = Array.from({ length: 24 }, (_, hour) => {
+    const hourEntry = distribution.find(d => d.hour === hour);
+    return hourEntry ? hourEntry.count : 0;
+  });
+
   const chartData = {
-    labels: data.labels,
+    labels: hourLabels,
     datasets: [
       {
         label: 'Buchungen',
-        data: data.bookings,
-        borderColor: 'rgb(236, 72, 153)',
-        backgroundColor: 'rgba(236, 72, 153, 0.1)',
+        data: hourData,
+        borderColor: 'rgb(147, 51, 234)',
+        backgroundColor: 'rgba(147, 51, 234, 0.1)',
         tension: 0.4,
-      },
-      {
-        label: 'Absagen',
-        data: data.cancellations,
-        borderColor: 'rgb(239, 68, 68)',
-        backgroundColor: 'rgba(239, 68, 68, 0.1)',
-        tension: 0.4,
+        fill: true,
       },
     ],
   };
@@ -64,7 +67,7 @@ export default function AppointmentChart({ data }: AppointmentChartProps) {
       },
       title: {
         display: true,
-        text: 'Buchungen & Absagen über Zeit',
+        text: 'Buchungen nach Uhrzeit',
         color: '#F3F4F6',
         font: {
           size: 16,
@@ -75,22 +78,23 @@ export default function AppointmentChart({ data }: AppointmentChartProps) {
         backgroundColor: 'rgba(17, 24, 39, 0.9)',
         titleColor: '#ffffff',
         bodyColor: '#9ca3af',
-        borderColor: '#ec4899',
+        borderColor: '#9333ea',
         borderWidth: 1,
       },
     },
     scales: {
       x: {
         grid: {
-          color: 'rgba(75, 85, 99, 0.2)',
+          color: '#374151',
         },
         ticks: {
           color: '#9ca3af',
+          maxTicksLimit: 12, // Show every other hour for better readability
         },
       },
       y: {
         grid: {
-          color: 'rgba(75, 85, 99, 0.2)',
+          color: '#374151',
         },
         ticks: {
           color: '#9ca3af',
@@ -102,7 +106,7 @@ export default function AppointmentChart({ data }: AppointmentChartProps) {
 
   return (
     <div className="bg-dark-800 rounded-lg p-6 border border-dark-700">
-      <div style={{ height: '300px' }}>
+      <div style={{ height: '400px' }}>
         <Line data={chartData} options={options} />
       </div>
     </div>

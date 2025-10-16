@@ -11,6 +11,7 @@ import {
   Legend,
   ChartOptions,
 } from 'chart.js';
+import { WeekdayDistribution } from '@/types/stats';
 
 ChartJS.register(
   CategoryScale,
@@ -21,35 +22,48 @@ ChartJS.register(
   Legend
 );
 
-interface ServiceRankingProps {
-  services: { name: string; bookingCount: number }[];
+interface WeekdayChartProps {
+  distribution: WeekdayDistribution[];
 }
 
-export default function ServiceRanking({ services }: ServiceRankingProps) {
+export default function WeekdayChart({ distribution }: WeekdayChartProps) {
+  const dayNames = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag'];
+  
+  // Ensure we have data for all days of the week
+  const weekdayData = dayNames.map((dayName, index) => {
+    const dayData = distribution.find(d => d.dayOfWeek === index + 1);
+    return dayData ? dayData.count : 0;
+  });
+
   const chartData = {
-    labels: services.map(s => s.name),
+    labels: dayNames,
     datasets: [
       {
         label: 'Buchungen',
-        data: services.map(s => s.bookingCount),
-        backgroundColor: 'rgba(59, 130, 246, 0.8)',
-        borderColor: 'rgba(59, 130, 246, 1)',
-        borderWidth: 1,
+        data: weekdayData,
+        backgroundColor: 'rgba(236, 72, 153, 0.6)',
+        borderColor: 'rgb(236, 72, 153)',
+        borderWidth: 2,
       },
     ],
   };
 
   const options: ChartOptions<'bar'> = {
-    indexAxis: 'y' as const,
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
       legend: {
-        display: false,
+        position: 'top' as const,
+        labels: {
+          color: '#9ca3af',
+          font: {
+            size: 12,
+          },
+        },
       },
       title: {
         display: true,
-        text: 'Top Services nach Buchungen',
+        text: 'Buchungen nach Wochentag',
         color: '#F3F4F6',
         font: {
           size: 16,
@@ -60,34 +74,34 @@ export default function ServiceRanking({ services }: ServiceRankingProps) {
         backgroundColor: 'rgba(17, 24, 39, 0.9)',
         titleColor: '#ffffff',
         bodyColor: '#9ca3af',
-        borderColor: '#3b82f6',
+        borderColor: '#ec4899',
         borderWidth: 1,
       },
     },
     scales: {
       x: {
         grid: {
-          color: 'rgba(75, 85, 99, 0.2)',
+          color: '#374151',
+        },
+        ticks: {
+          color: '#9ca3af',
+        },
+      },
+      y: {
+        grid: {
+          color: '#374151',
         },
         ticks: {
           color: '#9ca3af',
         },
         beginAtZero: true,
       },
-      y: {
-        grid: {
-          display: false,
-        },
-        ticks: {
-          color: '#9ca3af',
-        },
-      },
     },
   };
 
   return (
     <div className="bg-dark-800 rounded-lg p-6 border border-dark-700">
-      <div style={{ height: '300px' }}>
+      <div style={{ height: '400px' }}>
         <Bar data={chartData} options={options} />
       </div>
     </div>
