@@ -13,24 +13,24 @@ export default function AccountStats({ accountName, createdAt, totalUsers, total
     <div className="bg-dark-800 rounded-lg p-4 border border-dark-600 mb-4">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-xl font-bold text-gray-100">{accountName}</h3>
-          <p className="text-sm text-gray-400">
+          <h3 className="text-xl font-bold text-gray-900">{accountName}</h3>
+          <p className="text-sm text-gray-700">
             Created {moment(createdAt).format('MMM DD, YYYY')} ({moment(createdAt).fromNow()})
           </p>
         </div>
         <div className="flex gap-6">
           <div className="flex items-center gap-2">
-            <UserGroupIcon className="w-5 h-5 text-elysBlue-400" />
+            <UserGroupIcon className="w-5 h-5 text-elysBlue-600" />
             <div>
-              <div className="text-2xl font-bold text-elysBlue-400">{totalUsers}</div>
-              <div className="text-xs text-gray-400">Users</div>
+              <div className="text-2xl font-bold text-elysBlue-600">{totalUsers}</div>
+              <div className="text-xs text-gray-700">Users</div>
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <CalendarIcon className="w-5 h-5 text-elysPink-400" />
+            <CalendarIcon className="w-5 h-5 text-elysPink-600" />
             <div>
-              <div className="text-2xl font-bold text-elysPink-400">{totalAppointments}</div>
-              <div className="text-xs text-gray-400">Appointments</div>
+              <div className="text-2xl font-bold text-elysPink-600">{totalAppointments}</div>
+              <div className="text-xs text-gray-700">Appointments</div>
             </div>
           </div>
         </div>

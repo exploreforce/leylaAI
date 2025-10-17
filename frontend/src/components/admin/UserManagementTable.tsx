@@ -114,9 +114,9 @@ export default function UserManagementTable({ accounts, onRefresh }: UserManagem
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     {isExpanded ? (
-                      <ChevronUpIcon className="w-5 h-5 text-gray-400" />
+                      <ChevronUpIcon className="w-5 h-5 text-gray-700" />
                     ) : (
-                      <ChevronDownIcon className="w-5 h-5 text-gray-400" />
+                      <ChevronDownIcon className="w-5 h-5 text-gray-700" />
                     )}
                     <AccountStats
                       accountName={account.accountName}
@@ -136,19 +136,19 @@ export default function UserManagementTable({ accounts, onRefresh }: UserManagem
                   <table className="w-full">
                     <thead className="bg-dark-800">
                       <tr>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
                           Email
                         </th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
                           Role
                         </th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
                           Last Login
                         </th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
                           Joined
                         </th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
                           Actions
                         </th>
                       </tr>
@@ -157,29 +157,29 @@ export default function UserManagementTable({ accounts, onRefresh }: UserManagem
                       {account.users.map((user) => (
                         <tr key={user.userId} className="hover:bg-dark-800">
                           <td className="px-4 py-4 whitespace-nowrap">
-                            <div className="text-sm text-gray-100">{user.email}</div>
+                            <div className="text-sm text-gray-900 font-medium">{user.email}</div>
                           </td>
                           <td className="px-4 py-4 whitespace-nowrap">
                             <select
                               value={user.role}
                               onChange={(e) => handleRoleChange(user.userId, e.target.value as 'admin' | 'user')}
                               disabled={loading}
-                              className="bg-dark-700 text-gray-100 border border-dark-600 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-elysPink-500"
+                              className="bg-white text-gray-900 border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-elysPink-500"
                             >
                               <option value="user">User</option>
                               <option value="admin">Admin</option>
                             </select>
                           </td>
                           <td className="px-4 py-4 whitespace-nowrap">
-                            <div className="text-sm text-gray-300">
+                            <div className="text-sm text-gray-700">
                               {user.lastLogin 
                                 ? moment(user.lastLogin).fromNow()
-                                : <span className="text-gray-500">Never</span>
+                                : <span className="text-gray-600">Never</span>
                               }
                             </div>
                           </td>
                           <td className="px-4 py-4 whitespace-nowrap">
-                            <div className="text-sm text-gray-300">
+                            <div className="text-sm text-gray-700">
                               {moment(user.createdAt).format('MMM DD, YYYY')}
                             </div>
                           </td>
@@ -221,9 +221,9 @@ export default function UserManagementTable({ accounts, onRefresh }: UserManagem
       {/* Delete Confirmation Modal */}
       {deleteModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-dark-800 rounded-lg p-6 max-w-md w-full mx-4 border border-dark-600">
-            <h3 className="text-xl font-bold text-gray-100 mb-4">Delete User</h3>
-            <p className="text-gray-300 mb-6">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4 border border-gray-300 shadow-xl">
+            <h3 className="text-xl font-bold text-gray-900 mb-4">Delete User</h3>
+            <p className="text-gray-700 mb-6">
               Are you sure you want to delete user <strong>{deleteModal.email}</strong>? 
               This action cannot be undone.
             </p>
@@ -231,7 +231,7 @@ export default function UserManagementTable({ accounts, onRefresh }: UserManagem
               <button
                 onClick={() => setDeleteModal(null)}
                 disabled={loading}
-                className="px-4 py-2 bg-dark-700 text-gray-300 rounded hover:bg-dark-600 disabled:opacity-50"
+                className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 disabled:opacity-50"
               >
                 Cancel
               </button>
@@ -250,14 +250,14 @@ export default function UserManagementTable({ accounts, onRefresh }: UserManagem
       {/* Move User Modal */}
       {moveModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-dark-800 rounded-lg p-6 max-w-md w-full mx-4 border border-dark-600">
-            <h3 className="text-xl font-bold text-gray-100 mb-4">Move User to Another Account</h3>
-            <p className="text-gray-300 mb-4">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4 border border-gray-300 shadow-xl">
+            <h3 className="text-xl font-bold text-gray-900 mb-4">Move User to Another Account</h3>
+            <p className="text-gray-700 mb-4">
               Select the account to move <strong>{moveModal.email}</strong> to:
             </p>
             <select
               id="targetAccount"
-              className="w-full bg-dark-700 text-gray-100 border border-dark-600 rounded px-3 py-2 mb-6 focus:outline-none focus:ring-2 focus:ring-elysPink-500"
+              className="w-full bg-white text-gray-900 border border-gray-300 rounded px-3 py-2 mb-6 focus:outline-none focus:ring-2 focus:ring-elysPink-500"
               onChange={(e) => {
                 if (e.target.value) {
                   handleMoveUser(e.target.value);
@@ -279,7 +279,7 @@ export default function UserManagementTable({ accounts, onRefresh }: UserManagem
               <button
                 onClick={() => setMoveModal(null)}
                 disabled={loading}
-                className="px-4 py-2 bg-dark-700 text-gray-300 rounded hover:bg-dark-600 disabled:opacity-50"
+                className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 disabled:opacity-50"
               >
                 Cancel
               </button>

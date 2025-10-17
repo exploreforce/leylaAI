@@ -71,7 +71,7 @@ function AdminUsersContent() {
       <div className="min-h-screen flex items-center justify-center bg-dark-900">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-elysPink-600 mx-auto"></div>
-          <p className="text-gray-400 mt-4">Loading accounts...</p>
+          <p className="text-gray-700 mt-4">Loading accounts...</p>
         </div>
       </div>
     );
@@ -81,8 +81,8 @@ function AdminUsersContent() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-dark-900">
         <div className="text-center max-w-md">
-          <div className="text-red-400 text-xl mb-4">Error</div>
-          <p className="text-gray-300 mb-6">{error}</p>
+          <div className="text-red-600 text-xl mb-4 font-bold">Error</div>
+          <p className="text-gray-700 mb-6">{error}</p>
           <button
             onClick={loadData}
             className="px-4 py-2 bg-elysPink-600 text-white rounded hover:bg-elysPink-500"
@@ -101,10 +101,10 @@ function AdminUsersContent() {
         <div className="max-w-7xl mx-auto px-4 py-6">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-transparent bg-gradient-to-r from-elysPink-600 to-elysBlue-800 bg-clip-text">
+              <h1 className="text-3xl font-bold text-gray-900">
                 User Management
               </h1>
-              <p className="text-gray-400 mt-1">
+              <p className="text-gray-700 mt-1">
                 Manage all accounts and users across the platform
               </p>
             </div>
@@ -113,16 +113,16 @@ function AdminUsersContent() {
               {/* Stats */}
               <div className="flex gap-6 text-sm">
                 <div>
-                  <div className="text-gray-400">Total Accounts</div>
-                  <div className="text-2xl font-bold text-elysPink-400">{accounts.length}</div>
+                  <div className="text-gray-700">Total Accounts</div>
+                  <div className="text-2xl font-bold text-elysPink-600">{accounts.length}</div>
                 </div>
                 <div>
-                  <div className="text-gray-400">Total Users</div>
-                  <div className="text-2xl font-bold text-elysBlue-400">{totalUsers}</div>
+                  <div className="text-gray-700">Total Users</div>
+                  <div className="text-2xl font-bold text-elysBlue-600">{totalUsers}</div>
                 </div>
                 <div>
-                  <div className="text-gray-400">Total Appointments</div>
-                  <div className="text-2xl font-bold text-elysViolet-400">{totalAppointments}</div>
+                  <div className="text-gray-700">Total Appointments</div>
+                  <div className="text-2xl font-bold text-elysViolet-600">{totalAppointments}</div>
                 </div>
               </div>
 
@@ -147,7 +147,7 @@ function AdminUsersContent() {
                 placeholder="Search accounts or users..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 bg-dark-700 border border-dark-600 rounded-lg text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-elysPink-500"
+                className="w-full pl-10 pr-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-elysPink-500"
               />
             </div>
           </div>
@@ -158,7 +158,7 @@ function AdminUsersContent() {
       <div className="max-w-7xl mx-auto px-4 py-8">
         {filteredAccounts.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-gray-400">
+            <p className="text-gray-700">
               {searchTerm ? 'No accounts or users match your search' : 'No accounts found'}
             </p>
           </div>
