@@ -2,7 +2,96 @@
 
 ## 📋 Changelog
 
-### 2025-10-13 (Latest) - Availability Check Fix: Overlap Detection & Status Filtering
+### 2025-10-17 (Latest) - Admin User Management System
+
+**✨ New Feature: Super-Admin User Management Panel**
+- Added comprehensive admin panel for managing all accounts and users across the platform
+- Super-Admin users (role='admin') can now view and manage all accounts, users, and their stats
+- Implements last_login tracking for all users
+- Full CRUD operations for user management
+
+**Features Implemented:**
+- **User Overview:** View all accounts with their users, appointment counts, and statistics
+- **Role Management:** Change user roles (admin/user) with dropdown selector
+- **User Deletion:** Delete users with safety checks (prevents deleting last admin)
+- **Account Transfer:** Move users between accounts
+- **Last Login Tracking:** Automatically updated on each login
+- **Search & Filter:** Search across accounts and user emails
+- **Real-time Stats:** Account-level statistics (total users, total appointments)
+
+**Changes Made:**
+
+*Database Migration:*
+- `backend/database/migrations/20251017000000_add_last_login_to_users.js`:
+  - Added `last_login` timestamp column to `users` table
+  - Nullable field for existing users without login history
+
+*Backend Authentication:*
+- `backend/src/routes/auth.ts`:
+  - Updated `/login` endpoint to record `last_login` timestamp
+  - Automatic tracking on successful authentication
+
+*Backend Admin Endpoints:*
+- `backend/src/routes/adminUsers.ts` (NEW):
+  - `GET /api/admin/users/accounts` - List all accounts with users and stats
+  - `PUT /api/admin/users/users/:userId/role` - Change user's app-wide role
+  - `DELETE /api/admin/users/users/:userId` - Delete user with safety checks
+  - `PUT /api/admin/users/users/:userId/move` - Move user to different account
+  - All endpoints require `requireAdmin` middleware
+
+*Backend Routes Registration:*
+- `backend/src/routes/index.ts`:
+  - Registered new admin user routes at `/api/admin/users`
+
+*Frontend API Layer:*
+- `frontend/src/utils/api.ts`:
+  - Added `adminApi` with methods for all admin operations
+  - Type-safe API responses with TypeScript interfaces
+
+*Frontend Components:*
+- `frontend/src/components/admin/AccountStats.tsx` (NEW):
+  - Displays account-level statistics
+  - Shows account name, creation date, user count, appointment count
+  
+- `frontend/src/components/admin/UserManagementTable.tsx` (NEW):
+  - Expandable account sections with user tables
+  - Inline role editing with dropdown
+  - Delete and move actions with confirmation modals
+  - Real-time updates after each action
+
+*Frontend Admin Page:*
+- `frontend/src/app/admin-users/page.tsx` (NEW):
+  - Protected admin-only route with `AdminRoute` wrapper
+  - Search functionality across accounts and users
+  - Global stats display (total accounts, users, appointments)
+  - Refresh button for manual data reload
+  - Loading and error states
+
+*Frontend Navigation:*
+- `frontend/src/app/page.tsx`:
+  - Added conditional "Admin" link in navigation (only visible to admin users)
+  - Fetches current user role on page load
+  - Links to `/admin-users` for admin panel access
+
+**Security:**
+- All admin endpoints protected by `requireAdmin` middleware
+- Only users with `users.role='admin'` can access admin features
+- Safety check prevents deletion of last admin user
+- Account validation before user transfer operations
+
+**User Experience:**
+- Clean, modern UI matching existing design system
+- Collapsible account sections for better organization
+- Inline editing for quick role changes
+- Confirmation modals for destructive actions
+- Search functionality for finding specific accounts/users
+- Real-time stats and last login display
+
+**Status:** ✅ Implemented & Ready for Testing
+
+---
+
+### 2025-10-13 - Availability Check Fix: Overlap Detection & Status Filtering
 
 **🐛 Bug Fix: Incorrect Overlap Detection Allowing Double-Bookings:**
 - Fixed critical overlap detection logic that was allowing overlapping appointments
@@ -718,6 +807,14 @@ This project is a full-stack application designed to provide a configurable AI-p
     *   Automatic system prompt generation from configuration
 *   **Test Chat:** A chat interface for testing the chatbot's responses and tool calls.
 *   **WhatsApp Integration:** The application is integrated with the WhatsApp API to send and receive messages.
+*   **Admin User Management:** Super-Admin panel for managing all accounts and users:
+    *   View all accounts with user lists and statistics
+    *   Change user roles (admin/user)
+    *   Delete users with safety checks
+    *   Move users between accounts
+    *   Last login tracking
+    *   Search and filter functionality
+    *   Real-time account and user statistics
 
 ## 2. App Structure
 
@@ -752,6 +849,13 @@ The `src` directory contains the source code for the backend.
 *   `routes/calendar.ts`: Contains the API routes for managing the calendar, including availability and overview.
     - ➕ Added `GET /api/calendar/ics` endpoint that serves an iCalendar feed (`text/calendar`) for all appointments (default range: last 30 days → next 180 days; override via `startDate`, `endDate`). This allows subscribing from Google Calendar, Apple Calendar, Outlook, etc. Events include `UID`, `DTSTAMP`, `DTSTART`, `DTEND`, `SUMMARY`, `DESCRIPTION`, `LOCATION`, `STATUS`.
     - ➕ Supports per-user private feeds via `?token=<calendar_feed_token>`. Each user has a unique `calendar_feed_token` stored in `users.calendar_feed_token`. Obtainable via `GET /api/bot/me` (Bearer token required). When present, feed is scoped to the user's `account_id`.
+*   `routes/admin.ts`: Contains webhook administration routes for managing WhatsApp sessions.
+*   `routes/adminUsers.ts`: **NEW (2025-10-17)** Contains Super-Admin routes for user and account management. All endpoints require `requireAdmin` middleware (users.role='admin'):
+    - `GET /api/admin/users/accounts` - Lists all accounts with users, stats, and last login tracking
+    - `PUT /api/admin/users/users/:userId/role` - Changes user's app-wide role (admin/user)
+    - `DELETE /api/admin/users/users/:userId` - Deletes user with safety checks (prevents deleting last admin)
+    - `PUT /api/admin/users/users/:userId/move` - Moves user to a different account
+*   `routes/auth.ts`: Contains authentication routes for signup and login. **Updated (2025-10-17)** to automatically record `last_login` timestamp on successful login.
 *   `routes/index.ts`: The main router file, which combines all the other route files into a single router.
 *   `routes/whatsapp.ts`: Contains the webhook routes for the WhatsApp integration.
 *   `services/aiService.ts`: Contains the `AIService` class, which handles the interaction with the OpenAI API, including dynamic system prompt generation based on bot configuration, configurable content filtering policies, and execution of AI tool calls for functionalities like availability checking and appointment booking.
@@ -802,6 +906,13 @@ The `app` directory contains the application's routes.
 *   `page.tsx`: The main dashboard page. It displays an overview of the application and provides links to the other pages, including a new link to the mobile-optimized view. The page was updated to use the new dark theme, rebranded (`alt` for logo, `<h1>` title updated to "Leyla AI"), and its logo size was increased. Emojis were replaced with Heroicons, and all text and button colors were updated to the Leyla AI gradient scheme. Main page containers were redesigned for fixed height, standardized button placement, and the "Configure Bot" container's detailed text was replaced with a minimalist icon badge. The logo `src` was updated from `/branding/ElysAI.png` to `/branding/LeylaAI.png`.
 *   `test-chat/page.tsx`: The test chat page. It displays the chat interface for testing the chatbot. This page was converted to the dark theme, including its layout and header. It was rebranded (`alt` for logo updated from "ElysAI" to "Leyla AI", `src` updated from `/branding/ElysAI.png` to `/branding/LeylaAI.png`). Emojis in navigation links were replaced with Heroicons (`ChatBubbleLeftRightIcon`, `DocumentTextIcon`). The header border color was updated. **Recently updated to accept a `sessionId` URL parameter and pass it to the `TestChat` component, enabling loading of existing chat sessions.**
 *   `whatsapp/link/page.tsx`: WhatsApp linking helper page. It now uses the reusable `WhatsAppLink` component to render link status and QR code.
+*   `admin-users/page.tsx`: **NEW (2025-10-17)** Super-Admin user management page. Protected by `AdminRoute` wrapper (requires role='admin'). Features include:
+    - Lists all accounts with expandable user sections
+    - Search functionality across accounts and user emails
+    - Global statistics (total accounts, users, appointments)
+    - Manual refresh button for reloading data
+    - Inline role editing, user deletion, and account transfer actions
+    - Loading and error states with retry functionality
 
 ##### `components`
 
@@ -826,6 +937,14 @@ The `components` directory contains the reusable React components that are used 
 *   `ui/Switch.tsx`: The switch/toggle component for boolean values with support for both change events and checked change callbacks.
 *   `ui/Textarea.tsx`: The textarea component. Updated to dark theme. Its colors were updated to the Leyla AI gradient scheme.
 *   `WhatsAppLink.tsx`: (NEW) Reusable component that shows WhatsApp connection status and QR code (uses `/api/whatsapp/status` and `/api/whatsapp/qr`). Used in Settings and in `/whatsapp/link` page.
+*   `admin/AccountStats.tsx`: **NEW (2025-10-17)** Displays account-level statistics including account name, creation date, number of users, and total appointments. Used in the admin user management panel.
+*   `admin/UserManagementTable.tsx`: **NEW (2025-10-17)** Main admin component for managing users and accounts. Features include:
+    - Expandable account sections with collapsible user tables
+    - Inline role editing with dropdown selector (admin/user)
+    - Delete user action with confirmation modal
+    - Move user to different account with selection modal
+    - Real-time stats display and automatic refresh after actions
+    - Displays last login times and user creation dates
 
 ##### `hooks`
 

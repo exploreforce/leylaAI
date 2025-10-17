@@ -249,6 +249,48 @@ export const authApi = {
   },
 };
 
+// Admin API
+export const adminApi = {
+  getAllAccounts: async (): Promise<ApiResponse<{
+    accounts: Array<{
+      accountId: string;
+      accountName: string;
+      createdAt: string;
+      updatedAt: string;
+      users: Array<{
+        userId: string;
+        email: string;
+        role: string;
+        lastLogin: string | null;
+        createdAt: string;
+        appointmentsCreated: number;
+      }>;
+      stats: {
+        totalAppointments: number;
+        totalUsers: number;
+      };
+    }>;
+  }>> => {
+    return api.get('/admin/users/accounts');
+  },
+
+  changeUserRole: async (userId: string, role: 'admin' | 'user'): Promise<ApiResponse<{ userId: string; role: string }>> => {
+    return api.put(`/admin/users/users/${userId}/role`, { role });
+  },
+
+  deleteUser: async (userId: string): Promise<ApiResponse<{ userId: string }>> => {
+    return api.delete(`/admin/users/users/${userId}`);
+  },
+
+  moveUser: async (userId: string, newAccountId: string): Promise<ApiResponse<{
+    userId: string;
+    oldAccountId: string;
+    newAccountId: string;
+  }>> => {
+    return api.put(`/admin/users/users/${userId}/move`, { newAccountId });
+  },
+};
+
 // Health check
 export const healthApi = {
   checkStatus: async (): Promise<{ status: string; timestamp: string; environment: string }> => {

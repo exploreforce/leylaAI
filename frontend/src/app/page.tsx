@@ -9,7 +9,7 @@ import {
   ExclamationTriangleIcon,
   CogIcon
 } from '@heroicons/react/24/outline';
-import { botApi, appointmentsApi, reviewApi } from '@/utils/api';
+import { botApi, appointmentsApi, reviewApi, authApi } from '@/utils/api';
 import { useTranslation } from 'react-i18next';
 import moment from 'moment';
 
@@ -22,6 +22,7 @@ const Dashboard = () => {
     chats: { current: 0 },
     reviews: { needsReview: 0 }
   });
+  const [userRole, setUserRole] = useState<string | null>(null);
 
   useEffect(() => {
     const loadStats = async () => {
@@ -71,7 +72,17 @@ const Dashboard = () => {
       }
     };
 
+    const loadUserRole = async () => {
+      try {
+        const response = await authApi.getCurrentUser();
+        setUserRole(response.data?.role || 'user');
+      } catch (error) {
+        console.error('Failed to load user role:', error);
+      }
+    };
+
     loadStats();
+    loadUserRole();
 
     // Refresh stats every 30 seconds
     const interval = setInterval(loadStats, 30000);
@@ -107,6 +118,12 @@ const Dashboard = () => {
                   </span>
                 )}
               </Link>
+              {userRole === 'admin' && (
+                <Link href="/admin-users" className="text-elysBlue-400 hover:text-elysBlue-300 px-2 sm:px-3 py-2 rounded-lg transition-all duration-300 hover:bg-dark-700 text-sm sm:text-base">
+                  <span className="hidden sm:inline">Admin</span>
+                  <span className="sm:hidden">Admin</span>
+                </Link>
+              )}
             </nav>
           </div>
         </div>

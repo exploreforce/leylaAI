@@ -7,6 +7,7 @@ import servicesRoutes from './services';
 import authRoutes from './auth';
 import webhooksRoutes from './webhooks';
 import adminRoutes from './admin';
+import adminUsersRoutes from './adminUsers';
 import reviewRoutes from './review';
 import statsRoutes from './stats';
 
@@ -21,6 +22,7 @@ router.use('/services', servicesRoutes);
 router.use('/auth', authRoutes);
 router.use('/webhooks', webhooksRoutes);
 router.use('/admin', adminRoutes);
+router.use('/admin/users', adminUsersRoutes);
 router.use('/review', reviewRoutes);
 router.use('/stats', statsRoutes);
 
