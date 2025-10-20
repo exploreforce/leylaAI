@@ -1,0 +1,68 @@
+{
+  "user_management": {
+    "title": "Benutzerverwaltung",
+    "subtitle": "Verwalten Sie alle Konten und Benutzer auf der gesamten Plattform",
+    "search_placeholder": "Konten oder Benutzer suchen...",
+    "refresh": "Aktualisieren",
+    "total_accounts": "Konten Gesamt",
+    "total_users": "Benutzer Gesamt",
+    "total_appointments": "Termine Gesamt",
+    "no_matches": "Keine Konten oder Benutzer entsprechen Ihrer Suche",
+    "no_accounts": "Keine Konten gefunden",
+    "loading_accounts": "Lade Konten...",
+    "try_again": "Erneut versuchen",
+    "error": "Fehler"
+  },
+  "user_table": {
+    "email": "E-Mail",
+    "role": "Rolle",
+    "last_login": "Letzter Login",
+    "joined": "Beigetreten",
+    "actions": "Aktionen",
+    "never_logged_in": "Nie",
+    "move_user": "Zu anderem Konto verschieben",
+    "delete_user": "Benutzer löschen",
+    "user": "Benutzer",
+    "admin": "Admin"
+  },
+  "delete_modal": {
+    "title": "Benutzer löschen",
+    "message": "Möchten Sie den Benutzer wirklich löschen",
+    "warning": "Diese Aktion kann nicht rückgängig gemacht werden.",
+    "cancel": "Abbrechen",
+    "delete": "Löschen",
+    "deleting": "Wird gelöscht..."
+  },
+  "move_modal": {
+    "title": "Benutzer zu anderem Konto verschieben",
+    "message": "Wählen Sie das Konto aus, zu dem verschieben möchten",
+    "select_placeholder": "Konto auswählen...",
+    "cancel": "Abbrechen"
+  },
+  "account_stats": {
+    "users": "Benutzer",
+    "appointments": "Termine",
+    "created": "Erstellt"
+  },
+  "webhook": {
+    "title": "Webhook-Verwaltung",
+    "subtitle": "Verwalten Sie die Webhook-Konfiguration für alle WasenderAPI-Sitzungen automatisch.",
+    "check_status": "Status prüfen",
+    "setup_webhooks": "Alle Webhooks einrichten",
+    "loading": "Lädt...",
+    "setting_up": "Wird eingerichtet...",
+    "success": "Webhooks erfolgreich für alle Sitzungen konfiguriert!",
+    "config_summary": "Konfigurations-Übersicht",
+    "total_sessions": "Sitzungen Gesamt",
+    "webhook_url": "Webhook-URL",
+    "session_details": "Sitzungs-Details",
+    "session": "Sitzung",
+    "configured": "Konfiguriert",
+    "not_configured": "Nicht konfiguriert",
+    "status": "Status",
+    "current_webhook": "Aktueller Webhook"
+  },
+  "messages": {
+    "error": "Fehler beim Ausführen der Aktion"
+  }
+}

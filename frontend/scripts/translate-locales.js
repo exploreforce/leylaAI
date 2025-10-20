@@ -30,7 +30,7 @@ const languages = [
 ];
 
 const localesDir = path.join(__dirname, '../public/locales');
-const namespaces = ['common', 'dashboard', 'settings', 'chat', 'calendar'];
+const namespaces = ['common', 'dashboard', 'settings', 'chat', 'calendar', 'admin'];
 
 // Manuell definierte Übersetzungen für wichtige Begriffe
 const manualTranslations = {
