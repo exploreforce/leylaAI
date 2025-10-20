@@ -114,6 +114,7 @@ export default function WhatsAppLink() {
         setStatus({
           status: result.data.status || 'unknown',
           meNumber: result.data.meNumber || null,
+          sessionId: result.data.sessionId || null,
           qrAvailable: result.data.status === 'qr',
           qrGeneratedAt: null
         });
