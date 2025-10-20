@@ -972,6 +972,17 @@ This project is a full-stack application designed to provide a configurable AI-p
     *   Bot limitations and boundaries
     *   Behavior guidelines (editable behavior section used in system prompt)
     *   Automatic system prompt generation from configuration
+*   **Review System:** Configurable review modes for both appointments and bot messages:
+    *   **Appointment Review (`reviewMode`):** Control when appointments need manual approval:
+        - `never`: All appointments auto-confirmed
+        - `on_redflag`: Only flagged appointments require review
+        - `always`: All appointments require manual approval
+    *   **Message Review (`messageReviewMode`):** Control when bot messages need review before sending:
+        - `never`: All bot messages auto-sent (default behavior)
+        - `on_redflag`: Only flagged messages require review
+        - `always`: All bot messages require manual approval before sending
+    *   Review UI at `/chat-review` for approving or editing draft messages
+    *   Review UI at `/appointments-review` for approving or rejecting pending appointments
 *   **Test Chat:** A chat interface for testing the chatbot's responses and tool calls.
 *   **WhatsApp Integration:** The application is integrated with the WhatsApp API to send and receive messages.
 *   **Admin User Management:** Super-Admin panel for managing all accounts and users:

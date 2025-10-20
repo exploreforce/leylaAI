@@ -49,7 +49,8 @@ export interface BotConfig {
   botLimitations: string;
   behaviorGuidelines?: string;
   generatedSystemPrompt?: string;
-  reviewMode?: ReviewMode;
+  reviewMode?: ReviewMode; // for appointments
+  messageReviewMode?: ReviewMode; // for bot messages
   
   createdAt: string;
   updatedAt: string;

@@ -659,8 +659,8 @@ const BotConfigForm = () => {
       const promptText = loaded.generatedSystemPrompt || loaded.systemPrompt || '';
       const extractedBehavior = extractBehaviorSection(promptText);
       const merged = extractedBehavior ? { ...loaded, behaviorGuidelines: extractedBehavior } : loaded;
-      // Set default reviewMode if not present
-      setConfig({ reviewMode: 'never', ...merged });
+      // Set default reviewMode and messageReviewMode if not present
+      setConfig({ reviewMode: 'never', messageReviewMode: 'never', ...merged });
     }
   }, [initialConfig]);
 
@@ -983,6 +983,110 @@ const BotConfigForm = () => {
               <Alert 
                 type="success" 
                 message="Alle Termine werden automatisch bestätigt - keine manuelle Überprüfung erforderlich."
+              />
+            )}
+          </div>
+        </div>
+      </Card>
+
+      {/* Message Review Settings Section */}
+      <Card>
+        <div className="p-6">
+          <div className="flex items-center mb-4">
+            <ClockIcon className="h-6 w-6 text-elysPink-500 mr-2" />
+            <h3 className="text-lg font-semibold text-dark-50">Bot-Nachrichten Review</h3>
+          </div>
+          
+          <p className="text-sm text-dark-300 mb-6">
+            Bestimme, ob Bot-Antworten automatisch gesendet werden oder einer manuellen Überprüfung bedürfen, bevor sie an Kunden versendet werden.
+          </p>
+
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-dark-200 mb-3">
+                Review-Modus für Bot-Nachrichten
+              </label>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <button
+                  type="button"
+                  onClick={() => handleInputChange('messageReviewMode', 'never')}
+                  className={`
+                    p-4 border-2 rounded-lg text-left transition-all
+                    ${config.messageReviewMode === 'never' 
+                      ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20' 
+                      : 'border-dark-700 hover:border-dark-600'
+                    }
+                  `}
+                >
+                  <div className="flex items-center space-x-2 mb-2">
+                    <CheckIcon className={`w-5 h-5 ${config.messageReviewMode === 'never' ? 'text-blue-600' : 'text-dark-400'}`} />
+                    <span className="font-semibold text-dark-50">Nie</span>
+                  </div>
+                  <p className="text-xs text-dark-300">
+                    Alle Bot-Nachrichten werden automatisch versendet
+                  </p>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleInputChange('messageReviewMode', 'on_redflag')}
+                  className={`
+                    p-4 border-2 rounded-lg text-left transition-all
+                    ${config.messageReviewMode === 'on_redflag' 
+                      ? 'border-yellow-600 bg-yellow-50 dark:bg-yellow-900/20' 
+                      : 'border-dark-700 hover:border-dark-600'
+                    }
+                  `}
+                >
+                  <div className="flex items-center space-x-2 mb-2">
+                    <span className={`text-lg ${config.messageReviewMode === 'on_redflag' ? '' : 'opacity-50'}`}>🚩</span>
+                    <span className="font-semibold text-dark-50">Bei RedFlag</span>
+                  </div>
+                  <p className="text-xs text-dark-300">
+                    Nur verdächtige Bot-Nachrichten zur Review
+                  </p>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleInputChange('messageReviewMode', 'always')}
+                  className={`
+                    p-4 border-2 rounded-lg text-left transition-all
+                    ${config.messageReviewMode === 'always' 
+                      ? 'border-purple-600 bg-purple-50 dark:bg-purple-900/20' 
+                      : 'border-dark-700 hover:border-dark-600'
+                    }
+                  `}
+                >
+                  <div className="flex items-center space-x-2 mb-2">
+                    <ClockIcon className={`w-5 h-5 ${config.messageReviewMode === 'always' ? 'text-purple-600' : 'text-dark-400'}`} />
+                    <span className="font-semibold text-dark-50">Immer</span>
+                  </div>
+                  <p className="text-xs text-dark-300">
+                    Alle Bot-Nachrichten benötigen manuelle Freigabe
+                  </p>
+                </button>
+              </div>
+            </div>
+
+            {/* Info Box basierend auf ausgewähltem Modus */}
+            {config.messageReviewMode === 'always' && (
+              <Alert 
+                type="info" 
+                message="Alle Bot-Nachrichten werden als Draft gespeichert und müssen vor dem Versand manuell überprüft und freigegeben werden."
+              />
+            )}
+            {config.messageReviewMode === 'on_redflag' && (
+              <Alert 
+                type="warning" 
+                message="Nur Bot-Nachrichten mit verdächtigem Verhalten (RedFlags) werden zur manuellen Prüfung markiert. Normale Nachrichten werden automatisch versendet."
+              />
+            )}
+            {config.messageReviewMode === 'never' && (
+              <Alert 
+                type="success" 
+                message="Alle Bot-Nachrichten werden automatisch versendet - keine manuelle Überprüfung erforderlich."
               />
             )}
           </div>

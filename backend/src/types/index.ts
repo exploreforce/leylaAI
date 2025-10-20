@@ -32,7 +32,8 @@ export interface BotConfig {
   escalationRules: string;
   botLimitations: string;
   generatedSystemPrompt?: string;
-  reviewMode?: ReviewMode;
+  reviewMode?: ReviewMode; // for appointments
+  messageReviewMode?: ReviewMode; // for bot messages
   
   createdAt: Date;
   updatedAt: Date;

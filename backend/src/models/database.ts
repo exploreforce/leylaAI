@@ -98,6 +98,7 @@ export class Database {
       botLimitations: result.bot_limitations || 'Keine medizinischen Beratungen, keine Rechtsberatung, keine persönlichen Informationen preisgeben',
       generatedSystemPrompt: result.generated_system_prompt,
       reviewMode: result.review_mode || 'never',
+      messageReviewMode: result.message_review_mode || 'never',
       
       createdAt: new Date(result.created_at),
       updatedAt: new Date(result.updated_at)
@@ -126,6 +127,7 @@ export class Database {
     if (updates.botLimitations !== undefined) dbUpdates.bot_limitations = updates.botLimitations;
     if (updates.generatedSystemPrompt !== undefined) dbUpdates.generated_system_prompt = updates.generatedSystemPrompt;
     if (updates.reviewMode !== undefined) dbUpdates.review_mode = updates.reviewMode;
+    if (updates.messageReviewMode !== undefined) dbUpdates.message_review_mode = updates.messageReviewMode;
     
     dbUpdates.updated_at = new Date();
 

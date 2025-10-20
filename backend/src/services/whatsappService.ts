@@ -71,11 +71,27 @@ class WhatsAppService {
     const aiResponse = await AIService.getChatResponse(messageHistory, sessionId, preferredLanguage);
 
     if (aiResponse.content) {
+      // Load bot config to determine message review mode
+      const botConfig = await Database.getBotConfig();
+      const messageReviewMode = botConfig?.messageReviewMode || 'never';
+      
       const isFlagged = Boolean((aiResponse as any)?.metadata?.isFlagged);
       const baseMetadata: any = { ...(aiResponse.metadata || {}) };
 
-      if (isFlagged) {
-        // Flagged → Draft for review
+      // Determine if message needs review
+      let needsReview = false;
+      if (messageReviewMode === 'always') {
+        needsReview = true;
+        console.log('🔍 Message review mode: ALWAYS - Saving as draft for review');
+      } else if (messageReviewMode === 'on_redflag' && isFlagged) {
+        needsReview = true;
+        console.log('🚩 RedFlag detected & message review mode: ON_REDFLAG - Saving as draft for review');
+      } else {
+        console.log(`✅ Message review mode: ${messageReviewMode}, isFlagged: ${isFlagged} - Auto-approving message`);
+      }
+
+      if (needsReview) {
+        // Save as draft for review - DON'T send to WhatsApp yet
         const aiMessageData: DbChatMessage = {
           session_id: sessionId,
           role: 'assistant',
@@ -95,7 +111,7 @@ class WhatsAppService {
           };
         }
       } else {
-        // Not flagged → Auto-approve (and auto-send if WhatsApp)
+        // Auto-approve and send
         const aiMessageData: DbChatMessage = {
           session_id: sessionId,
           role: 'assistant',
