@@ -25,17 +25,8 @@ import {
   CheckIcon
 } from '@heroicons/react/24/outline';
 
-const personalityToneOptions: { value: PersonalityTone; label: string; description: string }[] = [
-  { value: 'professional', label: 'Professional', description: 'Formell und geschäftsmäßig' },
-  { value: 'friendly', label: 'Freundlich', description: 'Warm und einladend' },
-  { value: 'casual', label: 'Locker', description: 'Entspannt und ungezwungen' },
-  { value: 'flirtatious', label: 'Flirtend', description: 'Charmant und spielerisch' },
-  { value: 'direct', label: 'Direkt', description: 'Klar und auf den Punkt' },
-  { value: 'emotional', label: 'Emotional', description: 'Empathisch und verständnisvoll' },
-  { value: 'warm', label: 'Herzlich', description: 'Mitfühlend und unterstützend' },
-  { value: 'confident', label: 'Selbstbewusst', description: 'Sicher und kompetent' },
-  { value: 'playful', label: 'Verspielt', description: 'Humorvoll und leicht' }
-];
+// Personality tone options - these need to be inside the component to access t()
+// Will be initialized in the component body
 
 // Default behavior guidelines shown in the UI and used if none provided
 const DEFAULT_BEHAVIOR_GUIDELINES = `- Antworte in informellem Ton, schreib ab und zu fehlerhaft als würdest du auf einer Smartphone-Tastatur tippen
@@ -244,7 +235,7 @@ const ServicesManagement = ({
   };
 
   const handleDelete = async (serviceId: string) => {
-    if (confirm('Sind Sie sicher, dass Sie diesen Service löschen möchten?')) {
+    if (confirm(t('settings:services.form.delete_confirm'))) {
       try {
         await deleteService(() => servicesApi.delete(serviceId));
         refetch();
@@ -265,7 +256,7 @@ const ServicesManagement = ({
     return (
       <div className="flex items-center justify-center p-8">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-        <span className="ml-2">Lade Services...</span>
+        <span className="ml-2">{t('settings:services.loading')}</span>
       </div>
     );
   }
@@ -273,11 +264,11 @@ const ServicesManagement = ({
   return (
     <div className="space-y-6">
       {saveSuccess && (
-        <Alert type="success" message="Service erfolgreich gespeichert!" />
+        <Alert type="success" message={t('settings:services.save_success')} />
       )}
 
       {error && (
-        <Alert type="error" message={`Fehler beim Laden der Services: ${error}`} />
+        <Alert type="error" message={`${t('settings:services.error_loading')} ${error}`} />
       )}
 
       {/* Services List */}
@@ -286,23 +277,23 @@ const ServicesManagement = ({
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center">
               <CurrencyEuroIcon className="h-6 w-6 text-success-500 mr-2" />
-              <h3 className="text-lg font-semibold text-dark-50">Services & Preise</h3>
+              <h3 className="text-lg font-semibold text-dark-50">{t('settings:services.title')}</h3>
             </div>
             <Button
               onClick={handleAdd}
               className="flex items-center space-x-2"
             >
               <PlusIcon className="h-4 w-4" />
-              <span>Service hinzufügen</span>
+              <span>{t('settings:services.add_button')}</span>
             </Button>
           </div>
 
           {services.length === 0 ? (
             <div className="text-center py-8">
               <CurrencyEuroIcon className="mx-auto h-12 w-12 text-dark-400" />
-              <h3 className="mt-2 text-sm font-medium text-dark-50">Keine Services</h3>
+              <h3 className="mt-2 text-sm font-medium text-dark-50">{t('settings:services.empty.title')}</h3>
               <p className="mt-1 text-sm text-dark-300">
-                Fügen Sie Ihren ersten Service hinzu.
+                {t('settings:services.empty.message')}
               </p>
             </div>
           ) : (
@@ -311,16 +302,16 @@ const ServicesManagement = ({
                 <thead className="bg-dark-600">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-elysPink-400 uppercase tracking-wider">
-                      Service
+                      {t('settings:services.table.service')}
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Preis
+                      {t('settings:services.table.price')}
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Dauer
+                      {t('settings:services.table.duration')}
                     </th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Aktionen
+                      {t('settings:services.table.actions')}
                     </th>
                   </tr>
                 </thead>
@@ -385,33 +376,33 @@ const ServicesManagement = ({
         <Card>
           <div className="p-6">
             <h3 className="text-lg font-semibold text-dark-50 mb-4">
-              {editingService ? 'Service bearbeiten' : 'Neuen Service hinzufügen'}
+              {editingService ? t('settings:services.form.title_edit') : t('settings:services.form.title_add')}
             </h3>
             
             <div className="grid grid-cols-1 gap-4">
               <Input
-                label="Service Name"
+                label={t('settings:services.form.name_label')}
                 value={formData.name}
                 onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                placeholder="z.B. Beratungsgespräch"
+                placeholder={t('settings:services.form.name_placeholder')}
                 required
               />
               
               <div>
                 <label className="block text-sm font-medium text-dark-200 mb-1">
-                  Beschreibung (optional)
+                  {t('settings:services.form.description_label')}
                 </label>  
                 <Textarea
                   value={formData.description}
                   onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                  placeholder="Kurze Beschreibung des Services..."
+                  placeholder={t('settings:services.form.description_placeholder')}
                   rows={2}
                 />
               </div>
 
               <div className="grid grid-cols-3 gap-4">
                 <Input
-                  label="Preis"
+                  label={t('settings:services.form.price_label')}
                   type="number"
                   step="0.01"
                   min="0"
@@ -421,7 +412,7 @@ const ServicesManagement = ({
                 />
                 
                 <Select
-                  label="Währung"
+                  label={t('settings:services.form.currency_label')}
                   value={formData.currency}
                   onChange={(e) => setFormData(prev => ({ ...prev, currency: e.target.value }))}
                   options={[
@@ -432,13 +423,13 @@ const ServicesManagement = ({
                 />
                 
                 <Input
-                  label="Dauer (Min)"
+                  label={t('settings:services.form.duration_label')}
                   type="number"
                   min="0"
                   step="15"
                   value={formData.durationMinutes || ''}
                   onChange={(e) => setFormData(prev => ({ ...prev, durationMinutes: parseInt(e.target.value) || undefined }))}
-                  placeholder="z.B. 60"
+                  placeholder={t('settings:services.form.duration_placeholder')}
                 />
               </div>
             </div>
@@ -448,13 +439,13 @@ const ServicesManagement = ({
                 onClick={resetForm}
                 variant="secondary"
               >
-                Abbrechen
+                {t('settings:services.form.cancel_button')}
               </Button>
               <Button
                 onClick={handleSave}
                 disabled={isCreating || isUpdating || !formData.name}
               >
-                {(isCreating || isUpdating) ? 'Speichere...' : 'Speichern'}
+                {(isCreating || isUpdating) ? t('settings:services.form.saving') : t('settings:services.form.save_button')}
               </Button>
             </div>
           </div>
@@ -632,6 +623,20 @@ const LanguageSettings = () => {
 const BotConfigForm = () => {
   const { t } = useTranslation('settings');
   const { t: tCommon } = useTranslation('common');
+  
+  // Personality tone options with translations
+  const personalityToneOptions: { value: PersonalityTone; label: string; description: string }[] = [
+    { value: 'professional', label: t('bot_config.personality.tones.professional.label'), description: t('bot_config.personality.tones.professional.description') },
+    { value: 'friendly', label: t('bot_config.personality.tones.friendly.label'), description: t('bot_config.personality.tones.friendly.description') },
+    { value: 'casual', label: t('bot_config.personality.tones.casual.label'), description: t('bot_config.personality.tones.casual.description') },
+    { value: 'flirtatious', label: t('bot_config.personality.tones.flirtatious.label'), description: t('bot_config.personality.tones.flirtatious.description') },
+    { value: 'direct', label: t('bot_config.personality.tones.direct.label'), description: t('bot_config.personality.tones.direct.description') },
+    { value: 'emotional', label: t('bot_config.personality.tones.emotional.label'), description: t('bot_config.personality.tones.emotional.description') },
+    { value: 'warm', label: t('bot_config.personality.tones.warm.label'), description: t('bot_config.personality.tones.warm.description') },
+    { value: 'confident', label: t('bot_config.personality.tones.confident.label'), description: t('bot_config.personality.tones.confident.description') },
+    { value: 'playful', label: t('bot_config.personality.tones.playful.label'), description: t('bot_config.personality.tones.playful.description') }
+  ];
+  
   const { data: initialConfig, isLoading, error, refetch } = useFetch(
     () => botApi.getConfig(),
     []
@@ -707,14 +712,14 @@ const BotConfigForm = () => {
     return (
       <div className="flex items-center justify-center p-8">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-        <span className="ml-2">Lade Konfiguration...</span>
+        <span className="ml-2">{t('settings:bot_config.loading')}</span>
       </div>
     );
   }
 
   if (error) {
     return (
-      <Alert type="error" message={`Fehler beim Laden der Konfiguration: ${error}`} />
+      <Alert type="error" message={`${t('settings:bot_config.error_loading')} ${error}`} />
     );
   }
 
@@ -813,13 +818,13 @@ const BotConfigForm = () => {
         <div className="p-6">
           <div className="flex items-center mb-4">
             <ChatBubbleLeftRightIcon className="h-6 w-6 text-elysViolet-500 mr-2" />
-            <h3 className="text-lg font-semibold text-dark-50">Persönlichkeit & Tonalität</h3>
+            <h3 className="text-lg font-semibold text-dark-50">{t('bot_config.personality.title')}</h3>
           </div>
           
           <div className="grid grid-cols-1 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Tonalität
+                {t('bot_config.personality.tone_label')}
               </label>
               <Select
                 value={config.personalityTone || 'friendly'}
@@ -833,12 +838,12 @@ const BotConfigForm = () => {
             
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Charaktereigenschaften
+                {t('bot_config.personality.traits_label')}
               </label>
               <Textarea
                 value={config.characterTraits || ''}
                 onChange={(e) => handleInputChange('characterTraits', e.target.value)}
-                placeholder="z.B. Hilfsbereit, geduldig, verständnisvoll, professionell..."
+                placeholder={t('bot_config.personality.traits_placeholder')}
                 rows={2}
               />
             </div>
@@ -853,30 +858,30 @@ const BotConfigForm = () => {
         <div className="p-6">
           <div className="flex items-center mb-4">
             <SparklesIcon className="h-6 w-6 text-elysPink-500 mr-2" />
-            <h3 className="text-lg font-semibold text-dark-50">Regeln & Grenzen</h3>
+            <h3 className="text-lg font-semibold text-dark-50">{t('bot_config.rules.title')}</h3>
           </div>
           
           <div className="grid grid-cols-1 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Eskalationsregeln
+                {t('bot_config.rules.escalation_label')}
               </label>
               <Textarea
                 value={config.escalationRules || ''}
                 onChange={(e) => handleInputChange('escalationRules', e.target.value)}
-                placeholder="Wann soll die Antwort an Human-in-the-loop übergeben werden..."
+                placeholder={t('bot_config.rules.escalation_placeholder')}
                 rows={3}
               />
             </div>
             
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Bot-Grenzen
+                {t('bot_config.rules.limitations_label')}
               </label>
               <Textarea
                 value={config.botLimitations || ''}
                 onChange={(e) => handleInputChange('botLimitations', e.target.value)}
-                placeholder="Was soll der Bot nicht machen..."
+                placeholder={t('bot_config.rules.limitations_placeholder')}
                 rows={3}
               />
             </div>
@@ -890,17 +895,17 @@ const BotConfigForm = () => {
         <div className="p-6">
           <div className="flex items-center mb-4">
             <ClockIcon className="h-6 w-6 text-elysPink-500 mr-2" />
-            <h3 className="text-lg font-semibold text-dark-50">Review-Einstellungen</h3>
+            <h3 className="text-lg font-semibold text-dark-50">{t('bot_config.review_settings.title')}</h3>
           </div>
           
           <p className="text-sm text-dark-300 mb-6">
-            Bestimme, ob gebuchte Termine automatisch bestätigt werden oder einer manuellen Überprüfung bedürfen.
+            {t('bot_config.review_settings.description')}
           </p>
 
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-dark-200 mb-3">
-                Review-Modus
+                {t('bot_config.review_settings.mode_label')}
               </label>
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -917,10 +922,10 @@ const BotConfigForm = () => {
                 >
                   <div className="flex items-center space-x-2 mb-2">
                     <CheckIcon className={`w-5 h-5 ${config.reviewMode === 'never' ? 'text-blue-600' : 'text-dark-400'}`} />
-                    <span className="font-semibold text-dark-50">Nie</span>
+                    <span className="font-semibold text-dark-50">{t('bot_config.review_settings.modes.never.label')}</span>
                   </div>
                   <p className="text-xs text-dark-300">
-                    Alle Termine werden automatisch bestätigt
+                    {t('bot_config.review_settings.modes.never.description')}
                   </p>
                 </button>
 
@@ -937,10 +942,10 @@ const BotConfigForm = () => {
                 >
                   <div className="flex items-center space-x-2 mb-2">
                     <span className={`text-lg ${config.reviewMode === 'on_redflag' ? '' : 'opacity-50'}`}>🚩</span>
-                    <span className="font-semibold text-dark-50">Bei RedFlag</span>
+                    <span className="font-semibold text-dark-50">{t('bot_config.review_settings.modes.redflag.label')}</span>
                   </div>
                   <p className="text-xs text-dark-300">
-                    Nur verdächtige Termine zur Review
+                    {t('bot_config.review_settings.modes.redflag.description')}
                   </p>
                 </button>
 
@@ -957,10 +962,10 @@ const BotConfigForm = () => {
                 >
                   <div className="flex items-center space-x-2 mb-2">
                     <ClockIcon className={`w-5 h-5 ${config.reviewMode === 'always' ? 'text-purple-600' : 'text-dark-400'}`} />
-                    <span className="font-semibold text-dark-50">Immer</span>
+                    <span className="font-semibold text-dark-50">{t('bot_config.review_settings.modes.always.label')}</span>
                   </div>
                   <p className="text-xs text-dark-300">
-                    Alle Termine benötigen manuelle Freigabe
+                    {t('bot_config.review_settings.modes.always.description')}
                   </p>
                 </button>
               </div>
@@ -970,19 +975,19 @@ const BotConfigForm = () => {
             {config.reviewMode === 'always' && (
               <Alert 
                 type="info" 
-                message="Alle gebuchten Termine haben den Status 'pending' und müssen manuell bestätigt werden."
+                message={t('bot_config.review_settings.modes.always.alert')}
               />
             )}
             {config.reviewMode === 'on_redflag' && (
               <Alert 
                 type="warning" 
-                message="Nur Termine mit verdächtigem Verhalten (RedFlags) werden zur manuellen Prüfung markiert."
+                message={t('bot_config.review_settings.modes.redflag.alert')}
               />
             )}
             {config.reviewMode === 'never' && (
               <Alert 
                 type="success" 
-                message="Alle Termine werden automatisch bestätigt - keine manuelle Überprüfung erforderlich."
+                message={t('bot_config.review_settings.modes.never.alert')}
               />
             )}
           </div>
@@ -994,17 +999,17 @@ const BotConfigForm = () => {
         <div className="p-6">
           <div className="flex items-center mb-4">
             <ClockIcon className="h-6 w-6 text-elysPink-500 mr-2" />
-            <h3 className="text-lg font-semibold text-dark-50">Bot-Nachrichten Review</h3>
+            <h3 className="text-lg font-semibold text-dark-50">{t('bot_config.message_review.title')}</h3>
           </div>
           
           <p className="text-sm text-dark-300 mb-6">
-            Bestimme, ob Bot-Antworten automatisch gesendet werden oder einer manuellen Überprüfung bedürfen, bevor sie an Kunden versendet werden.
+            {t('bot_config.message_review.description')}
           </p>
 
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-dark-200 mb-3">
-                Review-Modus für Bot-Nachrichten
+                {t('bot_config.message_review.mode_label')}
               </label>
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -1021,10 +1026,10 @@ const BotConfigForm = () => {
                 >
                   <div className="flex items-center space-x-2 mb-2">
                     <CheckIcon className={`w-5 h-5 ${config.messageReviewMode === 'never' ? 'text-blue-600' : 'text-dark-400'}`} />
-                    <span className="font-semibold text-dark-50">Nie</span>
+                    <span className="font-semibold text-dark-50">{t('bot_config.message_review.modes.never.label')}</span>
                   </div>
                   <p className="text-xs text-dark-300">
-                    Alle Bot-Nachrichten werden automatisch versendet
+                    {t('bot_config.message_review.modes.never.description')}
                   </p>
                 </button>
 
@@ -1041,10 +1046,10 @@ const BotConfigForm = () => {
                 >
                   <div className="flex items-center space-x-2 mb-2">
                     <span className={`text-lg ${config.messageReviewMode === 'on_redflag' ? '' : 'opacity-50'}`}>🚩</span>
-                    <span className="font-semibold text-dark-50">Bei RedFlag</span>
+                    <span className="font-semibold text-dark-50">{t('bot_config.message_review.modes.redflag.label')}</span>
                   </div>
                   <p className="text-xs text-dark-300">
-                    Nur verdächtige Bot-Nachrichten zur Review
+                    {t('bot_config.message_review.modes.redflag.description')}
                   </p>
                 </button>
 
@@ -1061,10 +1066,10 @@ const BotConfigForm = () => {
                 >
                   <div className="flex items-center space-x-2 mb-2">
                     <ClockIcon className={`w-5 h-5 ${config.messageReviewMode === 'always' ? 'text-purple-600' : 'text-dark-400'}`} />
-                    <span className="font-semibold text-dark-50">Immer</span>
+                    <span className="font-semibold text-dark-50">{t('bot_config.message_review.modes.always.label')}</span>
                   </div>
                   <p className="text-xs text-dark-300">
-                    Alle Bot-Nachrichten benötigen manuelle Freigabe
+                    {t('bot_config.message_review.modes.always.description')}
                   </p>
                 </button>
               </div>
@@ -1074,19 +1079,19 @@ const BotConfigForm = () => {
             {config.messageReviewMode === 'always' && (
               <Alert 
                 type="info" 
-                message="Alle Bot-Nachrichten werden als Draft gespeichert und müssen vor dem Versand manuell überprüft und freigegeben werden."
+                message={t('bot_config.message_review.modes.always.alert')}
               />
             )}
             {config.messageReviewMode === 'on_redflag' && (
               <Alert 
                 type="warning" 
-                message="Nur Bot-Nachrichten mit verdächtigem Verhalten (RedFlags) werden zur manuellen Prüfung markiert. Normale Nachrichten werden automatisch versendet."
+                message={t('bot_config.message_review.modes.redflag.alert')}
               />
             )}
             {config.messageReviewMode === 'never' && (
               <Alert 
                 type="success" 
-                message="Alle Bot-Nachrichten werden automatisch versendet - keine manuelle Überprüfung erforderlich."
+                message={t('bot_config.message_review.modes.never.alert')}
               />
             )}
           </div>
@@ -1098,17 +1103,17 @@ const BotConfigForm = () => {
         <div className="p-6">
           <div className="flex items-center mb-4">
             <SparklesIcon className="h-6 w-6 text-elysViolet-500 mr-2" />
-            <h3 className="text-lg font-semibold text-dark-50">Verhalten</h3>
+            <h3 className="text-lg font-semibold text-dark-50">{t('bot_config.behavior.title')}</h3>
           </div>
           <div className="grid grid-cols-1 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                System-Prompt Regeln
+                {t('bot_config.behavior.label')}
               </label>
               <Textarea
                 value={config.behaviorGuidelines ?? DEFAULT_BEHAVIOR_GUIDELINES}
                 onChange={(e) => handleInputChange('behaviorGuidelines', e.target.value)}
-                placeholder="Listen Sie hier die Verhaltensregeln auf, z.B. Tonalität, Sprache, Tool-Nutzung, etc."
+                placeholder={t('bot_config.behavior.placeholder')}
                 rows={8}
               />
             </div>
@@ -1120,13 +1125,13 @@ const BotConfigForm = () => {
       <Card>
         <div className="p-6">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-dark-50">Generierter System-Prompt</h3>
+            <h3 className="text-lg font-semibold text-dark-50">{t('bot_config.behavior.preview_title')}</h3>
             <Button
               type="button"
               variant="secondary"
               onClick={() => setShowPreview(!showPreview)}
             >
-              {showPreview ? 'Ausblenden' : 'Vorschau anzeigen'}
+              {showPreview ? t('bot_config.behavior.hide_preview') : t('bot_config.behavior.show_preview')}
             </Button>
           </div>
           
@@ -1147,7 +1152,7 @@ const BotConfigForm = () => {
               disabled={isUpdating}
               className="min-w-[200px]"
             >
-              {isUpdating ? 'Speichere...' : 'Konfiguration speichern'}
+              {isUpdating ? t('bot_config.saving') : t('bot_config.save_button')}
             </Button>
           </div>
         </form>

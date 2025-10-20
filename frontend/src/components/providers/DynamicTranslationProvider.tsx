@@ -39,9 +39,9 @@ const loadLanguageResources = async (lang: string) => {
   }
 };
 
-// Load only the default language initially (German)
+// Load only the default language initially (English)
 const loadInitialResources = async () => {
-  const defaultLang = 'de';
+  const defaultLang = 'en';
   const resources: any = {};
   
   try {
@@ -61,15 +61,15 @@ const initI18n = async () => {
     return;
   }
 
-  // Get user's preferred language from localStorage, default to 'de'
-  const preferredLanguage = localStorage.getItem('preferredLanguage') || 'de';
+  // Get user's preferred language from localStorage, default to 'en'
+  const preferredLanguage = localStorage.getItem('preferredLanguage') || 'en';
   
   const resources = await loadInitialResources();
 
   i18n
     .use(initReactI18next)
     .init({
-      fallbackLng: 'de',
+      fallbackLng: 'en',
       lng: preferredLanguage,
       debug: false,
       
@@ -93,7 +93,7 @@ interface DynamicTranslationProviderProps {
 export const DynamicTranslationProvider = ({ children }: DynamicTranslationProviderProps) => {
   const [isInitialized, setIsInitialized] = useState(false);
   const [currentLanguage, setCurrentLanguage] = useState<string>(
-    typeof window !== 'undefined' ? (localStorage.getItem('preferredLanguage') || 'de') : 'de'
+    typeof window !== 'undefined' ? (localStorage.getItem('preferredLanguage') || 'en') : 'en'
   );
   const [isChangingLanguage, setIsChangingLanguage] = useState(false);
 
@@ -141,8 +141,8 @@ export const DynamicTranslationProvider = ({ children }: DynamicTranslationProvi
       console.log(`✅ Language changed to: ${newLang}`);
     } catch (error) {
       console.error(`Failed to change language to ${newLang}:`, error);
-      // Fallback to German if loading fails
-      await i18n.changeLanguage('de');
+      // Fallback to English if loading fails
+      await i18n.changeLanguage('en');
     } finally {
       setIsChangingLanguage(false);
     }

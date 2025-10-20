@@ -21,6 +21,17 @@
   },
   
   "bot_config": {
+    "loading": "Lade Konfiguration...",
+    "error_loading": "Fehler beim Laden der Konfiguration:",
+    "save_button": "Konfiguration speichern",
+    "saving": "Speichere...",
+    
+    "tabs": {
+      "bot_config": "Bot-Konfiguration",
+      "services": "Services",
+      "settings": "Einstellungen"
+    },
+    
     "identity": {
       "title": "Bot-Identität",
       "name": "Bot-Name",
@@ -30,22 +41,162 @@
       "description": "Beschreibung",
       "description_label": "Bot Beschreibung"
     },
+    
+    "personality": {
+      "title": "Persönlichkeit & Tonalität",
+      "tone_label": "Tonalität",
+      "traits_label": "Charaktereigenschaften",
+      "traits_placeholder": "z.B. Hilfsbereit, geduldig, verständnisvoll...",
+      
+      "tones": {
+        "professional": {
+          "label": "Professional",
+          "description": "Formell und geschäftsmäßig"
+        },
+        "friendly": {
+          "label": "Freundlich",
+          "description": "Warm und einladend"
+        },
+        "casual": {
+          "label": "Locker",
+          "description": "Entspannt und ungezwungen"
+        },
+        "flirtatious": {
+          "label": "Flirtend",
+          "description": "Charmant und spielerisch"
+        },
+        "direct": {
+          "label": "Direkt",
+          "description": "Klar und auf den Punkt"
+        },
+        "emotional": {
+          "label": "Emotional",
+          "description": "Empathisch und verständnisvoll"
+        },
+        "warm": {
+          "label": "Herzlich",
+          "description": "Mitfühlend und unterstützend"
+        },
+        "confident": {
+          "label": "Selbstbewusst",
+          "description": "Sicher und kompetent"
+        },
+        "playful": {
+          "label": "Verspielt",
+          "description": "Humorvoll und leicht"
+        }
+      }
+    },
+    
+    "rules": {
+      "title": "Regeln & Grenzen",
+      "escalation_label": "Eskalationsregeln",
+      "escalation_placeholder": "Wann soll die Antwort an Human-in-the-loop übergeben werden...",
+      "limitations_label": "Bot-Grenzen",
+      "limitations_placeholder": "Was soll der Bot nicht machen..."
+    },
+    
+    "review_settings": {
+      "title": "Review-Einstellungen",
+      "description": "Bestimme, ob gebuchte Termine automatisch bestätigt werden oder einer manuellen Überprüfung bedürfen.",
+      "mode_label": "Review-Modus",
+      
+      "modes": {
+        "never": {
+          "label": "Nie",
+          "description": "Alle Termine werden automatisch bestätigt",
+          "alert": "Alle Termine werden automatisch bestätigt - keine manuelle Überprüfung erforderlich."
+        },
+        "redflag": {
+          "label": "Bei RedFlag",
+          "description": "Nur verdächtige Termine zur Review",
+          "alert": "Nur Termine mit verdächtigem Verhalten (RedFlags) werden zur manuellen Prüfung markiert."
+        },
+        "always": {
+          "label": "Immer",
+          "description": "Alle Termine benötigen manuelle Freigabe",
+          "alert": "Alle gebuchten Termine haben den Status 'pending' und müssen manuell bestätigt werden."
+        }
+      }
+    },
+    
+    "message_review": {
+      "title": "Bot-Nachrichten Review",
+      "description": "Bestimme, ob Bot-Antworten automatisch gesendet werden oder einer manuellen Überprüfung bedürfen.",
+      "mode_label": "Review-Modus für Bot-Nachrichten",
+      
+      "modes": {
+        "never": {
+          "label": "Nie",
+          "description": "Alle Bot-Nachrichten werden automatisch versendet",
+          "alert": "Alle Bot-Nachrichten werden automatisch versendet - keine manuelle Überprüfung erforderlich."
+        },
+        "redflag": {
+          "label": "Bei RedFlag",
+          "description": "Nur verdächtige Bot-Nachrichten zur Review",
+          "alert": "Nur Bot-Nachrichten mit verdächtigem Verhalten (RedFlags) werden zur manuellen Prüfung markiert. Normale Nachrichten werden automatisch versendet."
+        },
+        "always": {
+          "label": "Immer",
+          "description": "Alle Bot-Nachrichten benötigen manuelle Freigabe",
+          "alert": "Alle Bot-Nachrichten werden als Draft gespeichert und müssen vor dem Versand manuell überprüft und freigegeben werden."
+        }
+      }
+    },
+    
+    "behavior": {
+      "title": "Verhalten",
+      "label": "System-Prompt Regeln",
+      "placeholder": "Listen Sie hier die Verhaltensregeln auf, z.B. Tonalität, Sprache, Tool-Nutzung, etc.",
+      "preview_title": "Generierter System-Prompt",
+      "show_preview": "Vorschau anzeigen",
+      "hide_preview": "Ausblenden"
+    },
+    
     "appearance": {
       "title": "Erscheinungsbild",
       "avatar": "Avatar",
       "theme": "Design",
       "colors": "Farben"
-    },
-    "behavior": {
-      "title": "Verhalten",
-      "response_style": "Antwort-Stil",
-      "greeting": "Begrüßung",
-      "farewell": "Verabschiedung"
     }
   },
   
   "services": {
     "title": "Services & Preise",
+    "loading": "Lade Services...",
+    "save_success": "Service erfolgreich gespeichert!",
+    "error_loading": "Fehler beim Laden der Services:",
+    "add_button": "Service hinzufügen",
+    
+    "table": {
+      "service": "Service",
+      "price": "Preis",
+      "duration": "Dauer",
+      "actions": "Aktionen"
+    },
+    
+    "empty": {
+      "title": "Keine Services",
+      "message": "Fügen Sie Ihren ersten Service hinzu."
+    },
+    
+    "form": {
+      "title_edit": "Service bearbeiten",
+      "title_add": "Neuen Service hinzufügen",
+      "name_label": "Service Name",
+      "name_placeholder": "z.B. Beratungsgespräch",
+      "description_label": "Beschreibung (optional)",
+      "description_placeholder": "Kurze Beschreibung des Services...",
+      "price_label": "Preis",
+      "currency_label": "Währung",
+      "duration_label": "Dauer (Min)",
+      "duration_placeholder": "z.B. 60",
+      "cancel_button": "Abbrechen",
+      "save_button": "Speichern",
+      "saving": "Speichere...",
+      "delete_confirm": "Sind Sie sicher, dass Sie diesen Service löschen möchten?"
+    },
+    
     "add_service": "Service hinzufügen",
     "edit_service": "Service bearbeiten",
     "delete_service": "Service löschen",
@@ -54,6 +205,14 @@
     "price": "Preis",
     "duration": "Dauer",
     "available": "Verfügbar"
+  },
+  
+  "language_settings": {
+    "title": "Spracheinstellungen",
+    "description": "Wählen Sie Ihre bevorzugte Sprache für die Benutzeroberfläche",
+    "label": "Sprache auswählen",
+    "current": "Aktuelle Sprache:",
+    "save_button": "Speichern"
   },
   
   "page": {
@@ -66,18 +225,45 @@
   },
   
   "whatsapp": {
-    "status": "Status",
-    "refresh": "Aktualisieren",
-    "logged_in_as": "Angemeldet als",
-    "phone_placeholder": "Telefonnummer (E.164, z.B. +491701234567)",
-    "create_session": "Meine Sitzung erstellen/sicherstellen",
-    "creating": "Wird erstellt...",
-    "generate_qr": "QR generieren / Verknüpfung starten",
+    "status_label": "Status",
     "loading": "Lädt...",
+    "refresh_button": "Aktualisieren",
+    "logged_in_as": "Angemeldet als:",
+    "phone_placeholder": "Telefonnummer (E.164, z.B. +491701234567)",
+    "creating": "Wird erstellt...",
+    "create_session": "Meine Sitzung erstellen/sicherstellen",
+    "generate_qr": "QR generieren / Verknüpfung starten",
     "scan_qr": "Scannen Sie diesen QR-Code mit WhatsApp auf Ihrem Telefon",
     "loading_qr": "Lade QR...",
     "waiting_qr": "Warte auf QR...",
     "connected": "Verbunden",
+    "connected_message": "Der Bot kann jetzt WhatsApp-Nachrichten empfangen und senden.",
+    
+    "session_management": {
+      "title": "Sitzungsverwaltung",
+      "session_for": "Sitzung für",
+      "reset_broken": "Defekte Sitzung zurücksetzen",
+      "manage": "Verwalten Sie Ihre WhatsApp-Bot-Sitzung",
+      "delete_button": "Sitzung löschen",
+      "deleting": "Wird gelöscht...",
+      "delete_confirm": "Möchten Sie die aktuelle WhatsApp-Sitzung wirklich löschen? Dies trennt den Bot von WhatsApp und Sie müssen eine neue Sitzung erstellen.",
+      "delete_success": "Sitzung erfolgreich gelöscht."
+    },
+    
+    "errors": {
+      "failed_status": "Status konnte nicht geladen werden",
+      "auth_required": "Authentifizierung erforderlich",
+      "failed_qr": "QR konnte nicht geladen werden",
+      "failed_ensure": "Sitzung konnte nicht sichergestellt werden",
+      "failed_delete": "Sitzung konnte nicht gelöscht werden"
+    },
+    
+    "status": "Status",
+    "refresh": "Aktualisieren",
+    "logged_in_as": "Angemeldet als",
+    "create_session": "Meine Sitzung erstellen/sicherstellen",
+    "generate_qr": "QR generieren / Verknüpfung starten",
+    "scan_qr": "Scannen Sie diesen QR-Code mit WhatsApp auf Ihrem Telefon",
     "connected_subtitle": "Der Bot kann jetzt WhatsApp-Nachrichten empfangen und senden.",
     "session_management": "Sitzungsverwaltung",
     "session_for": "Sitzung für",
@@ -88,5 +274,35 @@
     "delete_confirm": "Möchten Sie die aktuelle WhatsApp-Sitzung wirklich löschen? Dies trennt den Bot von WhatsApp und Sie müssen eine neue Sitzung erstellen.",
     "delete_success": "Sitzung erfolgreich gelöscht.",
     "auth_required": "Authentifizierung erforderlich"
+  },
+  
+  "webhook": {
+    "title": "Webhook-Administration",
+    "description": "Verwalten Sie die Webhook-Konfiguration für alle WasenderAPI-Sitzungen automatisch.",
+    "check_status": "Status prüfen",
+    "setup_all": "Alle Webhooks einrichten",
+    "loading": "Lädt...",
+    "setting_up": "Richtet ein...",
+    "success": "Webhooks erfolgreich für alle Sitzungen konfiguriert!",
+    
+    "summary": {
+      "title": "Konfigurationsübersicht",
+      "total_sessions": "Gesamte Sitzungen:",
+      "webhook_url": "Webhook-URL:"
+    },
+    
+    "session_details": {
+      "title": "Sitzungsdetails",
+      "id": "ID:",
+      "phone": "Telefon:",
+      "status": "Status:",
+      "current_webhook": "Aktueller Webhook:",
+      "configured": "Konfiguriert",
+      "not_configured": "Nicht konfiguriert"
+    },
+    
+    "errors": {
+      "auth_required": "Authentifizierung erforderlich"
+    }
   }
 }

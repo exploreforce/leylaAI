@@ -15,6 +15,87 @@
     "title": "Chat-Übersicht",
     "loading": "Lade Chat-Sessions...",
     "no_sessions": "Keine Chat-Sessions gefunden",
+    
+    "count": {
+      "of": "von",
+      "sessions_singular": "Chat Session",
+      "sessions_plural": "Chat Sessions",
+      "filtered": "gefiltert"
+    },
+    
+    "empty": {
+      "title": "Keine Chat Sessions vorhanden!",
+      "no_sessions": "Starte deinen ersten Test-Chat um ihn hier zu sehen.",
+      "filtered_title": "Keine Chat Sessions gefunden!",
+      "filtered_all": "Aktuell sind alle Sessions herausgefiltert.",
+      "filtered_status": "Keine {{status}} Sessions vorhanden.",
+      "start_chat": "Start AI Chat"
+    },
+    
+    "last_message": {
+      "label": "Letzte Nachricht",
+      "role_user": "Benutzer",
+      "role_assistant": "Assistent",
+      "translated_to": "Übersetzt nach",
+      "translating": "Übersetze...",
+      "translate_to": "Übersetzen nach",
+      "show_original": "Original anzeigen"
+    },
+    
+    "timestamps": {
+      "created": "Erstellt:",
+      "last_activity": "Letzte Aktivität:"
+    },
+    
+    "stats_labels": {
+      "total": "Gesamt",
+      "user": "Benutzer",
+      "ai": "KI",
+      "drafts": "Entwürfe",
+      "draft_singular": "Entwurf"
+    },
+    
+    "navigation": {
+      "new_chat": "+ Neuer AI Chat",
+      "new_chat_short": "+ Neuer Chat",
+      "back_short": "←",
+      "conversation_history": "Gesprächsverlauf",
+      "chats": "Chats"
+    },
+    
+    "actions": {
+      "open": "Öffnen",
+      "review_drafts": "Entwürfe überprüfen",
+      "review_short": "Review",
+      "activate": "Reaktivieren",
+      "archive": "Archivieren",
+      "delete": "Löschen",
+      "confirm_delete": "Wirklich löschen?",
+      "confirm_archive": "Wirklich archivieren?",
+      "refresh_title": "Chats aktualisieren"
+    },
+    
+    "errors": {
+      "delete_failed": "Fehler beim Löschen der Session. Bitte versuchen Sie es erneut.",
+      "update_failed": "Fehler beim {{action}} der Session. Bitte versuchen Sie es erneut.",
+      "action_archive": "archivieren",
+      "action_activate": "reaktivieren"
+    },
+    
+    "status": {
+      "active": "Aktiv",
+      "archived": "Archiviert", 
+      "inactive": "Inaktiv",
+      "unknown": "Unbekannt"
+    },
+    
+    "filters": {
+      "all": "Alle",
+      "active": "Aktiv", 
+      "archived": "Archiviert",
+      "inactive": "Inaktiv"
+    },
+    
     "sessions_count": "von",
     "session": "Chat Session",
     "sessions": "Chat Sessions",
@@ -41,27 +122,6 @@
     "translating": "Übersetze...",
     "created": "Erstellt",
     "last_activity": "Letzte Aktivität",
-    "filters": {
-      "all": "Alle",
-      "active": "Aktiv", 
-      "archived": "Archiviert",
-      "inactive": "Inaktiv",
-      "show_filters": "Filter anzeigen"
-    },
-    "actions": {
-      "open": "Chat öffnen",
-      "archive": "Archivieren",
-      "activate": "Reaktivieren",
-      "delete": "Löschen",
-      "confirm_delete": "Wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
-      "confirm_archive": "Chat archivieren?"
-    },
-    "status": {
-      "active": "Aktiv",
-      "archived": "Archiviert", 
-      "inactive": "Inaktiv (2+ Wochen inaktiv)",
-      "unknown": "Unbekannt"
-    },
     "stats": {
       "total": "Gesamt",
       "user": "Benutzer",

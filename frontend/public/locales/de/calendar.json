@@ -64,12 +64,37 @@
   },
   
   "availability": {
-    "title": "Verfügbarkeits-Einstellungen",
+    "title": "Verfügbarkeitseinstellungen",
+    "description": "Legen Sie Ihre wöchentlichen Arbeitszeiten und Ausnahmen fest",
     "weekly_schedule": "Wöchentliche Verfügbarkeit",
     "blackout_dates": "Gesperrte Termine",
-    "loading": "Lade Verfügbarkeiten...",
+    "loading": "Lade Verfügbarkeit...",
     "no_blackout_dates": "Keine gesperrten Termine",
     "success_message": "Verfügbarkeiten erfolgreich gespeichert!",
+    
+    "schedule": {
+      "title": "Wöchentlicher Zeitplan",
+      "day_available": "Verfügbar",
+      "day_unavailable": "Nicht verfügbar",
+      "add_slot": "Zeitfenster hinzufügen",
+      "remove_slot": "Entfernen"
+    },
+    
+    "blackout": {
+      "title": "Ausnahmetage",
+      "add_button": "Ausnahmetag hinzufügen",
+      "date_label": "Datum",
+      "reason_label": "Grund (optional)",
+      "reason_placeholder": "z.B. Urlaub, Feiertag...",
+      "no_dates": "Keine Ausnahmetage definiert"
+    },
+    
+    "actions": {
+      "save": "Verfügbarkeit speichern",
+      "saving": "Speichere...",
+      "save_success": "Verfügbarkeit erfolgreich gespeichert!",
+      "save_error": "Fehler beim Speichern:"
+    },
     
     "days": {
       "monday": "Montag",

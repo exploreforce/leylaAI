@@ -15,6 +15,87 @@
     "title": "Chat Overview",
     "loading": "Loading chat sessions...",
     "no_sessions": "No chat sessions found",
+    
+    "count": {
+      "of": "of",
+      "sessions_singular": "Chat Session",
+      "sessions_plural": "Chat Sessions",
+      "filtered": "filtered"
+    },
+    
+    "empty": {
+      "title": "No chat sessions yet!",
+      "no_sessions": "Start your first test chat to see it here.",
+      "filtered_title": "No chat sessions found!",
+      "filtered_all": "Currently all sessions are filtered out.",
+      "filtered_status": "No {{status}} sessions available.",
+      "start_chat": "Start AI Chat"
+    },
+    
+    "last_message": {
+      "label": "Last message",
+      "role_user": "user",
+      "role_assistant": "assistant",
+      "translated_to": "Translated to",
+      "translating": "Translating...",
+      "translate_to": "Translate to",
+      "show_original": "Show Original"
+    },
+    
+    "timestamps": {
+      "created": "Created:",
+      "last_activity": "Last activity:"
+    },
+    
+    "stats_labels": {
+      "total": "Total",
+      "user": "User",
+      "ai": "AI",
+      "drafts": "Drafts",
+      "draft_singular": "Draft"
+    },
+    
+    "navigation": {
+      "new_chat": "+ New AI Chat",
+      "new_chat_short": "+ New Chat",
+      "back_short": "←",
+      "conversation_history": "Conversation History",
+      "chats": "Chats"
+    },
+    
+    "actions": {
+      "open": "Open",
+      "review_drafts": "Review Drafts",
+      "review_short": "Review",
+      "activate": "Activate",
+      "archive": "Archive",
+      "delete": "Delete",
+      "confirm_delete": "Really delete?",
+      "confirm_archive": "Really archive?",
+      "refresh_title": "Refresh chats"
+    },
+    
+    "errors": {
+      "delete_failed": "Error deleting session. Please try again.",
+      "update_failed": "Error {{action}} session. Please try again.",
+      "action_archive": "archiving",
+      "action_activate": "activating"
+    },
+    
+    "status": {
+      "active": "Active",
+      "archived": "Archived", 
+      "inactive": "Inactive",
+      "unknown": "Unknown"
+    },
+    
+    "filters": {
+      "all": "All",
+      "active": "Active", 
+      "archived": "Archived",
+      "inactive": "Inactive"
+    },
+    
     "sessions_count": "of",
     "session": "Chat Session",
     "sessions": "Chat Sessions",
@@ -41,27 +122,6 @@
     "translating": "Translating...",
     "created": "Created",
     "last_activity": "Last activity",
-    "filters": {
-      "all": "All",
-      "active": "Active", 
-      "archived": "Archived",
-      "inactive": "Inactive",
-      "show_filters": "Show Filters"
-    },
-    "actions": {
-      "open": "Open Chat",
-      "archive": "Archive",
-      "activate": "Reactivate",
-      "delete": "Delete",
-      "confirm_delete": "Really delete? This action cannot be undone.",
-      "confirm_archive": "Archive chat?"
-    },
-    "status": {
-      "active": "Active",
-      "archived": "Archived", 
-      "inactive": "Inactive (2+ weeks inactive)",
-      "unknown": "Unknown"
-    },
     "stats": {
       "total": "Total",
       "user": "User",

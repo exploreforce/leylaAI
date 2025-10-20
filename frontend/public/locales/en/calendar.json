@@ -65,11 +65,36 @@
   
   "availability": {
     "title": "Availability Settings",
+    "description": "Set your weekly working hours and exceptions",
     "weekly_schedule": "Weekly Availability",
     "blackout_dates": "Blackout Dates",
     "loading": "Loading availability...",
     "no_blackout_dates": "No blackout dates",
     "success_message": "Availability settings saved successfully!",
+    
+    "schedule": {
+      "title": "Weekly Schedule",
+      "day_available": "Available",
+      "day_unavailable": "Unavailable",
+      "add_slot": "Add Time Slot",
+      "remove_slot": "Remove"
+    },
+    
+    "blackout": {
+      "title": "Blackout Dates",
+      "add_button": "Add Blackout Date",
+      "date_label": "Date",
+      "reason_label": "Reason (optional)",
+      "reason_placeholder": "e.g. Vacation, Holiday...",
+      "no_dates": "No blackout dates defined"
+    },
+    
+    "actions": {
+      "save": "Save Availability",
+      "saving": "Saving...",
+      "save_success": "Availability saved successfully!",
+      "save_error": "Error saving:"
+    },
     
     "days": {
       "monday": "Monday",

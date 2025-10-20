@@ -1,6 +1,6 @@
 module.exports = {
   i18n: {
-    defaultLocale: 'de',
+    defaultLocale: 'en',
     locales: [
       'de', 'en', 
       // Osteuropäische Sprachen
@@ -10,7 +10,7 @@ module.exports = {
     ],
   },
   defaultNS: 'common',
-  fallbackLng: 'de',
+  fallbackLng: 'en',
   debug: process.env.NODE_ENV === 'development',
   reloadOnPrerender: process.env.NODE_ENV === 'development',
   

@@ -21,6 +21,17 @@
   },
   
   "bot_config": {
+    "loading": "Loading configuration...",
+    "error_loading": "Error loading configuration:",
+    "save_button": "Save Configuration",
+    "saving": "Saving...",
+    
+    "tabs": {
+      "bot_config": "Bot Configuration",
+      "services": "Services",
+      "settings": "Settings"
+    },
+    
     "identity": {
       "title": "Bot Identity",
       "name": "Bot Name",
@@ -30,22 +41,162 @@
       "description": "Description",
       "description_label": "Bot Description"
     },
+    
+    "personality": {
+      "title": "Personality & Tone",
+      "tone_label": "Tone",
+      "traits_label": "Character Traits",
+      "traits_placeholder": "e.g. Helpful, patient, understanding...",
+      
+      "tones": {
+        "professional": {
+          "label": "Professional",
+          "description": "Formal and business-like"
+        },
+        "friendly": {
+          "label": "Friendly",
+          "description": "Warm and inviting"
+        },
+        "casual": {
+          "label": "Casual",
+          "description": "Relaxed and informal"
+        },
+        "flirtatious": {
+          "label": "Flirtatious",
+          "description": "Charming and playful"
+        },
+        "direct": {
+          "label": "Direct",
+          "description": "Clear and to the point"
+        },
+        "emotional": {
+          "label": "Emotional",
+          "description": "Empathetic and understanding"
+        },
+        "warm": {
+          "label": "Warm",
+          "description": "Compassionate and supportive"
+        },
+        "confident": {
+          "label": "Confident",
+          "description": "Assured and competent"
+        },
+        "playful": {
+          "label": "Playful",
+          "description": "Humorous and lighthearted"
+        }
+      }
+    },
+    
+    "rules": {
+      "title": "Rules & Boundaries",
+      "escalation_label": "Escalation Rules",
+      "escalation_placeholder": "When should the response be handed over to human-in-the-loop...",
+      "limitations_label": "Bot Limitations",
+      "limitations_placeholder": "What should the bot not do..."
+    },
+    
+    "review_settings": {
+      "title": "Review Settings",
+      "description": "Determine whether booked appointments are automatically confirmed or require manual review.",
+      "mode_label": "Review Mode",
+      
+      "modes": {
+        "never": {
+          "label": "Never",
+          "description": "All appointments are automatically confirmed",
+          "alert": "All appointments are automatically confirmed - no manual review required."
+        },
+        "redflag": {
+          "label": "On RedFlag",
+          "description": "Only suspicious appointments for review",
+          "alert": "Only appointments with suspicious behavior (RedFlags) are marked for manual review."
+        },
+        "always": {
+          "label": "Always",
+          "description": "All appointments require manual approval",
+          "alert": "All booked appointments have 'pending' status and must be manually confirmed."
+        }
+      }
+    },
+    
+    "message_review": {
+      "title": "Bot Message Review",
+      "description": "Determine whether bot responses are automatically sent or require manual review.",
+      "mode_label": "Review Mode for Bot Messages",
+      
+      "modes": {
+        "never": {
+          "label": "Never",
+          "description": "All bot messages are sent automatically",
+          "alert": "All bot messages are sent automatically - no manual review required."
+        },
+        "redflag": {
+          "label": "On RedFlag",
+          "description": "Only suspicious bot messages for review",
+          "alert": "Only bot messages with suspicious behavior (RedFlags) are marked for manual review. Normal messages are sent automatically."
+        },
+        "always": {
+          "label": "Always",
+          "description": "All bot messages require manual approval",
+          "alert": "All bot messages are saved as drafts and must be manually reviewed before sending."
+        }
+      }
+    },
+    
+    "behavior": {
+      "title": "Behavior",
+      "label": "System Prompt Rules",
+      "placeholder": "List the behavior rules here, e.g. tone, language, tool usage, etc.",
+      "preview_title": "Generated System Prompt",
+      "show_preview": "Show Preview",
+      "hide_preview": "Hide"
+    },
+    
     "appearance": {
       "title": "Appearance",
       "avatar": "Avatar",
       "theme": "Theme",
       "colors": "Colors"
-    },
-    "behavior": {
-      "title": "Behavior",
-      "response_style": "Response Style",
-      "greeting": "Greeting",
-      "farewell": "Farewell"
     }
   },
   
   "services": {
-    "title": "Services & Pricing",
+    "title": "Services & Prices",
+    "loading": "Loading services...",
+    "save_success": "Service saved successfully!",
+    "error_loading": "Error loading services:",
+    "add_button": "Add Service",
+    
+    "table": {
+      "service": "Service",
+      "price": "Price",
+      "duration": "Duration",
+      "actions": "Actions"
+    },
+    
+    "empty": {
+      "title": "No Services",
+      "message": "Add your first service."
+    },
+    
+    "form": {
+      "title_edit": "Edit Service",
+      "title_add": "Add New Service",
+      "name_label": "Service Name",
+      "name_placeholder": "e.g. Consultation",
+      "description_label": "Description (optional)",
+      "description_placeholder": "Brief description of the service...",
+      "price_label": "Price",
+      "currency_label": "Currency",
+      "duration_label": "Duration (Min)",
+      "duration_placeholder": "e.g. 60",
+      "cancel_button": "Cancel",
+      "save_button": "Save",
+      "saving": "Saving...",
+      "delete_confirm": "Are you sure you want to delete this service?"
+    },
+    
     "add_service": "Add Service",
     "edit_service": "Edit Service",
     "delete_service": "Delete Service",
@@ -54,6 +205,14 @@
     "price": "Price",
     "duration": "Duration",
     "available": "Available"
+  },
+  
+  "language_settings": {
+    "title": "Language Settings",
+    "description": "Choose your preferred language for the user interface",
+    "label": "Select Language",
+    "current": "Current Language:",
+    "save_button": "Save"
   },
   
   "page": {
@@ -66,18 +225,45 @@
   },
   
   "whatsapp": {
-    "status": "Status",
-    "refresh": "Refresh",
-    "logged_in_as": "Logged in as",
+    "status_label": "Status",
+    "loading": "loading...",
+    "refresh_button": "Refresh",
+    "logged_in_as": "Logged in as:",
     "phone_placeholder": "Phone number (E.164, e.g., +491701234567)",
-    "create_session": "Create/Ensure My Session",
     "creating": "Creating...",
+    "create_session": "Create/Ensure My Session",
     "generate_qr": "Generate QR / Start Linking",
-    "loading": "Loading...",
     "scan_qr": "Scan this QR with WhatsApp on your phone",
     "loading_qr": "Loading QR...",
     "waiting_qr": "Waiting for QR...",
     "connected": "Connected",
+    "connected_message": "The bot can now receive and send WhatsApp messages.",
+    
+    "session_management": {
+      "title": "Session Management",
+      "session_for": "Session for",
+      "reset_broken": "Reset broken session",
+      "manage": "Manage your WhatsApp bot session",
+      "delete_button": "Delete Session",
+      "deleting": "Deleting...",
+      "delete_confirm": "Are you sure you want to delete the current WhatsApp session? This will disconnect the bot from WhatsApp and you will need to create a new session.",
+      "delete_success": "Session deleted successfully."
+    },
+    
+    "errors": {
+      "failed_status": "Failed to load status",
+      "auth_required": "Authentication required",
+      "failed_qr": "Failed to load QR",
+      "failed_ensure": "Failed to ensure session",
+      "failed_delete": "Failed to delete session"
+    },
+    
+    "status": "Status",
+    "refresh": "Refresh",
+    "logged_in_as": "Logged in as",
+    "create_session": "Create/Ensure My Session",
+    "generate_qr": "Generate QR / Start Linking",
+    "scan_qr": "Scan this QR with WhatsApp on your phone",
     "connected_subtitle": "The bot can now receive and send WhatsApp messages.",
     "session_management": "Session Management",
     "session_for": "Session for",
@@ -88,5 +274,35 @@
     "delete_confirm": "Are you sure you want to delete the current WhatsApp session? This will disconnect the bot from WhatsApp and you will need to create a new session.",
     "delete_success": "Session deleted successfully.",
     "auth_required": "Authentication required"
+  },
+  
+  "webhook": {
+    "title": "Webhook Administration",
+    "description": "Manage webhook configuration for all WasenderAPI sessions automatically.",
+    "check_status": "Check Status",
+    "setup_all": "Setup All Webhooks",
+    "loading": "Loading...",
+    "setting_up": "Setting up...",
+    "success": "Webhooks successfully configured for all sessions!",
+    
+    "summary": {
+      "title": "Configuration Summary",
+      "total_sessions": "Total Sessions:",
+      "webhook_url": "Webhook URL:"
+    },
+    
+    "session_details": {
+      "title": "Session Details",
+      "id": "ID:",
+      "phone": "Phone:",
+      "status": "Status:",
+      "current_webhook": "Current Webhook:",
+      "configured": "Configured",
+      "not_configured": "Not Configured"
+    },
+    
+    "errors": {
+      "auth_required": "Authentication required"
+    }
   }
 }

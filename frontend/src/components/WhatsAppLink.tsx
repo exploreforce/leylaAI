@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { getToken } from '@/utils/auth';
 import WebhookAdmin from './WebhookAdmin';
 
@@ -14,6 +15,7 @@ type WaStatus = {
 const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
 export default function WhatsAppLink() {
+  const { t } = useTranslation('settings');
   const [status, setStatus] = useState<WaStatus | null>(null);
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -52,7 +54,7 @@ export default function WhatsAppLink() {
         qrGeneratedAt: newStatus?.qrGeneratedAt || null
       }));
     } catch (e: any) {
-      setError('Failed to load status');
+      setError(t('whatsapp.errors.failed_status'));
     }
   };
 
@@ -64,7 +66,7 @@ export default function WhatsAppLink() {
       const token = jwt || getToken();
       if (!token) {
         setLoading(false);
-        setError('Authentication required');
+        setError(t('whatsapp.errors.auth_required'));
         return;
       }
       
@@ -79,7 +81,7 @@ export default function WhatsAppLink() {
       setQrDataUrl(j?.data?.dataUrl || null);
     } catch (e: any) {
       setLoading(false);
-      setError('Failed to load QR');
+      setError(t('whatsapp.errors.failed_qr'));
     }
   };
 
@@ -209,18 +211,18 @@ export default function WhatsAppLink() {
       <div className="p-4 rounded-lg bg-dark-800 border border-dark-600">
         <div className="flex items-center justify-between">
           <div>
-            <div className="text-sm text-dark-300">Status</div>
-            <div className="text-lg font-medium">{status?.status || 'loading...'}</div>
+            <div className="text-sm text-dark-300">{t('whatsapp.status_label')}</div>
+            <div className="text-lg font-medium">{status?.status || t('whatsapp.loading')}</div>
           </div>
           <button
             onClick={() => { loadStatus(); if (status?.status === 'qr') loadQr(); }}
             className="px-3 py-1.5 rounded-md bg-elysPink-600 text-white hover:bg-elysPink-500"
           >
-            Refresh
+            {t('whatsapp.refresh_button')}
           </button>
         </div>
         {status?.meNumber && (
-          <div className="mt-2 text-sm text-dark-300">Logged in as: {status.meNumber}</div>
+          <div className="mt-2 text-sm text-dark-300">{t('whatsapp.logged_in_as')} {status.meNumber}</div>
         )}
         {status?.status !== 'ready' && (
           <div className="mt-3 space-y-2">
@@ -228,7 +230,7 @@ export default function WhatsAppLink() {
               <div className="flex items-center gap-2">
                 <input
                   type="tel"
-                  placeholder="Phone number (E.164, e.g., +491701234567)"
+                  placeholder={t('whatsapp.phone_placeholder')}
                   value={phoneNumber}
                   onChange={(e) => setPhoneNumber(e.target.value)}
                   className="w-full px-3 py-2 rounded-md bg-dark-700 border border-dark-600 text-dark-100"
@@ -239,7 +241,7 @@ export default function WhatsAppLink() {
                   disabled={!phoneNumber.trim() || loading}
                   className="px-3 py-1.5 rounded-md bg-elysBlue-600 text-white hover:bg-elysBlue-500 whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {loading ? 'Creating...' : 'Create/Ensure My Session'}
+                  {loading ? t('whatsapp.creating') : t('whatsapp.create_session')}
                 </button>
               </div>
             )}
@@ -250,7 +252,7 @@ export default function WhatsAppLink() {
                   disabled={loading}
                   className="px-3 py-1.5 rounded-md bg-elysViolet-600 text-white hover:bg-elysViolet-500 disabled:opacity-50"
                 >
-                  {loading ? 'Loading...' : 'Generate QR / Start Linking'}
+                  {loading ? t('whatsapp.loading') : t('whatsapp.generate_qr')}
                 </button>
               </div>
             )}
@@ -260,8 +262,8 @@ export default function WhatsAppLink() {
 
       {status?.status === 'qr' && (
         <div className="p-4 rounded-lg bg-dark-800 border border-dark-600">
-          <div className="mb-2 text-sm text-dark-300">Scan this QR with WhatsApp on your phone</div>
-          {loading && <div className="text-dark-300">Loading QR...</div>}
+          <div className="mb-2 text-sm text-dark-300">{t('whatsapp.scan_qr')}</div>
+          {loading && <div className="text-dark-300">{t('whatsapp.loading_qr')}</div>}
           {qrDataUrl ? (
             <img src={qrDataUrl} alt="WhatsApp QR" className="w-64 h-64 bg-white p-2 mx-auto" />
           ) : (!loading && (
@@ -275,8 +277,8 @@ export default function WhatsAppLink() {
 
       {status?.status === 'ready' && (
         <div className="p-4 rounded-lg bg-dark-800 border border-dark-600">
-          <div className="text-elysPink-400 font-medium">Connected</div>
-          <div className="text-sm text-dark-300">The bot can now receive and send WhatsApp messages.</div>
+          <div className="text-elysPink-400 font-medium">{t('whatsapp.connected')}</div>
+          <div className="text-sm text-dark-300">{t('whatsapp.connected_message')}</div>
         </div>
       )}
 
@@ -285,11 +287,11 @@ export default function WhatsAppLink() {
         <div className="p-4 rounded-lg bg-dark-800 border border-dark-600">
           <div className="flex items-center justify-between">
             <div>
-              <div className="text-sm text-dark-300">Session Management</div>
+              <div className="text-sm text-dark-300">{t('whatsapp.session_management.title')}</div>
               <div className="text-xs text-dark-400 mt-1">
-                {status?.meNumber ? `Session for ${status.meNumber}` : 
-                 status?.status === 'unknown' ? 'Reset broken session' : 
-                 'Manage your WhatsApp bot session'}
+                {status?.meNumber ? `${t('whatsapp.session_management.session_for')} ${status.meNumber}` : 
+                 status?.status === 'unknown' ? t('whatsapp.session_management.reset_broken') : 
+                 t('whatsapp.session_management.manage')}
               </div>
             </div>
             <button
@@ -310,7 +312,7 @@ export default function WhatsAppLink() {
                   d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" 
                 />
               </svg>
-              {loading ? 'Deleting...' : 'Delete Session'}
+              {loading ? t('whatsapp.session_management.deleting') : t('whatsapp.session_management.delete_button')}
             </button>
           </div>
         </div>

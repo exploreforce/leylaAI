@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { getToken } from '@/utils/auth';
 
 const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
