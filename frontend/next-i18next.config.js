@@ -8,6 +8,7 @@ module.exports = {
       // Weitere Sprachen
       'es', 'it', 'el', 'th', 'tl', 'vi'
     ],
+    localeDetection: false, // Disable URL-based routing, use client-side only
   },
   defaultNS: 'common',
   fallbackLng: 'en',
