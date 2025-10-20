@@ -342,7 +342,7 @@ const executeTool = async (
           availableSlots: freeBlocks,
           availableTimes: explicitTimes,
           message: freeBlocks.length > 0 
-            ? `Available time blocks for ${date}: ${freeBlocks.map(b => `${b.start}-${b.end}`).join(', ')}. The customer can choose any time within these blocks (in 15-minute intervals). To verify if a specific time is available, check if it exists in the availableTimes array: [${explicitTimes.join(', ')}].`
+            ? `Available time blocks for ${date}: ${freeBlocks.map(b => `${b.start}-${b.end}`).join(', ')}. The customer can choose any time within these blocks. To verify if a specific time is available, check if it exists in the availableTimes array.`
             : 'No availability on this date.'
         };
       }
@@ -471,7 +471,7 @@ const executeTool = async (
         availableSlots: freeBlocks,
         availableTimes: explicitTimes,
         message: freeBlocks.length > 0 
-          ? `Available time blocks for ${date}: ${freeBlocks.map(b => `${b.start}-${b.end}`).join(', ')}. The customer can choose any time within these blocks (in 15-minute intervals). To verify if a specific time is available, check if it exists in the availableTimes array: [${explicitTimes.join(', ')}].`
+          ? `Available time blocks for ${date}: ${freeBlocks.map(b => `${b.start}-${b.end}`).join(', ')}. The customer can choose any time within these blocks. To verify if a specific time is available, check if it exists in the availableTimes array.`
           : 'No availability on this date.'
       };
       
@@ -896,18 +896,25 @@ ${customerContext}SESSION MEMORY
 LANGUAGE SETTINGS - CRITICAL INSTRUCTIONS
 ========================================
 DEFAULT LANGUAGE: ${configuredLanguage} (${configuredLanguageName})
-${preferredLanguage ? `USER INTERFACE LANGUAGE: ${preferredLanguage}` : ''}
+${preferredLanguage ? `USER INTERFACE LANGUAGE: ${preferredLanguage} (ONLY used as fallback if user's language is completely unclear)` : ''}
 
-WICHTIG - LANGUAGE RULES (HÖCHSTE PRIORITÄT):
-1. **ERKENNE DIE SPRACHE DES BENUTZERS** in seiner Nachricht
-2. **ANTWORTE IN DERSELBEN SPRACHE** wie der Benutzer schreibt
-3. **LANGUAGE PRIORITY ORDER**:
-   ${preferredLanguage ? `a) User writes in specific language → Respond in THAT language
-   b) User's language unclear → Respond in ${preferredLanguage} (their UI language)
-   c) UI language not set → Use ${configuredLanguageName} as fallback` : `a) User writes in specific language → Respond in THAT language
-   b) User's language unclear → Use ${configuredLanguageName} as fallback`}
-4. Setze user_language auf den erkannten Sprachcode des Benutzers (z.B. 'de', 'en', 'es', 'ru', etc.)
-5. Deine Antwort (chat_response) muss in DERSELBEN SPRACHE sein wie user_language
+⚠️ ABSOLUTE PRIORITY RULE - NEVER IGNORE THIS:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1. **ALWAYS DETECT THE USER'S MESSAGE LANGUAGE FIRST**
+2. **ALWAYS RESPOND IN THE SAME LANGUAGE AS THE USER WRITES**
+3. The UI language (${preferredLanguage || 'not set'}) is ONLY a fallback for completely unclear messages (e.g., "???" or "123")
+4. If user writes in English → ALWAYS respond in English (even if UI is German)
+5. If user writes in Spanish → ALWAYS respond in Spanish (even if UI is German)
+6. If user writes in any detectable language → ALWAYS respond in THAT language
+
+**LANGUAGE PRIORITY (STRICT ORDER):**
+   ${preferredLanguage ? `a) User writes in ANY detectable language → Respond in THAT language (HIGHEST PRIORITY!)
+   b) User's message has NO detectable language (only symbols/numbers) → Use ${preferredLanguage} as fallback
+   c) UI language also unclear → Use ${configuredLanguageName} as final fallback` : `a) User writes in ANY detectable language → Respond in THAT language
+   b) User's language completely unclear → Use ${configuredLanguageName} as fallback`}
+
+SET user_language TO: The actual language code you DETECTED in the user's message (e.g., 'en', 'de', 'es', 'fr', 'ru')
+Your chat_response MUST be in the EXACT SAME LANGUAGE as user_language
 
 PRIORITÄT:
 - 1️⃣ ERSTE WAHL: Sprache des Benutzers (erkannt aus seiner Nachricht)
