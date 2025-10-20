@@ -4,6 +4,9 @@ import { asyncHandler } from '../middleware/errorHandler';
 import { whatsappService } from '../services/whatsappService';
 import { db } from '../models/database';
 
+// Cache to prevent duplicate message processing
+const recentMessages = new Map<string, boolean>();
+
 const router = Router();
 
 // Multi-Customer: Find which user/customer owns the WhatsApp session for incoming messages
@@ -103,22 +106,47 @@ router.post('/wasender', asyncHandler(async (req: Request, res: Response) => {
         // Try both possible data structures
         let fromRaw = '';
         let text = '';
+        let fromMe = false;
         
         // Structure 1: data.key.remoteJid (old format)
         if (data.key?.remoteJid) {
           fromRaw = data.key.remoteJid;
           text = data.message?.conversation || '';
+          fromMe = data.key?.fromMe || false;
         }
         // Structure 2: data.messages.key.remoteJid (new format)
         else if (data.messages?.key?.remoteJid) {
           fromRaw = data.messages.key.remoteJid;
           text = data.messages.message?.conversation || '';
+          fromMe = data.messages.key?.fromMe || false;
         }
         
         // Extract phone number (remove @s.whatsapp.net suffix if present)
         const from = fromRaw.replace('@s.whatsapp.net', '').replace(/[^0-9]/g, '');
         
         console.log(`📱 Processing message from ${from}: "${text}"`);
+        
+        // CRITICAL: Ignore messages sent by the bot itself
+        if (fromMe) {
+          console.log(`🤖 Ignoring message from self (fromMe=true): "${text}"`);
+          return res.status(200).json({ received: true, ignored: 'fromMe' });
+        }
+        
+        // Prevent duplicate processing within 10 seconds
+        const messageKey = `${from}:${text.substring(0, 50)}:${Math.floor(Date.now() / 10000)}`;
+        if (recentMessages.has(messageKey)) {
+          console.log(`🔄 Duplicate message detected within 10s, ignoring: "${text.substring(0, 50)}..."`);
+          return res.status(200).json({ received: true, ignored: 'duplicate' });
+        }
+        recentMessages.set(messageKey, true);
+        // Cleanup after 15 seconds
+        setTimeout(() => recentMessages.delete(messageKey), 15000);
+        
+        // Additional safety: Ignore empty messages
+        if (!text || text.trim().length === 0) {
+          console.log(`⚠️ Ignoring empty message from ${from}`);
+          return res.status(200).json({ received: true, ignored: 'empty' });
+        }
         
         if (from && text) {
           // Multi-Customer: Find which user/customer this message belongs to

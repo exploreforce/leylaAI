@@ -342,7 +342,7 @@ const executeTool = async (
           availableSlots: freeBlocks,
           availableTimes: explicitTimes,
           message: freeBlocks.length > 0 
-            ? `Available times for ${date}: ${explicitTimes.join(', ')}. Any of these times can be booked. To verify availability: Customer's requested time must be in this list.`
+            ? `Available time blocks for ${date}: ${freeBlocks.map(b => `${b.start}-${b.end}`).join(', ')}. The customer can choose any time within these blocks (in 15-minute intervals). To verify if a specific time is available, check if it exists in the availableTimes array: [${explicitTimes.join(', ')}].`
             : 'No availability on this date.'
         };
       }
@@ -471,7 +471,7 @@ const executeTool = async (
         availableSlots: freeBlocks,
         availableTimes: explicitTimes,
         message: freeBlocks.length > 0 
-          ? `Available times for ${date}: ${explicitTimes.join(', ')}. Any of these times can be booked. To verify availability: Customer's requested time must be in this list.`
+          ? `Available time blocks for ${date}: ${freeBlocks.map(b => `${b.start}-${b.end}`).join(', ')}. The customer can choose any time within these blocks (in 15-minute intervals). To verify if a specific time is available, check if it exists in the availableTimes array: [${explicitTimes.join(', ')}].`
           : 'No availability on this date.'
       };
       
