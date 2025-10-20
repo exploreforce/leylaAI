@@ -65,12 +65,19 @@ router.get('/user/status', requireAuth as any, asyncHandler(async (req: any, res
   if (!userId) return res.status(401).json({ error: 'Unauthorized' });
   const sessionId = await Database.getUserWasenderSessionId(userId);
   if (!sessionId) {
-    const fallback = await WasenderApiClient.getStatus();
-    // Try to include user's stored phone for a stable display
+    // DON'T use global fallback that might confuse frontend
+    // Return a clear "no session" state instead
     let userPhone: string | undefined;
     try { const u = await db('users').select('phone').where({ id: userId }).first(); userPhone = u?.phone; } catch {}
-    const meNumber = fallback.meNumber || userPhone || null;
-    return res.json({ success: true, data: { ...fallback, meNumber, sessionId: null } });
+    return res.json({ 
+      success: true, 
+      data: { 
+        status: 'unknown',
+        meNumber: userPhone || null, 
+        sessionId: null,
+        qrAvailable: false
+      } 
+    });
   }
   const info = await WasenderApiClient.getStatusBySessionId(sessionId);
   // Add stable meNumber fallback from DB if API doesn't include it

@@ -182,12 +182,14 @@ export default function WhatsAppLink() {
   }, [jwt]);
 
   useEffect(() => {
-    if (status?.status === 'qr') {
+    // Only load QR if status is 'qr' AND we have a sessionId
+    // This prevents trying to load QR when there's no session in the database
+    if (status?.status === 'qr' && status?.sessionId) {
       loadQr();
     } else {
       setQrDataUrl(null);
     }
-  }, [status?.status]);
+  }, [status?.status, status?.sessionId]);
 
   // Special polling ONLY during active QR scanning
   useEffect(() => {
