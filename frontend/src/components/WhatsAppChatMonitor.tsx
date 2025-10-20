@@ -6,6 +6,7 @@ import { getToken } from '@/utils/auth';
 type WaStatus = {
   status: 'idle' | 'qr' | 'authenticated' | 'ready' | 'disconnected' | 'auth_failure' | 'unknown';
   meNumber: string | null;
+  sessionId: string | null;
   qrAvailable: boolean;
   qrGeneratedAt: number | null;
 };
@@ -35,6 +36,7 @@ export default function WhatsAppChatMonitor({ onStatusChange }: WhatsAppChatMoni
       const statusObj = {
         status: newStatus?.status || 'unknown',
         meNumber: newStatus?.meNumber || status?.meNumber || null,
+        sessionId: newStatus?.sessionId || null,
         qrAvailable: newStatus?.qrAvailable || false,
         qrGeneratedAt: newStatus?.qrGeneratedAt || null
       };

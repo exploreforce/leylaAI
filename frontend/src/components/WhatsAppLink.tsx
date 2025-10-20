@@ -8,6 +8,7 @@ import WebhookAdmin from './WebhookAdmin';
 type WaStatus = {
   status: 'idle' | 'qr' | 'authenticated' | 'ready' | 'disconnected' | 'auth_failure' | 'unknown';
   meNumber: string | null;
+  sessionId: string | null;
   qrAvailable: boolean;
   qrGeneratedAt: number | null;
 };
@@ -33,7 +34,7 @@ export default function WhatsAppLink() {
       const token = jwt || getToken();
       if (!token) {
         // No token available, don't make requests
-        setStatus({ status: 'unknown', meNumber: null, qrAvailable: false, qrGeneratedAt: null });
+        setStatus({ status: 'unknown', meNumber: null, sessionId: null, qrAvailable: false, qrGeneratedAt: null });
         return;
       }
       
@@ -50,6 +51,7 @@ export default function WhatsAppLink() {
       setStatus(prevStatus => ({
         status: newStatus?.status || 'unknown',
         meNumber: newStatus?.meNumber || prevStatus?.meNumber || null,
+        sessionId: newStatus?.sessionId || null,
         qrAvailable: newStatus?.qrAvailable || false,
         qrGeneratedAt: newStatus?.qrGeneratedAt || null
       }));
@@ -156,6 +158,7 @@ export default function WhatsAppLink() {
         setStatus({
           status: 'unknown',
           meNumber: null,
+          sessionId: null,
           qrAvailable: false,
           qrGeneratedAt: null
         });
