@@ -46,7 +46,9 @@
     "error": "Error",
     "success": "Success",
     "warning": "Warning",
-    "info": "Information"
+    "info": "Information",
+    "approve": "Approve",
+    "reject": "Reject"
   },
   
   "navigation": {
@@ -57,9 +59,11 @@
     "chats": "Chats",
     "messages": "Messages",
     "reviews": "Reviews",
+    "review": "Review",
     "profile": "Profile",
     "logout": "Logout",
-    "login": "Login"
+    "login": "Login",
+    "signup": "Sign Up"
   },
   
   "status": {
@@ -83,5 +87,77 @@
     "this_month": "This Month",
     "last_month": "Last Month",
     "next_month": "Next Month"
+  },
+  
+  "forms": {
+    "email": "Email",
+    "phone": "Phone",
+    "notes": "Notes",
+    "service": "Service",
+    "duration": "Duration",
+    "status": "Status",
+    "customer_name": "Customer Name",
+    "date_time": "Date & Time"
+  },
+  
+  "messages": {
+    "loading_appointments": "Loading appointments...",
+    "no_appointments": "No appointments to review",
+    "approval_success": "Appointment successfully approved!",
+    "rejection_success": "Appointment rejected.",
+    "error_loading": "Error loading",
+    "error_occurred": "An error occurred"
+  },
+  
+  "appointments": {
+    "to_review": "to review",
+    "appointment": "Appointment",
+    "appointments": "Appointments"
+  },
+  
+  "filters": {
+    "show_all": "Show All",
+    "only_red_flags": "Only RedFlags",
+    "filter": "Filter"
+  },
+  
+  "units": {
+    "minutes": "min.",
+    "minutes_long": "minutes",
+    "hours": "hrs."
+  },
+  
+  "auth": {
+    "login": {
+      "title": "Login",
+      "subtitle": "Welcome back to Leyla AI",
+      "email_label": "Email",
+      "email_placeholder": "your@email.com",
+      "password_label": "Password",
+      "password_placeholder": "••••••••",
+      "login_button": "Login",
+      "logging_in": "Logging in…",
+      "no_account": "Don't have an account?",
+      "signup_link": "Sign up now",
+      "error_no_token": "Login successful but no token",
+      "error_failed": "Login failed"
+    },
+    "signup": {
+      "title": "Sign Up",
+      "subtitle": "Create your Leyla AI account",
+      "name_label": "Name",
+      "name_placeholder": "Your Name",
+      "business_name_label": "Business Name",
+      "business_name_placeholder": "Your Business Name",
+      "email_label": "Email",
+      "email_placeholder": "your@email.com",
+      "password_label": "Password",
+      "password_placeholder": "••••••••",
+      "signup_button": "Sign Up",
+      "signing_up": "Signing up…",
+      "have_account": "Already have an account?",
+      "login_link": "Go to Login",
+      "error_failed": "Sign up failed"
+    }
   }
 }

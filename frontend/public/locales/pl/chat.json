@@ -1,62 +1,62 @@
 {
   "test_chat": {
-    "title": "Symulacja Czatu AI",
+    "title": "AI Chat Simulation",
     "navigation": {
-      "all_chats": "Wszystkie czaty",
-      "review_responses": "Sprawdź odpowiedzi AI",
-      "back_to_dashboard": "← Powrót do panelu"
+      "all_chats": "Alle Chats",
+      "review_responses": "AI-Antworten überprüfen",
+      "back_to_dashboard": "← Zurück zum Dashboard"
     },
-    "loading": "Ładowanie czatu...",
-    "simulation": "Symulacja czatu",
-    "start_new": "Rozpocznij nowy czat"
+    "loading": "Lade Chat...",
+    "simulation": "Chat-Simulation",
+    "start_new": "Neuen Chat starten"
   },
   "chat_list": {
-    "title": "Przegląd czatów",
-    "loading": "Ładowanie sesji czatu...",
-    "no_sessions": "Nie znaleziono sesji czatu",
+    "title": "Chat-Übersicht",
+    "loading": "Lade Chat-Sessions...",
+    "no_sessions": "Keine Chat-Sessions gefunden",
     "filters": {
-      "all": "Wszystkie",
-      "active": "Aktywny",
-      "archived": "Zarchiwizowany",
-      "inactive": "Nieaktywny",
-      "show_filters": "Pokaż filtry"
+      "all": "Alle",
+      "active": "Aktiv",
+      "archived": "Archiviert",
+      "inactive": "Inaktiv",
+      "show_filters": "Filter anzeigen"
     },
     "actions": {
-      "open": "Otwórz czat",
-      "archive": "Archiwizuj",
-      "activate": "Reaktywuj",
-      "delete": "Usuń",
-      "confirm_delete": "Naprawdę usunąć? Ta akcja nie może być cofnięta.",
-      "confirm_archive": "Zarchiwizować czat?"
+      "open": "Chat öffnen",
+      "archive": "Archivieren",
+      "activate": "Reaktivieren",
+      "delete": "Löschen",
+      "confirm_delete": "Wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
+      "confirm_archive": "Chat archivieren?"
     },
     "status": {
-      "active": "Aktywny",
-      "archived": "Zarchiwizowany",
-      "inactive": "Nieaktywny (2+ tygodnie bez aktywności)"
+      "active": "Aktiv",
+      "archived": "Archiviert",
+      "inactive": "Inaktiv (2+ Wochen inaktiv)"
     }
   },
   "chat_review": {
-    "title": "Weryfikacja odpowiedzi AI",
-    "loading": "Ładowanie czatu...",
-    "loading_chats": "Ładowanie czatów...",
-    "review_responses": "Sprawdź odpowiedzi AI",
-    "no_chats": "Brak oczekujących weryfikacji!",
-    "all_up_to_date": "Wszystkie czaty są aktualne.",
-    "pending_review": "Oczekująca weryfikacja",
-    "user_label": "Użytkownik:",
-    "pending_ai_reply": "Oczekująca odpowiedź AI:",
-    "review_arrow": "Sprawdź →",
-    "approve": "Zatwierdź",
-    "reject": "Odrzuć",
-    "edit": "Edytuj",
-    "send_custom": "Wyślij własną odpowiedź"
+    "title": "AI-Antworten Überprüfung",
+    "loading": "Lade Chat...",
+    "loading_chats": "Lade Chats...",
+    "review_responses": "AI-Antworten überprüfen",
+    "no_chats": "Keine ausstehenden Überprüfungen!",
+    "all_up_to_date": "Alle Chats sind auf dem neuesten Stand.",
+    "pending_review": "Ausstehende Überprüfung",
+    "user_label": "Benutzer:",
+    "pending_ai_reply": "Ausstehende AI-Antwort:",
+    "review_arrow": "Überprüfen →",
+    "approve": "Genehmigen",
+    "reject": "Ablehnen",
+    "edit": "Bearbeiten",
+    "send_custom": "Eigene Antwort senden"
   },
   "common": {
-    "back_to_dashboard": "← Powrót do panelu",
-    "loading": "Ładowanie...",
-    "error": "Błąd ładowania",
-    "no_data": "Brak dostępnych danych",
-    "session": "Sesja",
-    "last_activity": "Ostatnia aktywność"
+    "back_to_dashboard": "← Zurück zum Dashboard",
+    "loading": "Lädt...",
+    "error": "Fehler beim Laden",
+    "no_data": "Keine Daten verfügbar",
+    "session": "Session",
+    "last_activity": "Letzte Aktivität"
   }
 }

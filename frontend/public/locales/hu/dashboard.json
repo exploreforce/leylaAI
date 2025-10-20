@@ -1,44 +1,112 @@
 {
-  "title": "Leyla AI Irányítópult",
-  "welcome": "Üdvözöljük vissza!",
+  "title": "Leyla AI Dashboard",
+  "welcome": "Willkommen zurück!",
   "appointments": {
-    "title": "Találkozók",
-    "today": "Ma",
-    "this_week": "Ezen a héten",
-    "manage_calendar": "Naptár kezelése",
-    "total_appointments": "Összes találkozó",
-    "upcoming": "Közelgő"
+    "title": "Termine",
+    "today": "Heute",
+    "this_week": "Diese Woche",
+    "manage_calendar": "Kalender verwalten",
+    "total_appointments": "Termine insgesamt",
+    "upcoming": "Bevorstehend"
   },
   "chats": {
-    "title": "Aktív csevegések",
-    "current": "Jelenlegi csevegések",
-    "view_all": "Összes csevegés megtekintése",
-    "active_conversations": "Aktív beszélgetések",
-    "total_sessions": "Összes munkamenet"
+    "title": "Laufende Chats",
+    "current": "Aktuelle Chats",
+    "view_all": "Alle Chats anzeigen",
+    "active_conversations": "Aktive Gespräche",
+    "total_sessions": "Sessions insgesamt"
   },
   "reviews": {
-    "title": "Ellenőrzés szükséges",
-    "pending_approvals": "Függőben lévő jóváhagyások",
-    "review_messages": "Üzenetek ellenőrzése",
-    "items_to_review": "Ellenőrizendő elemek",
-    "no_reviews_needed": "Nincs szükség ellenőrzésre"
+    "title": "Überprüfung erforderlich",
+    "pending_approvals": "Ausstehende Freigaben",
+    "review_messages": "Nachrichten prüfen",
+    "items_to_review": "Zu prüfende Elemente",
+    "no_reviews_needed": "Keine Überprüfung erforderlich"
   },
   "settings": {
-    "title": "Beállítások",
-    "description": "Bot konfiguráció és beállítások",
-    "button": "Beállítások",
-    "configure": "Konfigurálás",
-    "system_ready": "Rendszer kész a konfigurálásra"
+    "title": "Einstellungen",
+    "description": "Bot-Konfiguration & Einstellungen",
+    "button": "Einstellungen",
+    "configure": "Konfigurieren",
+    "system_ready": "System bereit für Konfiguration"
   },
   "quick_actions": {
-    "new_chat": "+ Új AI Csevegés",
-    "start_chat": "AI Csevegés indítása",
-    "view_calendar": "Naptár megtekintése",
-    "manage_settings": "Beállítások kezelése"
+    "new_chat": "+ Neuer AI Chat",
+    "start_chat": "AI Chat starten",
+    "view_calendar": "Kalender ansehen",
+    "manage_settings": "Einstellungen verwalten"
   },
   "stats": {
-    "loading": "Irányítópult statisztikák betöltése...",
-    "error": "Hiba a statisztikák betöltésekor",
-    "last_updated": "Utolsó frissítés"
+    "loading": "Lade Dashboard-Statistiken...",
+    "error": "Fehler beim Laden der Statistiken",
+    "last_updated": "Zuletzt aktualisiert",
+    "total_bookings": "Gesamtbuchungen",
+    "cancellations": "Absagen",
+    "red_flags": "Red Flags",
+    "total_revenue": "Gesamtumsatz",
+    "confirmed": "bestätigt",
+    "rate": "Rate",
+    "chat_sessions": "Chat-Sitzungen",
+    "no_shows": "No-Shows",
+    "unique_customers": "Unique Kunden",
+    "different_phone_numbers": "Verschiedene Telefonnummern"
+  },
+  "admin": {
+    "title": "Admin Dashboard",
+    "overview": "Übersicht aller Statistiken und Metriken"
+  },
+  "period": {
+    "daily": "Täglich",
+    "weekly": "Wöchentlich",
+    "monthly": "Monatlich"
+  },
+  "filters": {
+    "date_range": "Zeitraum",
+    "today": "Heute",
+    "last_7_days": "Letzte 7 Tage",
+    "last_month": "Letzter Monat",
+    "last_year": "Letztes Jahr",
+    "from": "Von:",
+    "to": "Bis:",
+    "apply": "Anwenden",
+    "clear": "Löschen"
+  },
+  "export": {
+    "button": "Exportieren",
+    "data": "Daten exportieren",
+    "csv": "Als CSV exportieren",
+    "json": "Als JSON exportieren"
+  },
+  "red_flags": {
+    "title": "Letzte Red Flags",
+    "no_flags": "Keine Red Flags vorhanden",
+    "time": "Zeit",
+    "phone": "Telefon",
+    "content": "Inhalt",
+    "sentiment": "Sentiment",
+    "count": "Red Flags"
+  },
+  "customers": {
+    "top_customers": "Top Kunden",
+    "name": "Name",
+    "bookings": "Buchungen",
+    "revenue": "Umsatz",
+    "last_visit": "Letzter Besuch",
+    "no_customers": "Keine Kunden vorhanden"
+  },
+  "services": {
+    "service_ranking": "Service Ranking",
+    "service": "Service",
+    "bookings": "Buchungen",
+    "revenue": "Umsatz",
+    "no_services": "Keine Services vorhanden"
+  },
+  "charts": {
+    "appointments_over_time": "Termine im Zeitverlauf",
+    "appointments": "Termine",
+    "weekday_distribution": "Wochentagsverteilung",
+    "hourly_distribution": "Stündenverteilung",
+    "hour": "Uhrzeit",
+    "count": "Anzahl"
   }
 }

@@ -1,85 +1,94 @@
 {
+  "weekdays": {
+    "monday": "Montag",
+    "tuesday": "Dienstag",
+    "wednesday": "Mittwoch",
+    "thursday": "Donnerstag",
+    "friday": "Freitag",
+    "saturday": "Samstag",
+    "sunday": "Sonntag"
+  },
   "header": {
-    "title": "Calendario",
-    "back_to_dashboard": "← Panel"
+    "title": "Kalender",
+    "back_to_dashboard": "← Dashboard"
   },
   "views": {
-    "month": "Mes",
-    "week": "Semana",
-    "day": "Día",
-    "availability": "Disponibilidad"
+    "month": "Monat",
+    "week": "Woche",
+    "day": "Tag",
+    "availability": "Verfügbarkeit"
   },
   "buttons": {
-    "new_appointment": "Nueva cita",
-    "export_ics": "Exportar ICS",
-    "today": "Ahora",
-    "save": "Guardar",
-    "cancel": "Cancelar",
-    "delete": "Eliminar",
-    "edit": "Editar",
-    "view_details": "Ver detalles",
-    "add_time_slot": "Añadir franja horaria",
-    "add_date": "Añadir fecha"
+    "new_appointment": "Neuer Termin",
+    "export_ics": "Export ICS",
+    "today": "Jetzt",
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "delete": "Löschen",
+    "edit": "Bearbeiten",
+    "view_details": "Details anzeigen",
+    "add_time_slot": "Zeitfenster hinzufügen",
+    "add_date": "Datum hinzufügen"
   },
   "appointment": {
-    "new_appointment": "Nueva cita",
-    "edit_appointment": "Editar cita",
-    "view_appointment": "Ver cita",
-    "delete_appointment": "Eliminar cita",
-    "export_to_ics": "Exportar a ICS",
-    "confirm_delete": "¿Eliminar esta cita?",
+    "new_appointment": "Neuer Termin",
+    "edit_appointment": "Termin bearbeiten",
+    "view_appointment": "Termin anzeigen",
+    "delete_appointment": "Termin löschen",
+    "export_to_ics": "Export zu ICS",
+    "confirm_delete": "Diesen Termin löschen?",
     "form": {
-      "date_time": "Fecha y hora",
-      "customer_name": "Nombre del cliente",
-      "email": "Correo electrónico",
-      "phone": "Teléfono",
-      "service": "Servicio",
-      "status": "Estado",
-      "notes": "Notas",
-      "duration": "Duración (minutos)"
+      "date_time": "Datum & Zeit",
+      "customer_name": "Kundenname",
+      "email": "E-Mail",
+      "phone": "Telefon",
+      "service": "Service",
+      "status": "Status",
+      "notes": "Notizen",
+      "duration": "Dauer (Minuten)"
     },
     "status": {
-      "pending": "Pendiente",
-      "booked": "Reservado",
-      "confirmed": "Confirmado",
-      "completed": "Completado",
-      "cancelled": "Cancelado",
-      "noshow": "No presentado"
+      "pending": "Ausstehend",
+      "booked": "Gebucht",
+      "confirmed": "Bestätigt",
+      "completed": "Abgeschlossen",
+      "cancelled": "Storniert",
+      "noshow": "Nicht erschienen"
     }
   },
   "availability": {
-    "title": "Configuración de disponibilidad",
-    "weekly_schedule": "Disponibilidad semanal",
-    "blackout_dates": "Fechas bloqueadas",
-    "loading": "Cargando disponibilidad...",
-    "no_blackout_dates": "Sin fechas bloqueadas",
-    "success_message": "¡Disponibilidad guardada con éxito!",
+    "title": "Verfügbarkeits-Einstellungen",
+    "weekly_schedule": "Wöchentliche Verfügbarkeit",
+    "blackout_dates": "Gesperrte Termine",
+    "loading": "Lade Verfügbarkeiten...",
+    "no_blackout_dates": "Keine gesperrten Termine",
+    "success_message": "Verfügbarkeiten erfolgreich gespeichert!",
     "days": {
-      "monday": "Lunes",
-      "tuesday": "Martes",
-      "wednesday": "Miércoles",
-      "thursday": "Jueves",
-      "friday": "Viernes",
-      "saturday": "Sábado",
-      "sunday": "Domingo"
+      "monday": "Montag",
+      "tuesday": "Dienstag",
+      "wednesday": "Mittwoch",
+      "thursday": "Donnerstag",
+      "friday": "Freitag",
+      "saturday": "Samstag",
+      "sunday": "Sonntag"
     },
     "time_labels": {
-      "from": "de",
-      "to": "a",
-      "start_time": "Hora de inicio",
-      "end_time": "Hora de fin",
-      "reason": "Razón"
+      "from": "von",
+      "to": "bis",
+      "start_time": "Startzeit",
+      "end_time": "Endzeit",
+      "reason": "Grund"
     }
   },
   "services": {
-    "no_services": "No hay servicios disponibles - Configure los servicios en la configuración del bot primero",
-    "no_services_configured": "No hay servicios configurados",
-    "configure_services": "Vaya a Configuración del Bot → Servicios y Precios para añadir servicios primero.",
+    "no_services": "Keine Services verfügbar - Konfiguriere Services in den Bot-Einstellungen zuerst",
+    "no_services_configured": "Keine Services konfiguriert",
+    "configure_services": "Gehe zu Bot-Konfiguration → Services & Preise um zuerst Services hinzuzufügen.",
     "price_duration": "€{price} ({duration}min)"
   },
   "errors": {
-    "invalid_date": "Fecha inválida",
-    "loading_error": "Error al cargar",
-    "save_error": "Error al guardar"
+    "invalid_date": "Ungültiges Datum",
+    "loading_error": "Fehler beim Laden",
+    "save_error": "Fehler beim Speichern"
   }
 }

@@ -45,6 +45,82 @@
   "stats": {
     "loading": "Loading dashboard statistics...",
     "error": "Error loading statistics",
-    "last_updated": "Last updated"
+    "last_updated": "Last updated",
+    "total_bookings": "Total Bookings",
+    "cancellations": "Cancellations",
+    "red_flags": "Red Flags",
+    "total_revenue": "Total Revenue",
+    "confirmed": "confirmed",
+    "rate": "Rate",
+    "chat_sessions": "Chat Sessions",
+    "no_shows": "No-Shows",
+    "unique_customers": "Unique Customers",
+    "different_phone_numbers": "Different Phone Numbers"
+  },
+  
+  "admin": {
+    "title": "Admin Dashboard",
+    "overview": "Overview of all statistics and metrics"
+  },
+  
+  "period": {
+    "daily": "Daily",
+    "weekly": "Weekly",
+    "monthly": "Monthly"
+  },
+  
+  "filters": {
+    "date_range": "Date Range",
+    "today": "Today",
+    "last_7_days": "Last 7 Days",
+    "last_month": "Last Month",
+    "last_year": "Last Year",
+    "from": "From:",
+    "to": "To:",
+    "apply": "Apply",
+    "clear": "Clear"
+  },
+  
+  "export": {
+    "button": "Export",
+    "data": "Export Data",
+    "csv": "Export as CSV",
+    "json": "Export as JSON"
+  },
+  
+  "red_flags": {
+    "title": "Recent Red Flags",
+    "no_flags": "No red flags",
+    "time": "Time",
+    "phone": "Phone",
+    "content": "Content",
+    "sentiment": "Sentiment",
+    "count": "Red Flags"
+  },
+  
+  "customers": {
+    "top_customers": "Top Customers",
+    "name": "Name",
+    "bookings": "Bookings",
+    "revenue": "Revenue",
+    "last_visit": "Last Visit",
+    "no_customers": "No customers available"
+  },
+  
+  "services": {
+    "service_ranking": "Service Ranking",
+    "service": "Service",
+    "bookings": "Bookings",
+    "revenue": "Revenue",
+    "no_services": "No services available"
+  },
+  
+  "charts": {
+    "appointments_over_time": "Appointments Over Time",
+    "appointments": "Appointments",
+    "weekday_distribution": "Weekday Distribution",
+    "hourly_distribution": "Hourly Distribution",
+    "hour": "Hour",
+    "count": "Count"
   }
 }

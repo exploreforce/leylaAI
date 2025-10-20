@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useFetch, useApi } from '@/hooks/useApi';
 import { reviewApi } from '@/utils/api';
 import { Appointment } from '@/types';
@@ -10,6 +11,7 @@ import Alert from '@/components/ui/Alert';
 import { ClockIcon, FunnelIcon } from '@heroicons/react/24/outline';
 
 const AppointmentsReview = () => {
+  const { t } = useTranslation('common');
   const { data, isLoading, error, refetch } = useFetch(
     () => reviewApi.getPendingAppointments(),
     []
@@ -41,7 +43,7 @@ const AppointmentsReview = () => {
   const handleApprove = async (appointmentId: string) => {
     try {
       await approveAppointment(() => reviewApi.approveAppointment(appointmentId));
-      setSuccessMessage('Termin wurde erfolgreich genehmigt!');
+      setSuccessMessage(t('messages.approval_success'));
       setTimeout(() => setSuccessMessage(null), 3000);
       refetch();
     } catch (error) {
@@ -59,7 +61,7 @@ const AppointmentsReview = () => {
   const handleRejectConfirm = async (appointmentId: string, reason: string) => {
     try {
       await rejectAppointment(() => reviewApi.rejectAppointment(appointmentId, reason));
-      setSuccessMessage('Termin wurde abgelehnt.');
+      setSuccessMessage(t('messages.rejection_success'));
       setTimeout(() => setSuccessMessage(null), 3000);
       setRejectingAppointment(null);
       refetch();
@@ -81,14 +83,14 @@ const AppointmentsReview = () => {
     return (
       <div className="flex items-center justify-center p-8">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-elysPink-600"></div>
-        <span className="ml-2 text-dark-200">Lade Termine...</span>
+        <span className="ml-2 text-dark-200">{t('messages.loading_appointments')}</span>
       </div>
     );
   }
 
   if (error) {
     return (
-      <Alert type="error" message={`Fehler beim Laden der Termine: ${error}`} />
+      <Alert type="error" message={`${t('actions.error')}: ${error}`} />
     );
   }
 
@@ -100,10 +102,10 @@ const AppointmentsReview = () => {
           <ClockIcon className="h-8 w-8 text-elysPink-500" />
           <div>
             <h1 className="text-2xl font-bold text-dark-50">
-              Termin-Review
+              {t('navigation.review')}
             </h1>
             <p className="text-sm text-dark-300">
-              {filteredAppointments.length} {filteredAppointments.length === 1 ? 'Termin' : 'Termine'} zur Überprüfung
+              {filteredAppointments.length} {filteredAppointments.length === 1 ? t('appointments.appointment') : t('appointments.appointments')} {t('appointments.to_review')}
             </p>
           </div>
         </div>
@@ -116,8 +118,8 @@ const AppointmentsReview = () => {
             onChange={(e) => setFilterMode(e.target.value as 'all' | 'flagged')}
             className="px-3 py-2 bg-dark-700 border border-dark-600 rounded-lg text-dark-200 text-sm focus:outline-none focus:ring-2 focus:ring-elysPink-500"
           >
-            <option value="all">Alle anzeigen</option>
-            <option value="flagged">Nur RedFlags</option>
+            <option value="all">{t('filters.show_all')}</option>
+            <option value="flagged">{t('filters.only_red_flags')}</option>
           </select>
         </div>
       </div>
@@ -132,10 +134,10 @@ const AppointmentsReview = () => {
         <div className="text-center py-12">
           <ClockIcon className="h-16 w-16 text-dark-600 mx-auto mb-4" />
           <h3 className="text-lg font-semibold text-dark-200 mb-2">
-            Keine Termine zur Review
+            {t('messages.no_appointments')}
           </h3>
           <p className="text-sm text-dark-400">
-            Alle Termine wurden bereits überprüft oder es gibt keine neuen Buchungen.
+            {t('messages.no_appointments')}
           </p>
         </div>
       ) : (

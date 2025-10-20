@@ -1,62 +1,62 @@
 {
   "test_chat": {
-    "title": "Симуляция AI чата",
+    "title": "AI Chat Simulation",
     "navigation": {
-      "all_chats": "Все чаты",
-      "review_responses": "Проверить ответы AI",
-      "back_to_dashboard": "← Назад к панели"
+      "all_chats": "Alle Chats",
+      "review_responses": "AI-Antworten überprüfen",
+      "back_to_dashboard": "← Zurück zum Dashboard"
     },
-    "loading": "Загрузка чата...",
-    "simulation": "Симуляция чата",
-    "start_new": "Начать новый чат"
+    "loading": "Lade Chat...",
+    "simulation": "Chat-Simulation",
+    "start_new": "Neuen Chat starten"
   },
   "chat_list": {
-    "title": "Обзор чатов",
-    "loading": "Загрузка сессий чата...",
-    "no_sessions": "Сессии чата не найдены",
+    "title": "Chat-Übersicht",
+    "loading": "Lade Chat-Sessions...",
+    "no_sessions": "Keine Chat-Sessions gefunden",
     "filters": {
-      "all": "Все",
-      "active": "Активный",
-      "archived": "Архивный",
-      "inactive": "Неактивный",
-      "show_filters": "Показать фильтры"
+      "all": "Alle",
+      "active": "Aktiv",
+      "archived": "Archiviert",
+      "inactive": "Inaktiv",
+      "show_filters": "Filter anzeigen"
     },
     "actions": {
-      "open": "Открыть чат",
-      "archive": "Архивировать",
-      "activate": "Реактивировать",
-      "delete": "Удалить",
-      "confirm_delete": "Действительно удалить? Это действие нельзя отменить.",
-      "confirm_archive": "Архивировать чат?"
+      "open": "Chat öffnen",
+      "archive": "Archivieren",
+      "activate": "Reaktivieren",
+      "delete": "Löschen",
+      "confirm_delete": "Wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
+      "confirm_archive": "Chat archivieren?"
     },
     "status": {
-      "active": "Активный",
-      "archived": "Архивный",
-      "inactive": "Неактивный (2+ недели без активности)"
+      "active": "Aktiv",
+      "archived": "Archiviert",
+      "inactive": "Inaktiv (2+ Wochen inaktiv)"
     }
   },
   "chat_review": {
-    "title": "Проверка ответов AI",
-    "loading": "Загрузка чата...",
-    "loading_chats": "Загрузка чатов...",
-    "review_responses": "Проверить ответы AI",
-    "no_chats": "Нет ожидающих проверок!",
-    "all_up_to_date": "Все чаты актуальны.",
-    "pending_review": "Ожидает проверки",
-    "user_label": "Пользователь:",
-    "pending_ai_reply": "Ожидающий ответ AI:",
-    "review_arrow": "Проверить →",
-    "approve": "Одобрить",
-    "reject": "Отклонить",
-    "edit": "Редактировать",
-    "send_custom": "Отправить свой ответ"
+    "title": "AI-Antworten Überprüfung",
+    "loading": "Lade Chat...",
+    "loading_chats": "Lade Chats...",
+    "review_responses": "AI-Antworten überprüfen",
+    "no_chats": "Keine ausstehenden Überprüfungen!",
+    "all_up_to_date": "Alle Chats sind auf dem neuesten Stand.",
+    "pending_review": "Ausstehende Überprüfung",
+    "user_label": "Benutzer:",
+    "pending_ai_reply": "Ausstehende AI-Antwort:",
+    "review_arrow": "Überprüfen →",
+    "approve": "Genehmigen",
+    "reject": "Ablehnen",
+    "edit": "Bearbeiten",
+    "send_custom": "Eigene Antwort senden"
   },
   "common": {
-    "back_to_dashboard": "← Назад к панели",
-    "loading": "Загрузка...",
-    "error": "Ошибка загрузки",
-    "no_data": "Нет доступных данных",
-    "session": "Сессия",
-    "last_activity": "Последняя активность"
+    "back_to_dashboard": "← Zurück zum Dashboard",
+    "loading": "Lädt...",
+    "error": "Fehler beim Laden",
+    "no_data": "Keine Daten verfügbar",
+    "session": "Session",
+    "last_activity": "Letzte Aktivität"
   }
 }

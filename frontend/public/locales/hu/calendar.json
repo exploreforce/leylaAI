@@ -1,85 +1,94 @@
 {
+  "weekdays": {
+    "monday": "Montag",
+    "tuesday": "Dienstag",
+    "wednesday": "Mittwoch",
+    "thursday": "Donnerstag",
+    "friday": "Freitag",
+    "saturday": "Samstag",
+    "sunday": "Sonntag"
+  },
   "header": {
-    "title": "Naptár",
-    "back_to_dashboard": "← Irányítópult"
+    "title": "Kalender",
+    "back_to_dashboard": "← Dashboard"
   },
   "views": {
-    "month": "Hónap",
-    "week": "Hét",
-    "day": "Nap",
-    "availability": "Elérhetőség"
+    "month": "Monat",
+    "week": "Woche",
+    "day": "Tag",
+    "availability": "Verfügbarkeit"
   },
   "buttons": {
-    "new_appointment": "Új találkozó",
-    "export_ics": "ICS Export",
-    "today": "Most",
-    "save": "Mentés",
-    "cancel": "Mégse",
-    "delete": "Törlés",
-    "edit": "Szerkesztés",
-    "view_details": "Részletek megtekintése",
-    "add_time_slot": "Időrés hozzáadása",
-    "add_date": "Dátum hozzáadása"
+    "new_appointment": "Neuer Termin",
+    "export_ics": "Export ICS",
+    "today": "Jetzt",
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "delete": "Löschen",
+    "edit": "Bearbeiten",
+    "view_details": "Details anzeigen",
+    "add_time_slot": "Zeitfenster hinzufügen",
+    "add_date": "Datum hinzufügen"
   },
   "appointment": {
-    "new_appointment": "Új találkozó",
-    "edit_appointment": "Találkozó szerkesztése",
-    "view_appointment": "Találkozó megtekintése",
-    "delete_appointment": "Találkozó törlése",
-    "export_to_ics": "Exportálás ICS-be",
-    "confirm_delete": "Törli ezt a találkozót?",
+    "new_appointment": "Neuer Termin",
+    "edit_appointment": "Termin bearbeiten",
+    "view_appointment": "Termin anzeigen",
+    "delete_appointment": "Termin löschen",
+    "export_to_ics": "Export zu ICS",
+    "confirm_delete": "Diesen Termin löschen?",
     "form": {
-      "date_time": "Dátum és idő",
-      "customer_name": "Ügyfél neve",
-      "email": "E-mail",
+      "date_time": "Datum & Zeit",
+      "customer_name": "Kundenname",
+      "email": "E-Mail",
       "phone": "Telefon",
-      "service": "Szolgáltatás",
-      "status": "Állapot",
-      "notes": "Jegyzetek",
-      "duration": "Időtartam (perc)"
+      "service": "Service",
+      "status": "Status",
+      "notes": "Notizen",
+      "duration": "Dauer (Minuten)"
     },
     "status": {
-      "pending": "Függőben",
-      "booked": "Lefoglalt",
-      "confirmed": "Megerősített",
-      "completed": "Befejezett",
-      "cancelled": "Törölve",
-      "noshow": "Nem jelent meg"
+      "pending": "Ausstehend",
+      "booked": "Gebucht",
+      "confirmed": "Bestätigt",
+      "completed": "Abgeschlossen",
+      "cancelled": "Storniert",
+      "noshow": "Nicht erschienen"
     }
   },
   "availability": {
-    "title": "Elérhetőség beállítások",
-    "weekly_schedule": "Heti elérhetőség",
-    "blackout_dates": "Blokkolt dátumok",
-    "loading": "Elérhetőség betöltése...",
-    "no_blackout_dates": "Nincs blokkolt dátum",
-    "success_message": "Elérhetőség sikeresen mentve!",
+    "title": "Verfügbarkeits-Einstellungen",
+    "weekly_schedule": "Wöchentliche Verfügbarkeit",
+    "blackout_dates": "Gesperrte Termine",
+    "loading": "Lade Verfügbarkeiten...",
+    "no_blackout_dates": "Keine gesperrten Termine",
+    "success_message": "Verfügbarkeiten erfolgreich gespeichert!",
     "days": {
-      "monday": "Hétfő",
-      "tuesday": "Kedd",
-      "wednesday": "Szerda",
-      "thursday": "Csütörtök",
-      "friday": "Péntek",
-      "saturday": "Szombat",
-      "sunday": "Vasárnap"
+      "monday": "Montag",
+      "tuesday": "Dienstag",
+      "wednesday": "Mittwoch",
+      "thursday": "Donnerstag",
+      "friday": "Freitag",
+      "saturday": "Samstag",
+      "sunday": "Sonntag"
     },
     "time_labels": {
-      "from": "ettől",
-      "to": "eddig",
-      "start_time": "Kezdési idő",
-      "end_time": "Befejezési idő",
-      "reason": "Ok"
+      "from": "von",
+      "to": "bis",
+      "start_time": "Startzeit",
+      "end_time": "Endzeit",
+      "reason": "Grund"
     }
   },
   "services": {
-    "no_services": "Nincs elérhető szolgáltatás - Először konfigurálja a szolgáltatásokat a bot beállításokban",
-    "no_services_configured": "Nincs konfigurált szolgáltatás",
-    "configure_services": "Menjen a Bot Konfiguráció → Szolgáltatások és Árak menüponthoz a szolgáltatások hozzáadásához.",
-    "price_duration": "€{price} ({duration}perc)"
+    "no_services": "Keine Services verfügbar - Konfiguriere Services in den Bot-Einstellungen zuerst",
+    "no_services_configured": "Keine Services konfiguriert",
+    "configure_services": "Gehe zu Bot-Konfiguration → Services & Preise um zuerst Services hinzuzufügen.",
+    "price_duration": "€{price} ({duration}min)"
   },
   "errors": {
-    "invalid_date": "Érvénytelen dátum",
-    "loading_error": "Betöltési hiba",
-    "save_error": "Mentési hiba"
+    "invalid_date": "Ungültiges Datum",
+    "loading_error": "Fehler beim Laden",
+    "save_error": "Fehler beim Speichern"
   }
 }

@@ -1,6 +1,62 @@
 {
-  "test_chat": {"title": "Simulare Chat AI", "navigation": {"all_chats": "Toate chat-urile", "review_responses": "Revizuiește răspunsurile AI", "back_to_dashboard": "← Înapoi la panou"}, "loading": "Se încarcă chat-ul...", "simulation": "Simulare chat", "start_new": "Pornește chat nou"},
-  "chat_list": {"title": "Prezentare generală chat-uri", "loading": "Se încarcă sesiunile de chat...", "no_sessions": "Nu s-au găsit sesiuni de chat", "filters": {"all": "Toate", "active": "Activ", "archived": "Arhivat", "inactive": "Inactiv", "show_filters": "Afișează filtrele"}, "actions": {"open": "Deschide chat", "archive": "Arhivează", "activate": "Reactivează", "delete": "Șterge", "confirm_delete": "Sigur ștergi? Această acțiune nu poate fi anulată.", "confirm_archive": "Arhivezi chat-ul?"}, "status": {"active": "Activ", "archived": "Arhivat", "inactive": "Inactiv (2+ săptămâni de inactivitate)"}},
-  "chat_review": {"title": "Revizuire răspunsuri AI", "loading": "Se încarcă chat-ul...", "loading_chats": "Se încarcă chat-urile...", "review_responses": "Revizuiește răspunsurile AI", "no_chats": "Nicio revizuire în așteptare!", "all_up_to_date": "Toate chat-urile sunt actualizate.", "pending_review": "Revizuire în așteptare", "user_label": "Utilizator:", "pending_ai_reply": "Răspuns AI în așteptare:", "review_arrow": "Revizuiește →", "approve": "Aprobă", "reject": "Respinge", "edit": "Editează", "send_custom": "Trimite răspuns personalizat"},
-  "common": {"back_to_dashboard": "← Înapoi la panou", "loading": "Se încarcă...", "error": "Eroare de încărcare", "no_data": "Nu există date disponibile", "session": "Sesiune", "last_activity": "Ultima activitate"}
+  "test_chat": {
+    "title": "AI Chat Simulation",
+    "navigation": {
+      "all_chats": "Alle Chats",
+      "review_responses": "AI-Antworten überprüfen",
+      "back_to_dashboard": "← Zurück zum Dashboard"
+    },
+    "loading": "Lade Chat...",
+    "simulation": "Chat-Simulation",
+    "start_new": "Neuen Chat starten"
+  },
+  "chat_list": {
+    "title": "Chat-Übersicht",
+    "loading": "Lade Chat-Sessions...",
+    "no_sessions": "Keine Chat-Sessions gefunden",
+    "filters": {
+      "all": "Alle",
+      "active": "Aktiv",
+      "archived": "Archiviert",
+      "inactive": "Inaktiv",
+      "show_filters": "Filter anzeigen"
+    },
+    "actions": {
+      "open": "Chat öffnen",
+      "archive": "Archivieren",
+      "activate": "Reaktivieren",
+      "delete": "Löschen",
+      "confirm_delete": "Wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
+      "confirm_archive": "Chat archivieren?"
+    },
+    "status": {
+      "active": "Aktiv",
+      "archived": "Archiviert",
+      "inactive": "Inaktiv (2+ Wochen inaktiv)"
+    }
+  },
+  "chat_review": {
+    "title": "AI-Antworten Überprüfung",
+    "loading": "Lade Chat...",
+    "loading_chats": "Lade Chats...",
+    "review_responses": "AI-Antworten überprüfen",
+    "no_chats": "Keine ausstehenden Überprüfungen!",
+    "all_up_to_date": "Alle Chats sind auf dem neuesten Stand.",
+    "pending_review": "Ausstehende Überprüfung",
+    "user_label": "Benutzer:",
+    "pending_ai_reply": "Ausstehende AI-Antwort:",
+    "review_arrow": "Überprüfen →",
+    "approve": "Genehmigen",
+    "reject": "Ablehnen",
+    "edit": "Bearbeiten",
+    "send_custom": "Eigene Antwort senden"
+  },
+  "common": {
+    "back_to_dashboard": "← Zurück zum Dashboard",
+    "loading": "Lädt...",
+    "error": "Fehler beim Laden",
+    "no_data": "Keine Daten verfügbar",
+    "session": "Session",
+    "last_activity": "Letzte Aktivität"
+  }
 }

@@ -1,51 +1,54 @@
 {
   "tabs": {
-    "bot_config": "Configuración del Bot",
-    "services": "Servicios y Precios",
-    "settings": "Configuración"
+    "bot_config": "Bot-Konfiguration",
+    "services": "Services & Preise",
+    "settings": "Einstellungen"
   },
   "messages": {
-    "config_saved": "¡Configuración del bot guardada con éxito!",
-    "loading_config": "Cargando configuración del bot..."
+    "config_saved": "Bot-Konfiguration erfolgreich gespeichert!",
+    "loading_config": "Lade Bot-Konfiguration..."
   },
   "language": {
-    "title": "Idioma",
-    "subtitle": "Seleccione su idioma preferido para la interfaz",
-    "select_language": "Seleccionar idioma",
-    "current_language": "Idioma actual",
-    "loading": "Cargando opciones de idioma...",
-    "change_success": "¡Idioma cambiado con éxito!"
+    "title": "Sprache",
+    "subtitle": "Wählen Sie Ihre bevorzugte Sprache für die Benutzeroberfläche",
+    "select_language": "Sprache auswählen",
+    "current_language": "Aktuelle Sprache",
+    "current_language_prefix": "Aktuelle Sprache",
+    "loading": "Lade Sprachoptionen...",
+    "change_success": "Sprache erfolgreich geändert!"
   },
   "bot_config": {
     "identity": {
-      "title": "Identidad del Bot",
-      "name": "Nombre del Bot",
-      "personality": "Personalidad",
-      "role": "Rol",
-      "description": "Descripción"
+      "title": "Bot-Identität",
+      "name": "Bot-Name",
+      "name_label": "Bot Name",
+      "personality": "Persönlichkeit",
+      "role": "Rolle",
+      "description": "Beschreibung",
+      "description_label": "Bot Beschreibung"
     },
     "appearance": {
-      "title": "Apariencia",
+      "title": "Erscheinungsbild",
       "avatar": "Avatar",
-      "theme": "Tema",
-      "colors": "Colores"
+      "theme": "Design",
+      "colors": "Farben"
     },
     "behavior": {
-      "title": "Comportamiento",
-      "response_style": "Estilo de respuesta",
-      "greeting": "Saludo",
-      "farewell": "Despedida"
+      "title": "Verhalten",
+      "response_style": "Antwort-Stil",
+      "greeting": "Begrüßung",
+      "farewell": "Verabschiedung"
     }
   },
   "services": {
-    "title": "Servicios y Precios",
-    "add_service": "Añadir servicio",
-    "edit_service": "Editar servicio",
-    "delete_service": "Eliminar servicio",
-    "name": "Nombre",
-    "description": "Descripción",
-    "price": "Precio",
-    "duration": "Duración",
-    "available": "Disponible"
+    "title": "Services & Preise",
+    "add_service": "Service hinzufügen",
+    "edit_service": "Service bearbeiten",
+    "delete_service": "Service löschen",
+    "name": "Name",
+    "description": "Beschreibung",
+    "price": "Preis",
+    "duration": "Dauer",
+    "available": "Verfügbar"
   }
 }

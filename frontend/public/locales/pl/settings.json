@@ -1,51 +1,54 @@
 {
   "tabs": {
-    "bot_config": "Konfiguracja Bota",
-    "services": "Usługi i Ceny",
-    "settings": "Ustawienia"
+    "bot_config": "Bot-Konfiguration",
+    "services": "Services & Preise",
+    "settings": "Einstellungen"
   },
   "messages": {
-    "config_saved": "Konfiguracja bota zapisana pomyślnie!",
-    "loading_config": "Ładowanie konfiguracji bota..."
+    "config_saved": "Bot-Konfiguration erfolgreich gespeichert!",
+    "loading_config": "Lade Bot-Konfiguration..."
   },
   "language": {
-    "title": "Język",
-    "subtitle": "Wybierz preferowany język interfejsu",
-    "select_language": "Wybierz język",
-    "current_language": "Obecny język",
-    "loading": "Ładowanie opcji językowych...",
-    "change_success": "Język zmieniony pomyślnie!"
+    "title": "Sprache",
+    "subtitle": "Wählen Sie Ihre bevorzugte Sprache für die Benutzeroberfläche",
+    "select_language": "Sprache auswählen",
+    "current_language": "Aktuelle Sprache",
+    "current_language_prefix": "Aktuelle Sprache",
+    "loading": "Lade Sprachoptionen...",
+    "change_success": "Sprache erfolgreich geändert!"
   },
   "bot_config": {
     "identity": {
-      "title": "Tożsamość Bota",
-      "name": "Nazwa Bota",
-      "personality": "Osobowość",
-      "role": "Rola",
-      "description": "Opis"
+      "title": "Bot-Identität",
+      "name": "Bot-Name",
+      "name_label": "Bot Name",
+      "personality": "Persönlichkeit",
+      "role": "Rolle",
+      "description": "Beschreibung",
+      "description_label": "Bot Beschreibung"
     },
     "appearance": {
-      "title": "Wygląd",
+      "title": "Erscheinungsbild",
       "avatar": "Avatar",
-      "theme": "Motyw",
-      "colors": "Kolory"
+      "theme": "Design",
+      "colors": "Farben"
     },
     "behavior": {
-      "title": "Zachowanie",
-      "response_style": "Styl odpowiedzi",
-      "greeting": "Powitanie",
-      "farewell": "Pożegnanie"
+      "title": "Verhalten",
+      "response_style": "Antwort-Stil",
+      "greeting": "Begrüßung",
+      "farewell": "Verabschiedung"
     }
   },
   "services": {
-    "title": "Usługi i Ceny",
-    "add_service": "Dodaj usługę",
-    "edit_service": "Edytuj usługę",
-    "delete_service": "Usuń usługę",
-    "name": "Nazwa",
-    "description": "Opis",
-    "price": "Cena",
-    "duration": "Czas trwania",
-    "available": "Dostępny"
+    "title": "Services & Preise",
+    "add_service": "Service hinzufügen",
+    "edit_service": "Service bearbeiten",
+    "delete_service": "Service löschen",
+    "name": "Name",
+    "description": "Beschreibung",
+    "price": "Preis",
+    "duration": "Dauer",
+    "available": "Verfügbar"
   }
 }

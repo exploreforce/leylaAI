@@ -15,6 +15,7 @@
     "subtitle": "Select your preferred language for the user interface",
     "select_language": "Select Language",
     "current_language": "Current Language",
+    "current_language_prefix": "Current language",
     "loading": "Loading language options...",
     "change_success": "Language changed successfully!"
   },
@@ -23,9 +24,11 @@
     "identity": {
       "title": "Bot Identity",
       "name": "Bot Name",
+      "name_label": "Bot Name",
       "personality": "Personality",
       "role": "Role",
-      "description": "Description"
+      "description": "Description",
+      "description_label": "Bot Description"
     },
     "appearance": {
       "title": "Appearance",

@@ -1,51 +1,54 @@
 {
   "tabs": {
-    "bot_config": "Konfigurácia Bota",
-    "services": "Služby a Ceny",
-    "settings": "Nastavenia"
+    "bot_config": "Bot-Konfiguration",
+    "services": "Services & Preise",
+    "settings": "Einstellungen"
   },
   "messages": {
-    "config_saved": "Konfigurácia bota úspešne uložená!",
-    "loading_config": "Načítanie konfigurácie bota..."
+    "config_saved": "Bot-Konfiguration erfolgreich gespeichert!",
+    "loading_config": "Lade Bot-Konfiguration..."
   },
   "language": {
-    "title": "Jazyk",
-    "subtitle": "Vyberte preferovaný jazyk rozhrania",
-    "select_language": "Vybrať jazyk",
-    "current_language": "Aktuálny jazyk",
-    "loading": "Načítanie jazykových možností...",
-    "change_success": "Jazyk úspešne zmenený!"
+    "title": "Sprache",
+    "subtitle": "Wählen Sie Ihre bevorzugte Sprache für die Benutzeroberfläche",
+    "select_language": "Sprache auswählen",
+    "current_language": "Aktuelle Sprache",
+    "current_language_prefix": "Aktuelle Sprache",
+    "loading": "Lade Sprachoptionen...",
+    "change_success": "Sprache erfolgreich geändert!"
   },
   "bot_config": {
     "identity": {
-      "title": "Identita Bota",
-      "name": "Názov Bota",
-      "personality": "Osobnosť",
-      "role": "Rola",
-      "description": "Popis"
+      "title": "Bot-Identität",
+      "name": "Bot-Name",
+      "name_label": "Bot Name",
+      "personality": "Persönlichkeit",
+      "role": "Rolle",
+      "description": "Beschreibung",
+      "description_label": "Bot Beschreibung"
     },
     "appearance": {
-      "title": "Vzhľad",
+      "title": "Erscheinungsbild",
       "avatar": "Avatar",
-      "theme": "Téma",
-      "colors": "Farby"
+      "theme": "Design",
+      "colors": "Farben"
     },
     "behavior": {
-      "title": "Správanie",
-      "response_style": "Štýl odpovede",
-      "greeting": "Pozdrav",
-      "farewell": "Rozlúčenie"
+      "title": "Verhalten",
+      "response_style": "Antwort-Stil",
+      "greeting": "Begrüßung",
+      "farewell": "Verabschiedung"
     }
   },
   "services": {
-    "title": "Služby a Ceny",
-    "add_service": "Pridať službu",
-    "edit_service": "Upraviť službu",
-    "delete_service": "Vymazať službu",
-    "name": "Názov",
-    "description": "Popis",
-    "price": "Cena",
-    "duration": "Trvanie",
-    "available": "Dostupný"
+    "title": "Services & Preise",
+    "add_service": "Service hinzufügen",
+    "edit_service": "Service bearbeiten",
+    "delete_service": "Service löschen",
+    "name": "Name",
+    "description": "Beschreibung",
+    "price": "Preis",
+    "duration": "Dauer",
+    "available": "Verfügbar"
   }
 }

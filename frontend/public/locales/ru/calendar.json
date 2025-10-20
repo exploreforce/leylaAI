@@ -1,85 +1,94 @@
 {
+  "weekdays": {
+    "monday": "Montag",
+    "tuesday": "Dienstag",
+    "wednesday": "Mittwoch",
+    "thursday": "Donnerstag",
+    "friday": "Freitag",
+    "saturday": "Samstag",
+    "sunday": "Sonntag"
+  },
   "header": {
-    "title": "Календарь",
-    "back_to_dashboard": "← Панель"
+    "title": "Kalender",
+    "back_to_dashboard": "← Dashboard"
   },
   "views": {
-    "month": "Месяц",
-    "week": "Неделя",
-    "day": "День",
-    "availability": "Доступность"
+    "month": "Monat",
+    "week": "Woche",
+    "day": "Tag",
+    "availability": "Verfügbarkeit"
   },
   "buttons": {
-    "new_appointment": "Новая встреча",
-    "export_ics": "Экспорт ICS",
-    "today": "Сейчас",
-    "save": "Сохранить",
-    "cancel": "Отменить",
-    "delete": "Удалить",
-    "edit": "Редактировать",
-    "view_details": "Посмотреть детали",
-    "add_time_slot": "Добавить временной слот",
-    "add_date": "Добавить дату"
+    "new_appointment": "Neuer Termin",
+    "export_ics": "Export ICS",
+    "today": "Jetzt",
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "delete": "Löschen",
+    "edit": "Bearbeiten",
+    "view_details": "Details anzeigen",
+    "add_time_slot": "Zeitfenster hinzufügen",
+    "add_date": "Datum hinzufügen"
   },
   "appointment": {
-    "new_appointment": "Новая встреча",
-    "edit_appointment": "Редактировать встречу",
-    "view_appointment": "Посмотреть встречу",
-    "delete_appointment": "Удалить встречу",
-    "export_to_ics": "Экспортировать в ICS",
-    "confirm_delete": "Удалить эту встречу?",
+    "new_appointment": "Neuer Termin",
+    "edit_appointment": "Termin bearbeiten",
+    "view_appointment": "Termin anzeigen",
+    "delete_appointment": "Termin löschen",
+    "export_to_ics": "Export zu ICS",
+    "confirm_delete": "Diesen Termin löschen?",
     "form": {
-      "date_time": "Дата и время",
-      "customer_name": "Имя клиента",
-      "email": "E-mail",
-      "phone": "Телефон",
-      "service": "Услуга",
-      "status": "Статус",
-      "notes": "Заметки",
-      "duration": "Длительность (минуты)"
+      "date_time": "Datum & Zeit",
+      "customer_name": "Kundenname",
+      "email": "E-Mail",
+      "phone": "Telefon",
+      "service": "Service",
+      "status": "Status",
+      "notes": "Notizen",
+      "duration": "Dauer (Minuten)"
     },
     "status": {
-      "pending": "Ожидает",
-      "booked": "Забронирован",
-      "confirmed": "Подтвержден",
-      "completed": "Завершен",
-      "cancelled": "Отменен",
-      "noshow": "Не явился"
+      "pending": "Ausstehend",
+      "booked": "Gebucht",
+      "confirmed": "Bestätigt",
+      "completed": "Abgeschlossen",
+      "cancelled": "Storniert",
+      "noshow": "Nicht erschienen"
     }
   },
   "availability": {
-    "title": "Настройки доступности",
-    "weekly_schedule": "Еженедельная доступность",
-    "blackout_dates": "Заблокированные даты",
-    "loading": "Загрузка доступности...",
-    "no_blackout_dates": "Нет заблокированных дат",
-    "success_message": "Доступность успешно сохранена!",
+    "title": "Verfügbarkeits-Einstellungen",
+    "weekly_schedule": "Wöchentliche Verfügbarkeit",
+    "blackout_dates": "Gesperrte Termine",
+    "loading": "Lade Verfügbarkeiten...",
+    "no_blackout_dates": "Keine gesperrten Termine",
+    "success_message": "Verfügbarkeiten erfolgreich gespeichert!",
     "days": {
-      "monday": "Понедельник",
-      "tuesday": "Вторник",
-      "wednesday": "Среда",
-      "thursday": "Четверг",
-      "friday": "Пятница",
-      "saturday": "Суббота",
-      "sunday": "Воскресенье"
+      "monday": "Montag",
+      "tuesday": "Dienstag",
+      "wednesday": "Mittwoch",
+      "thursday": "Donnerstag",
+      "friday": "Freitag",
+      "saturday": "Samstag",
+      "sunday": "Sonntag"
     },
     "time_labels": {
-      "from": "с",
-      "to": "до",
-      "start_time": "Время начала",
-      "end_time": "Время окончания",
-      "reason": "Причина"
+      "from": "von",
+      "to": "bis",
+      "start_time": "Startzeit",
+      "end_time": "Endzeit",
+      "reason": "Grund"
     }
   },
   "services": {
-    "no_services": "Нет доступных услуг - Сначала настройте услуги в настройках бота",
-    "no_services_configured": "Услуги не настроены",
-    "configure_services": "Перейдите в Конфигурация бота → Услуги и цены, чтобы сначала добавить услуги.",
-    "price_duration": "€{price} ({duration}мин)"
+    "no_services": "Keine Services verfügbar - Konfiguriere Services in den Bot-Einstellungen zuerst",
+    "no_services_configured": "Keine Services konfiguriert",
+    "configure_services": "Gehe zu Bot-Konfiguration → Services & Preise um zuerst Services hinzuzufügen.",
+    "price_duration": "€{price} ({duration}min)"
   },
   "errors": {
-    "invalid_date": "Неверная дата",
-    "loading_error": "Ошибка загрузки",
-    "save_error": "Ошибка сохранения"
+    "invalid_date": "Ungültiges Datum",
+    "loading_error": "Fehler beim Laden",
+    "save_error": "Fehler beim Speichern"
   }
 }

@@ -609,9 +609,9 @@ const LanguageSettings = () => {
               </div>
             </div>
 
-            <div className="flex items-center justify-between pt-4 border-t border-dark-600">
+              <div className="flex items-center justify-between pt-4 border-t border-dark-600">
               <div className="text-sm text-dark-400">
-                Current language: {currentLanguageName}
+                {t('language.current_language_prefix')}: {currentLanguageName}
               </div>
               <Button
                 onClick={handleSave}
@@ -619,7 +619,7 @@ const LanguageSettings = () => {
                 className="flex items-center space-x-2"
               >
                 <CheckIcon className="h-4 w-4" />
-                <span>{t('common.save')}</span>
+                <span>{t('common:actions.save')}</span>
               </Button>
             </div>
           </div>
@@ -780,12 +780,12 @@ const BotConfigForm = () => {
         <div className="p-6">
           <div className="flex items-center mb-4">
             <UserIcon className="h-6 w-6 text-elysViolet-500 mr-2" />
-            <h3 className="text-lg font-semibold text-dark-50">Bot-Identität</h3>
+            <h3 className="text-lg font-semibold text-dark-50">{t('bot_config.identity.title')}</h3>
           </div>
           
           <div className="grid grid-cols-1 gap-4">
             <Input
-              label="Bot Name"
+              label={t('bot_config.identity.name_label')}
               value={config.botName || ''}
               onChange={(e) => handleInputChange('botName', e.target.value)}
               placeholder="z.B. Dr. Schmidt's Assistent"
@@ -794,7 +794,7 @@ const BotConfigForm = () => {
             
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Bot Beschreibung
+                {t('bot_config.identity.description_label')}
               </label>
               <Textarea
                 value={config.botDescription || ''}

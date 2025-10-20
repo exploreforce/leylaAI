@@ -1,4 +1,13 @@
 {
+  "weekdays": {
+    "monday": "Montag",
+    "tuesday": "Dienstag",
+    "wednesday": "Mittwoch",
+    "thursday": "Donnerstag",
+    "friday": "Freitag",
+    "saturday": "Samstag",
+    "sunday": "Sonntag"
+  },
   "header": {
     "title": "Kalender",
     "back_to_dashboard": "← Dashboard"

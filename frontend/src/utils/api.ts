@@ -70,8 +70,8 @@ export const botApi = {
     return api.put('/bot/config', config);
   },
 
-  testChat: async (messages: ChatMessage[], sessionId: string, targetLanguage?: string): Promise<ApiResponse<{ response: ChatMessage }>> => {
-    return api.post('/bot/test-chat', { messages, sessionId, targetLanguage });
+  testChat: async (messages: ChatMessage[], sessionId: string, targetLanguage?: string, preferredLanguage?: string): Promise<ApiResponse<{ response: ChatMessage }>> => {
+    return api.post('/bot/test-chat', { messages, sessionId, targetLanguage, preferredLanguage });
   },
 
   createTestChatSession: async (): Promise<ApiResponse<TestChatSession>> => {

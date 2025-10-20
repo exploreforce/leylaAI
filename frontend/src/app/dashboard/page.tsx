@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { AdminRoute } from '@/components/ProtectedRoute';
 import StatsCard from '@/components/dashboard/StatsCard';
 import AppointmentChart from '@/components/dashboard/AppointmentChart';
@@ -31,6 +32,7 @@ export default function DashboardPage() {
 }
 
 function AdminDashboard() {
+  const { t } = useTranslation('dashboard');
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [detailedStats, setDetailedStats] = useState<DetailedAppointmentStats | null>(null);
   const [timelineData, setTimelineData] = useState<TimelineData | null>(null);
@@ -76,7 +78,7 @@ function AdminDashboard() {
   if (!stats || !detailedStats || !timelineData) {
     return (
       <div className="text-center py-12">
-        <p className="text-gray-300">Fehler beim Laden der Statistiken.</p>
+        <p className="text-gray-300">{t('stats.error')}</p>
       </div>
     );
   }
@@ -86,8 +88,8 @@ function AdminDashboard() {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-gray-100 mb-2">Admin Dashboard</h1>
-          <p className="text-gray-300">Übersicht aller Statistiken und Metriken</p>
+          <h1 className="text-3xl font-bold text-gray-100 mb-2">{t('admin.title')}</h1>
+          <p className="text-gray-300">{t('admin.overview')}</p>
         </div>
         <ExportButton filters={filters} />
       </div>
@@ -105,7 +107,7 @@ function AdminDashboard() {
               : 'bg-dark-800 text-gray-400 hover:bg-dark-700'
           }`}
         >
-          Täglich
+          {t('period.daily')}
         </button>
         <button
           onClick={() => setSelectedPeriod('week')}
@@ -115,7 +117,7 @@ function AdminDashboard() {
               : 'bg-dark-800 text-gray-400 hover:bg-dark-700'
           }`}
         >
-          Wöchentlich
+          {t('period.weekly')}
         </button>
         <button
           onClick={() => setSelectedPeriod('month')}
@@ -125,35 +127,35 @@ function AdminDashboard() {
               : 'bg-dark-800 text-gray-400 hover:bg-dark-700'
           }`}
         >
-          Monatlich
+          {t('period.monthly')}
         </button>
       </div>
 
       {/* Stats Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatsCard
-          title="Gesamtbuchungen"
+          title={t('stats.total_bookings')}
           value={stats.appointments.total}
           icon={<CalendarIcon className="w-6 h-6" />}
-          trend={`${stats.appointments.confirmed} bestätigt`}
+          trend={`${stats.appointments.confirmed} ${t('stats.confirmed')}`}
           color="blue"
         />
         <StatsCard
-          title="Absagen"
+          title={t('stats.cancellations')}
           value={stats.appointments.cancelled}
           icon={<XCircleIcon className="w-6 h-6" />}
-          trend={`Rate: ${stats.appointments.conversionRate}%`}
+          trend={`${t('stats.rate')}: ${stats.appointments.conversionRate}%`}
           color="red"
         />
         <StatsCard
-          title="Red Flags"
+          title={t('stats.red_flags')}
           value={stats.redFlags.total}
           icon={<FlagIcon className="w-6 h-6" />}
-          trend={`Rate: ${stats.redFlags.rate}%`}
+          trend={`${t('stats.rate')}: ${stats.redFlags.rate}%`}
           color="yellow"
         />
         <StatsCard
-          title="Gesamtumsatz"
+          title={t('stats.total_revenue')}
           value={`€${stats.revenue.total.toFixed(2)}`}
           icon={<BanknotesIcon className="w-6 h-6" />}
           color="green"
@@ -163,24 +165,24 @@ function AdminDashboard() {
       {/* Additional Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <StatsCard
-          title="Chat-Sitzungen"
+          title={t('stats.chat_sessions')}
           value={stats.chats.totalSessions}
           icon={<ChatBubbleLeftIcon className="w-6 h-6" />}
           trend={`${stats.chats.whatsappSessions} WhatsApp`}
           color="purple"
         />
         <StatsCard
-          title="No-Shows"
+          title={t('stats.no_shows')}
           value={stats.appointments.noshow}
           icon={<XCircleIcon className="w-6 h-6" />}
-          trend={`Rate: ${stats.appointments.noshowRate}%`}
+          trend={`${t('stats.rate')}: ${stats.appointments.noshowRate}%`}
           color="red"
         />
         <StatsCard
-          title="Unique Kunden"
+          title={t('stats.unique_customers')}
           value={stats.appointments.uniqueCustomers}
           icon={<ChartBarIcon className="w-6 h-6" />}
-          trend="Verschiedene Telefonnummern"
+          trend={t('stats.different_phone_numbers')}
           color="blue"
         />
       </div>

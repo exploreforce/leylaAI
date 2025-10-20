@@ -1,51 +1,54 @@
 {
   "tabs": {
-    "bot_config": "Configurazione Bot",
-    "services": "Servizi e Prezzi",
-    "settings": "Impostazioni"
+    "bot_config": "Bot-Konfiguration",
+    "services": "Services & Preise",
+    "settings": "Einstellungen"
   },
   "messages": {
-    "config_saved": "Configurazione del bot salvata con successo!",
-    "loading_config": "Caricamento configurazione bot..."
+    "config_saved": "Bot-Konfiguration erfolgreich gespeichert!",
+    "loading_config": "Lade Bot-Konfiguration..."
   },
   "language": {
-    "title": "Lingua",
-    "subtitle": "Seleziona la tua lingua preferita per l'interfaccia",
-    "select_language": "Seleziona lingua",
-    "current_language": "Lingua attuale",
-    "loading": "Caricamento opzioni lingua...",
-    "change_success": "Lingua cambiata con successo!"
+    "title": "Sprache",
+    "subtitle": "Wählen Sie Ihre bevorzugte Sprache für die Benutzeroberfläche",
+    "select_language": "Sprache auswählen",
+    "current_language": "Aktuelle Sprache",
+    "current_language_prefix": "Aktuelle Sprache",
+    "loading": "Lade Sprachoptionen...",
+    "change_success": "Sprache erfolgreich geändert!"
   },
   "bot_config": {
     "identity": {
-      "title": "Identità del Bot",
-      "name": "Nome del Bot",
-      "personality": "Personalità",
-      "role": "Ruolo",
-      "description": "Descrizione"
+      "title": "Bot-Identität",
+      "name": "Bot-Name",
+      "name_label": "Bot Name",
+      "personality": "Persönlichkeit",
+      "role": "Rolle",
+      "description": "Beschreibung",
+      "description_label": "Bot Beschreibung"
     },
     "appearance": {
-      "title": "Aspetto",
+      "title": "Erscheinungsbild",
       "avatar": "Avatar",
-      "theme": "Tema",
-      "colors": "Colori"
+      "theme": "Design",
+      "colors": "Farben"
     },
     "behavior": {
-      "title": "Comportamento",
-      "response_style": "Stile di risposta",
-      "greeting": "Saluto",
-      "farewell": "Addio"
+      "title": "Verhalten",
+      "response_style": "Antwort-Stil",
+      "greeting": "Begrüßung",
+      "farewell": "Verabschiedung"
     }
   },
   "services": {
-    "title": "Servizi e Prezzi",
-    "add_service": "Aggiungi servizio",
-    "edit_service": "Modifica servizio",
-    "delete_service": "Elimina servizio",
-    "name": "Nome",
-    "description": "Descrizione",
-    "price": "Prezzo",
-    "duration": "Durata",
-    "available": "Disponibile"
+    "title": "Services & Preise",
+    "add_service": "Service hinzufügen",
+    "edit_service": "Service bearbeiten",
+    "delete_service": "Service löschen",
+    "name": "Name",
+    "description": "Beschreibung",
+    "price": "Preis",
+    "duration": "Dauer",
+    "available": "Verfügbar"
   }
 }

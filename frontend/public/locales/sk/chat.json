@@ -1,62 +1,62 @@
 {
   "test_chat": {
-    "title": "Simulácia AI Chatu",
+    "title": "AI Chat Simulation",
     "navigation": {
-      "all_chats": "Všetky chaty",
-      "review_responses": "Skontrolovať odpovede AI",
-      "back_to_dashboard": "← Späť na panel"
+      "all_chats": "Alle Chats",
+      "review_responses": "AI-Antworten überprüfen",
+      "back_to_dashboard": "← Zurück zum Dashboard"
     },
-    "loading": "Načítanie chatu...",
-    "simulation": "Simulácia chatu",
-    "start_new": "Spustiť nový chat"
+    "loading": "Lade Chat...",
+    "simulation": "Chat-Simulation",
+    "start_new": "Neuen Chat starten"
   },
   "chat_list": {
-    "title": "Prehľad chatov",
-    "loading": "Načítanie relácií chatu...",
-    "no_sessions": "Žiadne relácie chatu nenájdené",
+    "title": "Chat-Übersicht",
+    "loading": "Lade Chat-Sessions...",
+    "no_sessions": "Keine Chat-Sessions gefunden",
     "filters": {
-      "all": "Všetko",
-      "active": "Aktívny",
-      "archived": "Archivované",
-      "inactive": "Neaktívny",
-      "show_filters": "Zobraziť filtre"
+      "all": "Alle",
+      "active": "Aktiv",
+      "archived": "Archiviert",
+      "inactive": "Inaktiv",
+      "show_filters": "Filter anzeigen"
     },
     "actions": {
-      "open": "Otvoriť chat",
-      "archive": "Archivovať",
-      "activate": "Reaktivovať",
-      "delete": "Vymazať",
-      "confirm_delete": "Naozaj vymazať? Túto akciu nie je možné vrátiť späť.",
-      "confirm_archive": "Archivovať chat?"
+      "open": "Chat öffnen",
+      "archive": "Archivieren",
+      "activate": "Reaktivieren",
+      "delete": "Löschen",
+      "confirm_delete": "Wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
+      "confirm_archive": "Chat archivieren?"
     },
     "status": {
-      "active": "Aktívny",
-      "archived": "Archivované",
-      "inactive": "Neaktívny (2+ týždne neaktivity)"
+      "active": "Aktiv",
+      "archived": "Archiviert",
+      "inactive": "Inaktiv (2+ Wochen inaktiv)"
     }
   },
   "chat_review": {
-    "title": "Kontrola odpovedí AI",
-    "loading": "Načítanie chatu...",
-    "loading_chats": "Načítanie chatov...",
-    "review_responses": "Skontrolovať odpovede AI",
-    "no_chats": "Žiadne čakajúce kontroly!",
-    "all_up_to_date": "Všetky chaty sú aktuálne.",
-    "pending_review": "Čakajúca kontrola",
-    "user_label": "Používateľ:",
-    "pending_ai_reply": "Čakajúca odpoveď AI:",
-    "review_arrow": "Skontrolovať →",
-    "approve": "Schváliť",
-    "reject": "Odmietnuť",
-    "edit": "Upraviť",
-    "send_custom": "Odoslať vlastnú odpoveď"
+    "title": "AI-Antworten Überprüfung",
+    "loading": "Lade Chat...",
+    "loading_chats": "Lade Chats...",
+    "review_responses": "AI-Antworten überprüfen",
+    "no_chats": "Keine ausstehenden Überprüfungen!",
+    "all_up_to_date": "Alle Chats sind auf dem neuesten Stand.",
+    "pending_review": "Ausstehende Überprüfung",
+    "user_label": "Benutzer:",
+    "pending_ai_reply": "Ausstehende AI-Antwort:",
+    "review_arrow": "Überprüfen →",
+    "approve": "Genehmigen",
+    "reject": "Ablehnen",
+    "edit": "Bearbeiten",
+    "send_custom": "Eigene Antwort senden"
   },
   "common": {
-    "back_to_dashboard": "← Späť na panel",
-    "loading": "Načítanie...",
-    "error": "Chyba načítania",
-    "no_data": "Žiadne dostupné dáta",
-    "session": "Relácia",
-    "last_activity": "Posledná aktivita"
+    "back_to_dashboard": "← Zurück zum Dashboard",
+    "loading": "Lädt...",
+    "error": "Fehler beim Laden",
+    "no_data": "Keine Daten verfügbar",
+    "session": "Session",
+    "last_activity": "Letzte Aktivität"
   }
 }

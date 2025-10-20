@@ -45,6 +45,82 @@
   "stats": {
     "loading": "Lade Dashboard-Statistiken...",
     "error": "Fehler beim Laden der Statistiken",
-    "last_updated": "Zuletzt aktualisiert"
+    "last_updated": "Zuletzt aktualisiert",
+    "total_bookings": "Gesamtbuchungen",
+    "cancellations": "Absagen",
+    "red_flags": "Red Flags",
+    "total_revenue": "Gesamtumsatz",
+    "confirmed": "bestätigt",
+    "rate": "Rate",
+    "chat_sessions": "Chat-Sitzungen",
+    "no_shows": "No-Shows",
+    "unique_customers": "Unique Kunden",
+    "different_phone_numbers": "Verschiedene Telefonnummern"
+  },
+  
+  "admin": {
+    "title": "Admin Dashboard",
+    "overview": "Übersicht aller Statistiken und Metriken"
+  },
+  
+  "period": {
+    "daily": "Täglich",
+    "weekly": "Wöchentlich",
+    "monthly": "Monatlich"
+  },
+  
+  "filters": {
+    "date_range": "Zeitraum",
+    "today": "Heute",
+    "last_7_days": "Letzte 7 Tage",
+    "last_month": "Letzter Monat",
+    "last_year": "Letztes Jahr",
+    "from": "Von:",
+    "to": "Bis:",
+    "apply": "Anwenden",
+    "clear": "Löschen"
+  },
+  
+  "export": {
+    "button": "Exportieren",
+    "data": "Daten exportieren",
+    "csv": "Als CSV exportieren",
+    "json": "Als JSON exportieren"
+  },
+  
+  "red_flags": {
+    "title": "Letzte Red Flags",
+    "no_flags": "Keine Red Flags vorhanden",
+    "time": "Zeit",
+    "phone": "Telefon",
+    "content": "Inhalt",
+    "sentiment": "Sentiment",
+    "count": "Red Flags"
+  },
+  
+  "customers": {
+    "top_customers": "Top Kunden",
+    "name": "Name",
+    "bookings": "Buchungen",
+    "revenue": "Umsatz",
+    "last_visit": "Letzter Besuch",
+    "no_customers": "Keine Kunden vorhanden"
+  },
+  
+  "services": {
+    "service_ranking": "Service Ranking",
+    "service": "Service",
+    "bookings": "Buchungen",
+    "revenue": "Umsatz",
+    "no_services": "Keine Services vorhanden"
+  },
+  
+  "charts": {
+    "appointments_over_time": "Termine im Zeitverlauf",
+    "appointments": "Termine",
+    "weekday_distribution": "Wochentagsverteilung",
+    "hourly_distribution": "Stündenverteilung",
+    "hour": "Uhrzeit",
+    "count": "Anzahl"
   }
 }

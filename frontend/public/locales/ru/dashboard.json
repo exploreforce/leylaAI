@@ -1,44 +1,112 @@
 {
-  "title": "Панель Leyla AI",
-  "welcome": "С возвращением!",
+  "title": "Панель управления Leyla AI",
+  "welcome": "Willkommen zurück!",
   "appointments": {
-    "title": "Встречи",
-    "today": "Сегодня",
-    "this_week": "Эта неделя",
-    "manage_calendar": "Управление календарем",
-    "total_appointments": "Всего встреч",
-    "upcoming": "Предстоящие"
+    "title": "Termine",
+    "today": "Heute",
+    "this_week": "Diese Woche",
+    "manage_calendar": "Kalender verwalten",
+    "total_appointments": "Termine insgesamt",
+    "upcoming": "Bevorstehend"
   },
   "chats": {
-    "title": "Активные чаты",
-    "current": "Текущие чаты",
-    "view_all": "Посмотреть все чаты",
-    "active_conversations": "Активные беседы",
-    "total_sessions": "Всего сессий"
+    "title": "Laufende Chats",
+    "current": "Aktuelle Chats",
+    "view_all": "Alle Chats anzeigen",
+    "active_conversations": "Aktive Gespräche",
+    "total_sessions": "Sessions insgesamt"
   },
   "reviews": {
-    "title": "Требуется проверка",
-    "pending_approvals": "Ожидающие одобрения",
-    "review_messages": "Проверить сообщения",
-    "items_to_review": "Элементы для проверки",
-    "no_reviews_needed": "Проверка не требуется"
+    "title": "Überprüfung erforderlich",
+    "pending_approvals": "Ausstehende Freigaben",
+    "review_messages": "Nachrichten prüfen",
+    "items_to_review": "Zu prüfende Elemente",
+    "no_reviews_needed": "Keine Überprüfung erforderlich"
   },
   "settings": {
-    "title": "Настройки",
-    "description": "Конфигурация бота и настройки",
-    "button": "Настройки",
-    "configure": "Настроить",
-    "system_ready": "Система готова к настройке"
+    "title": "Einstellungen",
+    "description": "Bot-Konfiguration & Einstellungen",
+    "button": "Einstellungen",
+    "configure": "Konfigurieren",
+    "system_ready": "System bereit für Konfiguration"
   },
   "quick_actions": {
-    "new_chat": "+ Новый AI чат",
-    "start_chat": "Начать AI чат",
-    "view_calendar": "Посмотреть календарь",
-    "manage_settings": "Управление настройками"
+    "new_chat": "+ Neuer AI Chat",
+    "start_chat": "AI Chat starten",
+    "view_calendar": "Kalender ansehen",
+    "manage_settings": "Einstellungen verwalten"
   },
   "stats": {
-    "loading": "Загрузка статистики панели...",
-    "error": "Ошибка при загрузке статистики",
-    "last_updated": "Последнее обновление"
+    "loading": "Lade Dashboard-Statistiken...",
+    "error": "Fehler beim Laden der Statistiken",
+    "last_updated": "Zuletzt aktualisiert",
+    "total_bookings": "Gesamtbuchungen",
+    "cancellations": "Absagen",
+    "red_flags": "Red Flags",
+    "total_revenue": "Gesamtumsatz",
+    "confirmed": "bestätigt",
+    "rate": "Rate",
+    "chat_sessions": "Chat-Sitzungen",
+    "no_shows": "No-Shows",
+    "unique_customers": "Unique Kunden",
+    "different_phone_numbers": "Verschiedene Telefonnummern"
+  },
+  "admin": {
+    "title": "Admin Dashboard",
+    "overview": "Übersicht aller Statistiken und Metriken"
+  },
+  "period": {
+    "daily": "Täglich",
+    "weekly": "Wöchentlich",
+    "monthly": "Monatlich"
+  },
+  "filters": {
+    "date_range": "Zeitraum",
+    "today": "Heute",
+    "last_7_days": "Letzte 7 Tage",
+    "last_month": "Letzter Monat",
+    "last_year": "Letztes Jahr",
+    "from": "Von:",
+    "to": "Bis:",
+    "apply": "Anwenden",
+    "clear": "Löschen"
+  },
+  "export": {
+    "button": "Exportieren",
+    "data": "Daten exportieren",
+    "csv": "Als CSV exportieren",
+    "json": "Als JSON exportieren"
+  },
+  "red_flags": {
+    "title": "Letzte Red Flags",
+    "no_flags": "Keine Red Flags vorhanden",
+    "time": "Zeit",
+    "phone": "Telefon",
+    "content": "Inhalt",
+    "sentiment": "Sentiment",
+    "count": "Red Flags"
+  },
+  "customers": {
+    "top_customers": "Top Kunden",
+    "name": "Name",
+    "bookings": "Buchungen",
+    "revenue": "Umsatz",
+    "last_visit": "Letzter Besuch",
+    "no_customers": "Keine Kunden vorhanden"
+  },
+  "services": {
+    "service_ranking": "Service Ranking",
+    "service": "Service",
+    "bookings": "Buchungen",
+    "revenue": "Umsatz",
+    "no_services": "Keine Services vorhanden"
+  },
+  "charts": {
+    "appointments_over_time": "Termine im Zeitverlauf",
+    "appointments": "Termine",
+    "weekday_distribution": "Wochentagsverteilung",
+    "hourly_distribution": "Stündenverteilung",
+    "hour": "Uhrzeit",
+    "count": "Anzahl"
   }
 }

@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Appointment } from '@/types';
 import Card from '../ui/Card';
 import Button from '../ui/Button';
@@ -29,6 +30,7 @@ const AppointmentReviewCard: React.FC<AppointmentReviewCardProps> = ({
   isLoading = false,
   showRedFlagBadge = false,
 }) => {
+  const { t } = useTranslation('common');
   // Parse UTC datetime from backend and display in local timezone
   const formattedDate = formatAppointmentDate(appointment.datetime);
   const formattedTime = formatAppointmentTime(appointment.datetime);
@@ -50,7 +52,7 @@ const AppointmentReviewCard: React.FC<AppointmentReviewCardProps> = ({
               )}
               <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400">
                 <ClockIcon className="h-3 w-3 mr-1" />
-                Pending Review
+                {t('status.pending')} {t('navigation.review')}
               </span>
             </div>
           </div>
@@ -60,7 +62,7 @@ const AppointmentReviewCard: React.FC<AppointmentReviewCardProps> = ({
           <div className="flex items-center text-sm text-dark-300">
             <CalendarIcon className="h-5 w-5 mr-2 text-elysPink-500" />
             <span>{formattedDateTime}</span>
-            <span className="ml-2 text-dark-400">({appointment.duration} Min.)</span>
+            <span className="ml-2 text-dark-400">({appointment.duration} {t('units.minutes')})</span>
           </div>
 
           <div className="flex items-center text-sm text-dark-300">
@@ -77,14 +79,14 @@ const AppointmentReviewCard: React.FC<AppointmentReviewCardProps> = ({
 
           {appointment.serviceName && (
             <div className="flex items-start text-sm text-dark-300">
-              <span className="font-medium mr-2">Service:</span>
+              <span className="font-medium mr-2">{t('forms.service')}:</span>
               <span>{appointment.serviceName}</span>
             </div>
           )}
 
           {appointment.notes && (
             <div className="flex items-start text-sm text-dark-300">
-              <span className="font-medium mr-2">Notizen:</span>
+              <span className="font-medium mr-2">{t('forms.notes')}:</span>
               <span className="flex-1">{appointment.notes}</span>
             </div>
           )}
@@ -98,7 +100,7 @@ const AppointmentReviewCard: React.FC<AppointmentReviewCardProps> = ({
             disabled={isLoading}
           >
             <XMarkIcon className="h-5 w-5 mr-2" />
-            Ablehnen
+            {t('actions.reject')}
           </Button>
           <Button
             onClick={() => onApprove(appointment.id)}
@@ -106,7 +108,7 @@ const AppointmentReviewCard: React.FC<AppointmentReviewCardProps> = ({
             disabled={isLoading}
           >
             <CheckIcon className="h-5 w-5 mr-2" />
-            Genehmigen
+            {t('actions.approve')}
           </Button>
         </div>
       </div>

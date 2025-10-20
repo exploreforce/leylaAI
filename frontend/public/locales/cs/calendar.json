@@ -1,85 +1,94 @@
 {
+  "weekdays": {
+    "monday": "Montag",
+    "tuesday": "Dienstag",
+    "wednesday": "Mittwoch",
+    "thursday": "Donnerstag",
+    "friday": "Freitag",
+    "saturday": "Samstag",
+    "sunday": "Sonntag"
+  },
   "header": {
-    "title": "Kalendář",
-    "back_to_dashboard": "← Panel"
+    "title": "Kalender",
+    "back_to_dashboard": "← Dashboard"
   },
   "views": {
-    "month": "Měsíc",
-    "week": "Týden",
-    "day": "Den",
-    "availability": "Dostupnost"
+    "month": "Monat",
+    "week": "Woche",
+    "day": "Tag",
+    "availability": "Verfügbarkeit"
   },
   "buttons": {
-    "new_appointment": "Nová schůzka",
+    "new_appointment": "Neuer Termin",
     "export_ics": "Export ICS",
-    "today": "Nyní",
-    "save": "Uložit",
-    "cancel": "Zrušit",
-    "delete": "Smazat",
-    "edit": "Upravit",
-    "view_details": "Zobrazit detaily",
-    "add_time_slot": "Přidat časový slot",
-    "add_date": "Přidat datum"
+    "today": "Jetzt",
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "delete": "Löschen",
+    "edit": "Bearbeiten",
+    "view_details": "Details anzeigen",
+    "add_time_slot": "Zeitfenster hinzufügen",
+    "add_date": "Datum hinzufügen"
   },
   "appointment": {
-    "new_appointment": "Nová schůzka",
-    "edit_appointment": "Upravit schůzku",
-    "view_appointment": "Zobrazit schůzku",
-    "delete_appointment": "Smazat schůzku",
-    "export_to_ics": "Exportovat do ICS",
-    "confirm_delete": "Smazat tuto schůzku?",
+    "new_appointment": "Neuer Termin",
+    "edit_appointment": "Termin bearbeiten",
+    "view_appointment": "Termin anzeigen",
+    "delete_appointment": "Termin löschen",
+    "export_to_ics": "Export zu ICS",
+    "confirm_delete": "Diesen Termin löschen?",
     "form": {
-      "date_time": "Datum a čas",
-      "customer_name": "Jméno zákazníka",
-      "email": "E-mail",
+      "date_time": "Datum & Zeit",
+      "customer_name": "Kundenname",
+      "email": "E-Mail",
       "phone": "Telefon",
-      "service": "Služba",
-      "status": "Stav",
-      "notes": "Poznámky",
-      "duration": "Doba trvání (minuty)"
+      "service": "Service",
+      "status": "Status",
+      "notes": "Notizen",
+      "duration": "Dauer (Minuten)"
     },
     "status": {
-      "pending": "Čekající",
-      "booked": "Rezervováno",
-      "confirmed": "Potvrzeno",
-      "completed": "Dokončeno",
-      "cancelled": "Zrušeno",
-      "noshow": "Nedostavil se"
+      "pending": "Ausstehend",
+      "booked": "Gebucht",
+      "confirmed": "Bestätigt",
+      "completed": "Abgeschlossen",
+      "cancelled": "Storniert",
+      "noshow": "Nicht erschienen"
     }
   },
   "availability": {
-    "title": "Nastavení dostupnosti",
-    "weekly_schedule": "Týdenní dostupnost",
-    "blackout_dates": "Blokovaná data",
-    "loading": "Načítání dostupnosti...",
-    "no_blackout_dates": "Žádná blokovaná data",
-    "success_message": "Dostupnost úspěšně uložena!",
+    "title": "Verfügbarkeits-Einstellungen",
+    "weekly_schedule": "Wöchentliche Verfügbarkeit",
+    "blackout_dates": "Gesperrte Termine",
+    "loading": "Lade Verfügbarkeiten...",
+    "no_blackout_dates": "Keine gesperrten Termine",
+    "success_message": "Verfügbarkeiten erfolgreich gespeichert!",
     "days": {
-      "monday": "Pondělí",
-      "tuesday": "Úterý",
-      "wednesday": "Středa",
-      "thursday": "Čtvrtek",
-      "friday": "Pátek",
-      "saturday": "Sobota",
-      "sunday": "Neděle"
+      "monday": "Montag",
+      "tuesday": "Dienstag",
+      "wednesday": "Mittwoch",
+      "thursday": "Donnerstag",
+      "friday": "Freitag",
+      "saturday": "Samstag",
+      "sunday": "Sonntag"
     },
     "time_labels": {
-      "from": "od",
-      "to": "do",
-      "start_time": "Čas zahájení",
-      "end_time": "Čas ukončení",
-      "reason": "Důvod"
+      "from": "von",
+      "to": "bis",
+      "start_time": "Startzeit",
+      "end_time": "Endzeit",
+      "reason": "Grund"
     }
   },
   "services": {
-    "no_services": "Žádné dostupné služby - Nejprve nakonfigurujte služby v nastavení bota",
-    "no_services_configured": "Žádné nakonfigurované služby",
-    "configure_services": "Přejděte do Konfigurace Bota → Služby a Ceny pro přidání služeb.",
+    "no_services": "Keine Services verfügbar - Konfiguriere Services in den Bot-Einstellungen zuerst",
+    "no_services_configured": "Keine Services konfiguriert",
+    "configure_services": "Gehe zu Bot-Konfiguration → Services & Preise um zuerst Services hinzuzufügen.",
     "price_duration": "€{price} ({duration}min)"
   },
   "errors": {
-    "invalid_date": "Neplatné datum",
-    "loading_error": "Chyba načítání",
-    "save_error": "Chyba ukládání"
+    "invalid_date": "Ungültiges Datum",
+    "loading_error": "Fehler beim Laden",
+    "save_error": "Fehler beim Speichern"
   }
 }

@@ -1,6 +1,7 @@
 'use client';
 
 import { Bar } from 'react-chartjs-2';
+import { useTranslation } from 'react-i18next';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -26,11 +27,13 @@ interface ServiceRankingProps {
 }
 
 export default function ServiceRanking({ services }: ServiceRankingProps) {
+  const { t } = useTranslation('dashboard');
+  
   const chartData = {
     labels: services.map(s => s.name),
     datasets: [
       {
-        label: 'Buchungen',
+        label: t('services.bookings'),
         data: services.map(s => s.bookingCount),
         backgroundColor: 'rgba(59, 130, 246, 0.8)',
         borderColor: 'rgba(59, 130, 246, 1)',
@@ -49,7 +52,7 @@ export default function ServiceRanking({ services }: ServiceRankingProps) {
       },
       title: {
         display: true,
-        text: 'Top Services nach Buchungen',
+        text: t('services.service_ranking'),
         color: '#F3F4F6',
         font: {
           size: 16,

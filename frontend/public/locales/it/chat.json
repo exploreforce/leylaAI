@@ -1,62 +1,62 @@
 {
   "test_chat": {
-    "title": "Simulazione Chat AI",
+    "title": "AI Chat Simulation",
     "navigation": {
-      "all_chats": "Tutte le chat",
-      "review_responses": "Esamina risposte AI",
-      "back_to_dashboard": "← Torna alla dashboard"
+      "all_chats": "Alle Chats",
+      "review_responses": "AI-Antworten überprüfen",
+      "back_to_dashboard": "← Zurück zum Dashboard"
     },
-    "loading": "Caricamento chat...",
-    "simulation": "Simulazione chat",
-    "start_new": "Avvia nuova chat"
+    "loading": "Lade Chat...",
+    "simulation": "Chat-Simulation",
+    "start_new": "Neuen Chat starten"
   },
   "chat_list": {
-    "title": "Panoramica chat",
-    "loading": "Caricamento sessioni chat...",
-    "no_sessions": "Nessuna sessione chat trovata",
+    "title": "Chat-Übersicht",
+    "loading": "Lade Chat-Sessions...",
+    "no_sessions": "Keine Chat-Sessions gefunden",
     "filters": {
-      "all": "Tutte",
-      "active": "Attivo",
-      "archived": "Archiviato",
-      "inactive": "Inattivo",
-      "show_filters": "Mostra filtri"
+      "all": "Alle",
+      "active": "Aktiv",
+      "archived": "Archiviert",
+      "inactive": "Inaktiv",
+      "show_filters": "Filter anzeigen"
     },
     "actions": {
-      "open": "Apri chat",
-      "archive": "Archivia",
-      "activate": "Riattiva",
-      "delete": "Elimina",
-      "confirm_delete": "Eliminare davvero? Questa azione non può essere annullata.",
-      "confirm_archive": "Archiviare la chat?"
+      "open": "Chat öffnen",
+      "archive": "Archivieren",
+      "activate": "Reaktivieren",
+      "delete": "Löschen",
+      "confirm_delete": "Wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
+      "confirm_archive": "Chat archivieren?"
     },
     "status": {
-      "active": "Attivo",
-      "archived": "Archiviato",
-      "inactive": "Inattivo (2+ settimane di inattività)"
+      "active": "Aktiv",
+      "archived": "Archiviert",
+      "inactive": "Inaktiv (2+ Wochen inaktiv)"
     }
   },
   "chat_review": {
-    "title": "Revisione risposte AI",
-    "loading": "Caricamento chat...",
-    "loading_chats": "Caricamento chat...",
-    "review_responses": "Esamina risposte AI",
-    "no_chats": "Nessuna revisione in attesa!",
-    "all_up_to_date": "Tutte le chat sono aggiornate.",
-    "pending_review": "Revisione in attesa",
-    "user_label": "Utente:",
-    "pending_ai_reply": "Risposta AI in attesa:",
-    "review_arrow": "Esamina →",
-    "approve": "Approva",
-    "reject": "Rifiuta",
-    "edit": "Modifica",
-    "send_custom": "Invia risposta personalizzata"
+    "title": "AI-Antworten Überprüfung",
+    "loading": "Lade Chat...",
+    "loading_chats": "Lade Chats...",
+    "review_responses": "AI-Antworten überprüfen",
+    "no_chats": "Keine ausstehenden Überprüfungen!",
+    "all_up_to_date": "Alle Chats sind auf dem neuesten Stand.",
+    "pending_review": "Ausstehende Überprüfung",
+    "user_label": "Benutzer:",
+    "pending_ai_reply": "Ausstehende AI-Antwort:",
+    "review_arrow": "Überprüfen →",
+    "approve": "Genehmigen",
+    "reject": "Ablehnen",
+    "edit": "Bearbeiten",
+    "send_custom": "Eigene Antwort senden"
   },
   "common": {
-    "back_to_dashboard": "← Torna alla dashboard",
-    "loading": "Caricamento...",
-    "error": "Errore di caricamento",
-    "no_data": "Nessun dato disponibile",
-    "session": "Sessione",
-    "last_activity": "Ultima attività"
+    "back_to_dashboard": "← Zurück zum Dashboard",
+    "loading": "Lädt...",
+    "error": "Fehler beim Laden",
+    "no_data": "Keine Daten verfügbar",
+    "session": "Session",
+    "last_activity": "Letzte Aktivität"
   }
 }

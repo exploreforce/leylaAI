@@ -2,20 +2,23 @@
 
 import { TopCustomer } from '@/types/stats';
 import { UserGroupIcon } from '@heroicons/react/24/outline';
+import { useTranslation } from 'react-i18next';
 
 interface TopCustomersTableProps {
   customers: TopCustomer[];
 }
 
 export default function TopCustomersTable({ customers }: TopCustomersTableProps) {
+  const { t } = useTranslation('dashboard');
+  
   if (customers.length === 0) {
     return (
       <div className="bg-dark-800 rounded-lg p-6 border border-dark-700">
         <h3 className="text-lg font-semibold text-gray-100 mb-4 flex items-center gap-2">
           <UserGroupIcon className="h-5 w-5 text-blue-500" />
-          Top Kunden
+          {t('customers.top_customers')}
         </h3>
-        <p className="text-gray-300 text-center py-4">Keine Kunden vorhanden</p>
+        <p className="text-gray-300 text-center py-4">{t('customers.no_customers')}</p>
       </div>
     );
   }
@@ -24,18 +27,18 @@ export default function TopCustomersTable({ customers }: TopCustomersTableProps)
     <div className="bg-dark-800 rounded-lg p-6 border border-dark-700">
       <h3 className="text-lg font-semibold text-gray-100 mb-4 flex items-center gap-2">
         <UserGroupIcon className="h-5 w-5 text-blue-500" />
-        Top Kunden (Top {customers.length})
+        {t('customers.top_customers')} (Top {customers.length})
       </h3>
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead className="border-b border-dark-700">
             <tr>
-              <th className="text-left py-2 px-3 text-sm font-medium text-gray-400">Rang</th>
-              <th className="text-left py-2 px-3 text-sm font-medium text-gray-400">Name</th>
-              <th className="text-left py-2 px-3 text-sm font-medium text-gray-400">Telefon</th>
-              <th className="text-right py-2 px-3 text-sm font-medium text-gray-400">Buchungen</th>
-              <th className="text-right py-2 px-3 text-sm font-medium text-gray-400">Umsatz</th>
-              <th className="text-left py-2 px-3 text-sm font-medium text-gray-400">Letzte Buchung</th>
+              <th className="text-left py-2 px-3 text-sm font-medium text-gray-400">#</th>
+              <th className="text-left py-2 px-3 text-sm font-medium text-gray-400">{t('customers.name')}</th>
+              <th className="text-left py-2 px-3 text-sm font-medium text-gray-400">{t('common:forms.phone')}</th>
+              <th className="text-right py-2 px-3 text-sm font-medium text-gray-400">{t('customers.bookings')}</th>
+              <th className="text-right py-2 px-3 text-sm font-medium text-gray-400">{t('customers.revenue')}</th>
+              <th className="text-left py-2 px-3 text-sm font-medium text-gray-400">{t('customers.last_visit')}</th>
             </tr>
           </thead>
           <tbody>

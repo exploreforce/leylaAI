@@ -2,20 +2,23 @@
 
 import { RedFlag } from '@/types/stats';
 import { FlagIcon } from '@heroicons/react/24/solid';
+import { useTranslation } from 'react-i18next';
 
 interface RedFlagLogProps {
   flags: RedFlag[];
 }
 
 export default function RedFlagLog({ flags }: RedFlagLogProps) {
+  const { t } = useTranslation('dashboard');
+  
   if (flags.length === 0) {
     return (
       <div className="bg-dark-800 rounded-lg p-6 border border-dark-700">
         <h3 className="text-lg font-semibold text-gray-100 mb-4 flex items-center gap-2">
           <FlagIcon className="h-5 w-5 text-yellow-500" />
-          Letzte Red Flags
+          {t('red_flags.title')}
         </h3>
-        <p className="text-gray-300 text-center py-4">Keine Red Flags vorhanden</p>
+        <p className="text-gray-300 text-center py-4">{t('red_flags.no_flags')}</p>
       </div>
     );
   }
@@ -24,16 +27,16 @@ export default function RedFlagLog({ flags }: RedFlagLogProps) {
     <div className="bg-dark-800 rounded-lg p-6 border border-dark-700">
       <h3 className="text-lg font-semibold text-gray-100 mb-4 flex items-center gap-2">
         <FlagIcon className="h-5 w-5 text-yellow-500" />
-        Letzte Red Flags ({flags.length})
+        {t('red_flags.title')} ({flags.length})
       </h3>
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead className="border-b border-dark-700">
             <tr>
-              <th className="text-left py-2 px-3 text-sm font-medium text-gray-400">Zeit</th>
-              <th className="text-left py-2 px-3 text-sm font-medium text-gray-400">Telefon</th>
-              <th className="text-left py-2 px-3 text-sm font-medium text-gray-400">Inhalt</th>
-              <th className="text-left py-2 px-3 text-sm font-medium text-gray-400">Sentiment</th>
+              <th className="text-left py-2 px-3 text-sm font-medium text-gray-400">{t('red_flags.time')}</th>
+              <th className="text-left py-2 px-3 text-sm font-medium text-gray-400">{t('red_flags.phone')}</th>
+              <th className="text-left py-2 px-3 text-sm font-medium text-gray-400">{t('red_flags.content')}</th>
+              <th className="text-left py-2 px-3 text-sm font-medium text-gray-400">{t('red_flags.sentiment')}</th>
             </tr>
           </thead>
           <tbody>

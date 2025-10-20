@@ -1,85 +1,94 @@
 {
+  "weekdays": {
+    "monday": "Montag",
+    "tuesday": "Dienstag",
+    "wednesday": "Mittwoch",
+    "thursday": "Donnerstag",
+    "friday": "Freitag",
+    "saturday": "Samstag",
+    "sunday": "Sonntag"
+  },
   "header": {
-    "title": "Kalendarz",
-    "back_to_dashboard": "← Panel"
+    "title": "Kalender",
+    "back_to_dashboard": "← Dashboard"
   },
   "views": {
-    "month": "Miesiąc",
-    "week": "Tydzień",
-    "day": "Dzień",
-    "availability": "Dostępność"
+    "month": "Monat",
+    "week": "Woche",
+    "day": "Tag",
+    "availability": "Verfügbarkeit"
   },
   "buttons": {
-    "new_appointment": "Nowe spotkanie",
-    "export_ics": "Eksportuj ICS",
-    "today": "Teraz",
-    "save": "Zapisz",
-    "cancel": "Anuluj",
-    "delete": "Usuń",
-    "edit": "Edytuj",
-    "view_details": "Zobacz szczegóły",
-    "add_time_slot": "Dodaj przedział czasowy",
-    "add_date": "Dodaj datę"
+    "new_appointment": "Neuer Termin",
+    "export_ics": "Export ICS",
+    "today": "Jetzt",
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "delete": "Löschen",
+    "edit": "Bearbeiten",
+    "view_details": "Details anzeigen",
+    "add_time_slot": "Zeitfenster hinzufügen",
+    "add_date": "Datum hinzufügen"
   },
   "appointment": {
-    "new_appointment": "Nowe spotkanie",
-    "edit_appointment": "Edytuj spotkanie",
-    "view_appointment": "Zobacz spotkanie",
-    "delete_appointment": "Usuń spotkanie",
-    "export_to_ics": "Eksportuj do ICS",
-    "confirm_delete": "Usunąć to spotkanie?",
+    "new_appointment": "Neuer Termin",
+    "edit_appointment": "Termin bearbeiten",
+    "view_appointment": "Termin anzeigen",
+    "delete_appointment": "Termin löschen",
+    "export_to_ics": "Export zu ICS",
+    "confirm_delete": "Diesen Termin löschen?",
     "form": {
-      "date_time": "Data i godzina",
-      "customer_name": "Imię klienta",
-      "email": "E-mail",
+      "date_time": "Datum & Zeit",
+      "customer_name": "Kundenname",
+      "email": "E-Mail",
       "phone": "Telefon",
-      "service": "Usługa",
+      "service": "Service",
       "status": "Status",
-      "notes": "Notatki",
-      "duration": "Czas trwania (minuty)"
+      "notes": "Notizen",
+      "duration": "Dauer (Minuten)"
     },
     "status": {
-      "pending": "Oczekujący",
-      "booked": "Zarezerwowany",
-      "confirmed": "Potwierdzony",
-      "completed": "Ukończony",
-      "cancelled": "Anulowany",
-      "noshow": "Nieobecny"
+      "pending": "Ausstehend",
+      "booked": "Gebucht",
+      "confirmed": "Bestätigt",
+      "completed": "Abgeschlossen",
+      "cancelled": "Storniert",
+      "noshow": "Nicht erschienen"
     }
   },
   "availability": {
-    "title": "Ustawienia dostępności",
-    "weekly_schedule": "Tygodniowa dostępność",
-    "blackout_dates": "Zablokowane daty",
-    "loading": "Ładowanie dostępności...",
-    "no_blackout_dates": "Brak zablokowanych dat",
-    "success_message": "Dostępność zapisana pomyślnie!",
+    "title": "Verfügbarkeits-Einstellungen",
+    "weekly_schedule": "Wöchentliche Verfügbarkeit",
+    "blackout_dates": "Gesperrte Termine",
+    "loading": "Lade Verfügbarkeiten...",
+    "no_blackout_dates": "Keine gesperrten Termine",
+    "success_message": "Verfügbarkeiten erfolgreich gespeichert!",
     "days": {
-      "monday": "Poniedziałek",
-      "tuesday": "Wtorek",
-      "wednesday": "Środa",
-      "thursday": "Czwartek",
-      "friday": "Piątek",
-      "saturday": "Sobota",
-      "sunday": "Niedziela"
+      "monday": "Montag",
+      "tuesday": "Dienstag",
+      "wednesday": "Mittwoch",
+      "thursday": "Donnerstag",
+      "friday": "Freitag",
+      "saturday": "Samstag",
+      "sunday": "Sonntag"
     },
     "time_labels": {
-      "from": "od",
-      "to": "do",
-      "start_time": "Godzina rozpoczęcia",
-      "end_time": "Godzina zakończenia",
-      "reason": "Powód"
+      "from": "von",
+      "to": "bis",
+      "start_time": "Startzeit",
+      "end_time": "Endzeit",
+      "reason": "Grund"
     }
   },
   "services": {
-    "no_services": "Brak dostępnych usług - Skonfiguruj najpierw usługi w ustawieniach bota",
-    "no_services_configured": "Brak skonfigurowanych usług",
-    "configure_services": "Przejdź do Konfiguracja Bota → Usługi i Ceny, aby najpierw dodać usługi.",
+    "no_services": "Keine Services verfügbar - Konfiguriere Services in den Bot-Einstellungen zuerst",
+    "no_services_configured": "Keine Services konfiguriert",
+    "configure_services": "Gehe zu Bot-Konfiguration → Services & Preise um zuerst Services hinzuzufügen.",
     "price_duration": "€{price} ({duration}min)"
   },
   "errors": {
-    "invalid_date": "Nieprawidłowa data",
-    "loading_error": "Błąd ładowania",
-    "save_error": "Błąd zapisu"
+    "invalid_date": "Ungültiges Datum",
+    "loading_error": "Fehler beim Laden",
+    "save_error": "Fehler beim Speichern"
   }
 }

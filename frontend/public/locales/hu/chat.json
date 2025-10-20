@@ -1,62 +1,62 @@
 {
   "test_chat": {
-    "title": "AI Csevegés Szimuláció",
+    "title": "AI Chat Simulation",
     "navigation": {
-      "all_chats": "Összes csevegés",
-      "review_responses": "AI válaszok ellenőrzése",
-      "back_to_dashboard": "← Vissza az irányítópulthoz"
+      "all_chats": "Alle Chats",
+      "review_responses": "AI-Antworten überprüfen",
+      "back_to_dashboard": "← Zurück zum Dashboard"
     },
-    "loading": "Csevegés betöltése...",
-    "simulation": "Csevegés szimuláció",
-    "start_new": "Új csevegés indítása"
+    "loading": "Lade Chat...",
+    "simulation": "Chat-Simulation",
+    "start_new": "Neuen Chat starten"
   },
   "chat_list": {
-    "title": "Csevegések áttekintése",
-    "loading": "Csevegés munkamenetek betöltése...",
-    "no_sessions": "Nem található csevegés munkamenet",
+    "title": "Chat-Übersicht",
+    "loading": "Lade Chat-Sessions...",
+    "no_sessions": "Keine Chat-Sessions gefunden",
     "filters": {
-      "all": "Összes",
-      "active": "Aktív",
-      "archived": "Archivált",
-      "inactive": "Inaktív",
-      "show_filters": "Szűrők megjelenítése"
+      "all": "Alle",
+      "active": "Aktiv",
+      "archived": "Archiviert",
+      "inactive": "Inaktiv",
+      "show_filters": "Filter anzeigen"
     },
     "actions": {
-      "open": "Csevegés megnyitása",
-      "archive": "Archiválás",
-      "activate": "Újraaktiválás",
-      "delete": "Törlés",
-      "confirm_delete": "Biztosan törölni szeretné? Ez a művelet nem vonható vissza.",
-      "confirm_archive": "Csevegés archiválása?"
+      "open": "Chat öffnen",
+      "archive": "Archivieren",
+      "activate": "Reaktivieren",
+      "delete": "Löschen",
+      "confirm_delete": "Wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
+      "confirm_archive": "Chat archivieren?"
     },
     "status": {
-      "active": "Aktív",
-      "archived": "Archivált",
-      "inactive": "Inaktív (2+ hét inaktivitás)"
+      "active": "Aktiv",
+      "archived": "Archiviert",
+      "inactive": "Inaktiv (2+ Wochen inaktiv)"
     }
   },
   "chat_review": {
-    "title": "AI válaszok ellenőrzése",
-    "loading": "Csevegés betöltése...",
-    "loading_chats": "Csevegések betöltése...",
-    "review_responses": "AI válaszok ellenőrzése",
-    "no_chats": "Nincs függőben lévő ellenőrzés!",
-    "all_up_to_date": "Minden csevegés naprakész.",
-    "pending_review": "Függőben lévő ellenőrzés",
-    "user_label": "Felhasználó:",
-    "pending_ai_reply": "Függőben lévő AI válasz:",
-    "review_arrow": "Ellenőrzés →",
-    "approve": "Jóváhagyás",
-    "reject": "Elutasítás",
-    "edit": "Szerkesztés",
-    "send_custom": "Egyéni válasz küldése"
+    "title": "AI-Antworten Überprüfung",
+    "loading": "Lade Chat...",
+    "loading_chats": "Lade Chats...",
+    "review_responses": "AI-Antworten überprüfen",
+    "no_chats": "Keine ausstehenden Überprüfungen!",
+    "all_up_to_date": "Alle Chats sind auf dem neuesten Stand.",
+    "pending_review": "Ausstehende Überprüfung",
+    "user_label": "Benutzer:",
+    "pending_ai_reply": "Ausstehende AI-Antwort:",
+    "review_arrow": "Überprüfen →",
+    "approve": "Genehmigen",
+    "reject": "Ablehnen",
+    "edit": "Bearbeiten",
+    "send_custom": "Eigene Antwort senden"
   },
   "common": {
-    "back_to_dashboard": "← Vissza az irányítópulthoz",
-    "loading": "Betöltés...",
-    "error": "Betöltési hiba",
-    "no_data": "Nincs elérhető adat",
-    "session": "Munkamenet",
-    "last_activity": "Utolsó aktivitás"
+    "back_to_dashboard": "← Zurück zum Dashboard",
+    "loading": "Lädt...",
+    "error": "Fehler beim Laden",
+    "no_data": "Keine Daten verfügbar",
+    "session": "Session",
+    "last_activity": "Letzte Aktivität"
   }
 }

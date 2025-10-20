@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useFetch, useApi } from '@/hooks/useApi';
 import { appointmentsApi, botApi, servicesApi, calendarApi } from '@/utils/api';
 import moment from 'moment';
@@ -52,22 +53,23 @@ interface DaySchedule {
   timeSlots: TimeSlot[];
 }
 
-const weekDays = [
-  { key: 'monday', label: 'Montag' },
-  { key: 'tuesday', label: 'Dienstag' },
-  { key: 'wednesday', label: 'Mittwoch' },
-  { key: 'thursday', label: 'Donnerstag' },  
-  { key: 'friday', label: 'Freitag' },
-  { key: 'saturday', label: 'Samstag' },
-  { key: 'sunday', label: 'Sonntag' }
-];
-
 interface CalendarProProps {
   className?: string;
 }
 
 const AvailabilitySettings = () => {
+  const { t } = useTranslation('calendar');
   const { execute: updateAvailability, isLoading: isUpdating } = useApi();
+  
+  const weekDays = [
+    { key: 'monday', label: t('weekdays.monday') },
+    { key: 'tuesday', label: t('weekdays.tuesday') },
+    { key: 'wednesday', label: t('weekdays.wednesday') },
+    { key: 'thursday', label: t('weekdays.thursday') },  
+    { key: 'friday', label: t('weekdays.friday') },
+    { key: 'saturday', label: t('weekdays.saturday') },
+    { key: 'sunday', label: t('weekdays.sunday') }
+  ];
   
   const [schedule, setSchedule] = useState<{ [key: string]: DaySchedule }>({
     monday: { isAvailable: true, timeSlots: [{ start: '09:00', end: '17:00' }] },
@@ -230,7 +232,7 @@ const AvailabilitySettings = () => {
     return (
       <div className="flex items-center justify-center p-8">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-        <span className="ml-2">Lade Verfügbarkeiten...</span>
+        <span className="ml-2">{t('availability.loading')}</span>
       </div>
     );
   }
@@ -242,7 +244,7 @@ const AvailabilitySettings = () => {
         <div className="p-4 sm:p-6">
           <div className="flex items-center mb-4 sm:mb-6">
             <ClockIcon className="h-5 sm:h-6 w-5 sm:w-6 text-elysViolet-500 mr-2" />
-            <h3 className="text-base sm:text-lg font-semibold text-dark-50">Wöchentliche Verfügbarkeit</h3>
+            <h3 className="text-base sm:text-lg font-semibold text-dark-50">{t('availability.weekly_schedule')}</h3>
           </div>
           
           <div className="space-y-3 sm:space-y-4">
@@ -273,7 +275,7 @@ const AvailabilitySettings = () => {
                             onChange={(e) => updateTimeSlot(key, index, 'start', e.target.value)}
                             className="flex-1 sm:w-32 min-h-[44px]"
                           />
-                          <span className="text-dark-300 text-sm flex-shrink-0">bis</span>
+                          <span className="text-dark-300 text-sm flex-shrink-0">{t('availability.time_labels.to')}</span>
                           <Input
                             type="time"
                             value={slot.end}
@@ -296,7 +298,7 @@ const AvailabilitySettings = () => {
                       className="flex items-center justify-center space-x-2 text-sm w-full sm:w-auto min-h-[44px] px-4"
                     >
                       <PlusIcon className="h-4 w-4" />
-                      <span>Zeitfenster hinzufügen</span>
+                      <span>{t('buttons.add_time_slot')}</span>
                     </Button>
                   </div>
                 )}
@@ -312,20 +314,20 @@ const AvailabilitySettings = () => {
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0 mb-4">
             <div className="flex items-center">
               <CalendarIcon className="h-5 sm:h-6 w-5 sm:w-6 text-elysPink-500 mr-2" />
-              <h3 className="text-base sm:text-lg font-semibold text-dark-50">Gesperrte Termine</h3>
+              <h3 className="text-base sm:text-lg font-semibold text-dark-50">{t('availability.blackout_dates')}</h3>
             </div>
             <Button
               onClick={addBlackoutDate}
               className="flex items-center justify-center space-x-2 min-h-[44px] w-full sm:w-auto"
             >
               <PlusIcon className="h-4 w-4" />
-              <span>Datum hinzufügen</span>
+              <span>{t('buttons.add_date')}</span>
             </Button>
           </div>
           
           <div className="space-y-3">
             {blackoutDates.length === 0 ? (
-              <p className="text-dark-300 text-center py-4 text-sm">Keine gesperrten Termine</p>
+              <p className="text-dark-300 text-center py-4 text-sm">{t('availability.no_blackout_dates')}</p>
             ) : (
               blackoutDates.map((blackout, index) => (
                 <div key={index} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
@@ -336,7 +338,7 @@ const AvailabilitySettings = () => {
                     className="flex-1 min-h-[44px]"
                   />
                   <Input
-                    placeholder="Grund (optional)"
+                    placeholder={`${t('availability.time_labels.reason')} (optional)`}
                     value={blackout.reason}
                     onChange={(e) => updateBlackoutDate(index, 'reason', e.target.value)}
                     className="flex-1 sm:flex-2 min-h-[44px]"
@@ -362,7 +364,7 @@ const AvailabilitySettings = () => {
             <svg className="h-5 w-5 text-success-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
             </svg>
-            <span className="text-success-600 font-medium">Verfügbarkeiten erfolgreich gespeichert!</span>
+            <span className="text-success-600 font-medium">{t('availability.success_message')}</span>
           </div>
         </div>
       )}
@@ -374,7 +376,7 @@ const AvailabilitySettings = () => {
           disabled={isUpdating}
           className="min-w-[200px] w-full sm:w-auto min-h-[44px]"
         >
-          {isUpdating ? 'Speichere...' : 'Verfügbarkeiten speichern'}
+          {isUpdating ? t('common:actions.saving') : t('buttons.save')}
         </Button>
       </div>
     </div>
@@ -426,6 +428,7 @@ const formatDateTime = (datetime: string | Date) => {
 };
 
 const CalendarPro: React.FC<CalendarProProps> = ({ className = '' }) => {
+  const { t } = useTranslation('calendar');
   const [view, setView] = useState<'Month' | 'Week' | 'Day' | 'Availability'>('Week');
   const [zoomLevel, setZoomLevel] = useState<'compact' | 'normal' | 'spacious'>('compact');
   const [startDate, setStartDate] = useState<any>(null);
@@ -1453,12 +1456,12 @@ END:VCALENDAR`;
                 {v === 'Availability' ? (
                   <>
                     <Cog6ToothIcon className="h-4 w-4 flex-shrink-0" />
-                    <span className="truncate">{v === 'Availability' ? 'Verfügb.' : v}</span>
+                    <span className="truncate">{t('views.availability')}</span>
                   </>
                 ) : (
                   <>
                     <CalendarDaysIcon className="h-4 w-4 flex-shrink-0" />
-                    <span>{v}</span>
+                    <span>{t(`views.${v.toLowerCase()}`)}</span>
                   </>
                 )}
               </Button>
@@ -1492,8 +1495,8 @@ END:VCALENDAR`;
                   className="flex items-center justify-center space-x-2 px-3 sm:px-4 py-2.5 text-sm font-medium min-h-[44px] w-full sm:w-auto"
                 >
                   <PlusIcon className="h-4 w-4" />
-                  <span className="hidden sm:inline">New Appointment</span>
-                  <span className="sm:hidden">New</span>
+                  <span className="hidden sm:inline">{t('buttons.new_appointment')}</span>
+                  <span className="sm:hidden">{t('common:actions.add')}</span>
                 </Button>
                 
                 <div className="flex gap-2">
@@ -1503,7 +1506,7 @@ END:VCALENDAR`;
                     className="flex-1 sm:flex-initial flex items-center justify-center space-x-1.5 sm:space-x-2 px-3 sm:px-4 py-2.5 text-sm font-medium min-h-[44px]"
                   >
                     <ArrowDownTrayIcon className="h-4 w-4" />
-                    <span className="hidden sm:inline">Export ICS</span>
+                    <span className="hidden sm:inline">{t('buttons.export_ics')}</span>
                     <span className="sm:hidden">Export</span>
                   </Button>
 
@@ -1545,7 +1548,7 @@ END:VCALENDAR`;
                 variant="secondary" 
                 className="text-xs sm:text-sm px-3 py-2 min-h-[44px]"
               >
-                Today
+                {t('buttons.today')}
               </Button>
             </div>
             

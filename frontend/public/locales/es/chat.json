@@ -1,62 +1,62 @@
 {
   "test_chat": {
-    "title": "Simulación de Chat AI",
+    "title": "AI Chat Simulation",
     "navigation": {
-      "all_chats": "Todos los chats",
-      "review_responses": "Revisar respuestas AI",
-      "back_to_dashboard": "← Volver al panel"
+      "all_chats": "Alle Chats",
+      "review_responses": "AI-Antworten überprüfen",
+      "back_to_dashboard": "← Zurück zum Dashboard"
     },
-    "loading": "Cargando chat...",
-    "simulation": "Simulación de chat",
-    "start_new": "Iniciar nuevo chat"
+    "loading": "Lade Chat...",
+    "simulation": "Chat-Simulation",
+    "start_new": "Neuen Chat starten"
   },
   "chat_list": {
-    "title": "Vista general de chats",
-    "loading": "Cargando sesiones de chat...",
-    "no_sessions": "No se encontraron sesiones de chat",
+    "title": "Chat-Übersicht",
+    "loading": "Lade Chat-Sessions...",
+    "no_sessions": "Keine Chat-Sessions gefunden",
     "filters": {
-      "all": "Todos",
-      "active": "Activo",
-      "archived": "Archivado",
-      "inactive": "Inactivo",
-      "show_filters": "Mostrar filtros"
+      "all": "Alle",
+      "active": "Aktiv",
+      "archived": "Archiviert",
+      "inactive": "Inaktiv",
+      "show_filters": "Filter anzeigen"
     },
     "actions": {
-      "open": "Abrir chat",
-      "archive": "Archivar",
-      "activate": "Reactivar",
-      "delete": "Eliminar",
-      "confirm_delete": "¿Realmente eliminar? Esta acción no se puede deshacer.",
-      "confirm_archive": "¿Archivar chat?"
+      "open": "Chat öffnen",
+      "archive": "Archivieren",
+      "activate": "Reaktivieren",
+      "delete": "Löschen",
+      "confirm_delete": "Wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
+      "confirm_archive": "Chat archivieren?"
     },
     "status": {
-      "active": "Activo",
-      "archived": "Archivado",
-      "inactive": "Inactivo (2+ semanas inactivo)"
+      "active": "Aktiv",
+      "archived": "Archiviert",
+      "inactive": "Inaktiv (2+ Wochen inaktiv)"
     }
   },
   "chat_review": {
-    "title": "Revisión de respuestas AI",
-    "loading": "Cargando chat...",
-    "loading_chats": "Cargando chats...",
-    "review_responses": "Revisar respuestas AI",
-    "no_chats": "¡No hay revisiones pendientes!",
-    "all_up_to_date": "Todos los chats están actualizados.",
-    "pending_review": "Revisión pendiente",
-    "user_label": "Usuario:",
-    "pending_ai_reply": "Respuesta AI pendiente:",
-    "review_arrow": "Revisar →",
-    "approve": "Aprobar",
-    "reject": "Rechazar",
-    "edit": "Editar",
-    "send_custom": "Enviar respuesta personalizada"
+    "title": "AI-Antworten Überprüfung",
+    "loading": "Lade Chat...",
+    "loading_chats": "Lade Chats...",
+    "review_responses": "AI-Antworten überprüfen",
+    "no_chats": "Keine ausstehenden Überprüfungen!",
+    "all_up_to_date": "Alle Chats sind auf dem neuesten Stand.",
+    "pending_review": "Ausstehende Überprüfung",
+    "user_label": "Benutzer:",
+    "pending_ai_reply": "Ausstehende AI-Antwort:",
+    "review_arrow": "Überprüfen →",
+    "approve": "Genehmigen",
+    "reject": "Ablehnen",
+    "edit": "Bearbeiten",
+    "send_custom": "Eigene Antwort senden"
   },
   "common": {
-    "back_to_dashboard": "← Volver al panel",
-    "loading": "Cargando...",
-    "error": "Error al cargar",
-    "no_data": "No hay datos disponibles",
-    "session": "Sesión",
-    "last_activity": "Última actividad"
+    "back_to_dashboard": "← Zurück zum Dashboard",
+    "loading": "Lädt...",
+    "error": "Fehler beim Laden",
+    "no_data": "Keine Daten verfügbar",
+    "session": "Session",
+    "last_activity": "Letzte Aktivität"
   }
 }

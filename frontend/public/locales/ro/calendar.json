@@ -1,9 +1,94 @@
 {
-  "header": {"title": "Calendar", "back_to_dashboard": "← Panou"},
-  "views": {"month": "Lună", "week": "Săptămână", "day": "Zi", "availability": "Disponibilitate"},
-  "buttons": {"new_appointment": "Întâlnire nouă", "export_ics": "Export ICS", "today": "Acum", "save": "Salvează", "cancel": "Anulează", "delete": "Șterge", "edit": "Editează", "view_details": "Vezi detalii", "add_time_slot": "Adaugă interval orar", "add_date": "Adaugă dată"},
-  "appointment": {"new_appointment": "Întâlnire nouă", "edit_appointment": "Editează întâlnire", "view_appointment": "Vezi întâlnire", "delete_appointment": "Șterge întâlnire", "export_to_ics": "Exportă în ICS", "confirm_delete": "Ștergi această întâlnire?", "form": {"date_time": "Dată și oră", "customer_name": "Nume client", "email": "E-mail", "phone": "Telefon", "service": "Serviciu", "status": "Status", "notes": "Notițe", "duration": "Durată (minute)"}, "status": {"pending": "În așteptare", "booked": "Rezervat", "confirmed": "Confirmat", "completed": "Finalizat", "cancelled": "Anulat", "noshow": "Nu s-a prezentat"}},
-  "availability": {"title": "Setări disponibilitate", "weekly_schedule": "Program săptămânal", "blackout_dates": "Date blocate", "loading": "Se încarcă disponibilitatea...", "no_blackout_dates": "Nicio dată blocată", "success_message": "Disponibilitate salvată cu succes!", "days": {"monday": "Luni", "tuesday": "Marți", "wednesday": "Miercuri", "thursday": "Joi", "friday": "Vineri", "saturday": "Sâmbătă", "sunday": "Duminică"}, "time_labels": {"from": "de la", "to": "până la", "start_time": "Ora de început", "end_time": "Ora de sfârșit", "reason": "Motiv"}},
-  "services": {"no_services": "Niciun serviciu disponibil - Configurați mai întâi serviciile în setările bot", "no_services_configured": "Niciun serviciu configurat", "configure_services": "Mergi la Configurare Bot → Servicii și Prețuri pentru a adăuga servicii.", "price_duration": "€{price} ({duration}min)"},
-  "errors": {"invalid_date": "Dată invalidă", "loading_error": "Eroare de încărcare", "save_error": "Eroare de salvare"}
+  "weekdays": {
+    "monday": "Montag",
+    "tuesday": "Dienstag",
+    "wednesday": "Mittwoch",
+    "thursday": "Donnerstag",
+    "friday": "Freitag",
+    "saturday": "Samstag",
+    "sunday": "Sonntag"
+  },
+  "header": {
+    "title": "Kalender",
+    "back_to_dashboard": "← Dashboard"
+  },
+  "views": {
+    "month": "Monat",
+    "week": "Woche",
+    "day": "Tag",
+    "availability": "Verfügbarkeit"
+  },
+  "buttons": {
+    "new_appointment": "Neuer Termin",
+    "export_ics": "Export ICS",
+    "today": "Jetzt",
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "delete": "Löschen",
+    "edit": "Bearbeiten",
+    "view_details": "Details anzeigen",
+    "add_time_slot": "Zeitfenster hinzufügen",
+    "add_date": "Datum hinzufügen"
+  },
+  "appointment": {
+    "new_appointment": "Neuer Termin",
+    "edit_appointment": "Termin bearbeiten",
+    "view_appointment": "Termin anzeigen",
+    "delete_appointment": "Termin löschen",
+    "export_to_ics": "Export zu ICS",
+    "confirm_delete": "Diesen Termin löschen?",
+    "form": {
+      "date_time": "Datum & Zeit",
+      "customer_name": "Kundenname",
+      "email": "E-Mail",
+      "phone": "Telefon",
+      "service": "Service",
+      "status": "Status",
+      "notes": "Notizen",
+      "duration": "Dauer (Minuten)"
+    },
+    "status": {
+      "pending": "Ausstehend",
+      "booked": "Gebucht",
+      "confirmed": "Bestätigt",
+      "completed": "Abgeschlossen",
+      "cancelled": "Storniert",
+      "noshow": "Nicht erschienen"
+    }
+  },
+  "availability": {
+    "title": "Verfügbarkeits-Einstellungen",
+    "weekly_schedule": "Wöchentliche Verfügbarkeit",
+    "blackout_dates": "Gesperrte Termine",
+    "loading": "Lade Verfügbarkeiten...",
+    "no_blackout_dates": "Keine gesperrten Termine",
+    "success_message": "Verfügbarkeiten erfolgreich gespeichert!",
+    "days": {
+      "monday": "Montag",
+      "tuesday": "Dienstag",
+      "wednesday": "Mittwoch",
+      "thursday": "Donnerstag",
+      "friday": "Freitag",
+      "saturday": "Samstag",
+      "sunday": "Sonntag"
+    },
+    "time_labels": {
+      "from": "von",
+      "to": "bis",
+      "start_time": "Startzeit",
+      "end_time": "Endzeit",
+      "reason": "Grund"
+    }
+  },
+  "services": {
+    "no_services": "Keine Services verfügbar - Konfiguriere Services in den Bot-Einstellungen zuerst",
+    "no_services_configured": "Keine Services konfiguriert",
+    "configure_services": "Gehe zu Bot-Konfiguration → Services & Preise um zuerst Services hinzuzufügen.",
+    "price_duration": "€{price} ({duration}min)"
+  },
+  "errors": {
+    "invalid_date": "Ungültiges Datum",
+    "loading_error": "Fehler beim Laden",
+    "save_error": "Fehler beim Speichern"
+  }
 }

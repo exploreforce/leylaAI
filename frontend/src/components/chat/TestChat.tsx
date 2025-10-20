@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslation } from 'react-i18next';
 import { botApi } from '@/utils/api';
 import { ChatMessage, TestChatSession } from '@/types';
 import MessageBubbleWithTranslation from './MessageBubbleWithTranslation';
@@ -15,6 +16,7 @@ interface TestChatProps {
 
 const TestChat = ({ existingSessionId }: TestChatProps) => {
   const router = useRouter();
+  const { i18n } = useTranslation();
   const [session, setSession] = useState<TestChatSession | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -304,9 +306,11 @@ const TestChat = ({ existingSessionId }: TestChatProps) => {
       console.log('📤 WORKFLOW STEP 1: Sending user message to API');
       console.log('📤 Session ID:', session.id);
       console.log('📤 User content:', content);
+      console.log('🌍 UI Language:', i18n.language);
       
       // Call API to generate AI response (stored as draft for review)
-      const response = await botApi.testChat(newMessages, session.id);
+      // Pass UI language so bot can respond in user's preferred language
+      const response = await botApi.testChat(newMessages, session.id, undefined, i18n.language);
       
       console.log('📤 WORKFLOW STEP 2: API responded');
       console.log('📤 Response received but NOT displaying AI answer');

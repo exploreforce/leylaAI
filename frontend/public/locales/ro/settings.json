@@ -1,7 +1,54 @@
 {
-  "tabs": {"bot_config": "Configurare Bot", "services": "Servicii și Prețuri", "settings": "Setări"},
-  "messages": {"config_saved": "Configurare bot salvată cu succes!", "loading_config": "Se încarcă configurarea bot..."},
-  "language": {"title": "Limbă", "subtitle": "Selectați limba preferată pentru interfață", "select_language": "Selectați limba", "current_language": "Limba curentă", "loading": "Se încarcă opțiunile de limbă...", "change_success": "Limba schimbată cu succes!"},
-  "bot_config": {"identity": {"title": "Identitate Bot", "name": "Nume Bot", "personality": "Personalitate", "role": "Rol", "description": "Descriere"}, "appearance": {"title": "Aspect", "avatar": "Avatar", "theme": "Temă", "colors": "Culori"}, "behavior": {"title": "Comportament", "response_style": "Stil de răspuns", "greeting": "Salut", "farewell": "La revedere"}},
-  "services": {"title": "Servicii și Prețuri", "add_service": "Adaugă serviciu", "edit_service": "Editează serviciu", "delete_service": "Șterge serviciu", "name": "Nume", "description": "Descriere", "price": "Preț", "duration": "Durată", "available": "Disponibil"}
+  "tabs": {
+    "bot_config": "Bot-Konfiguration",
+    "services": "Services & Preise",
+    "settings": "Einstellungen"
+  },
+  "messages": {
+    "config_saved": "Bot-Konfiguration erfolgreich gespeichert!",
+    "loading_config": "Lade Bot-Konfiguration..."
+  },
+  "language": {
+    "title": "Sprache",
+    "subtitle": "Wählen Sie Ihre bevorzugte Sprache für die Benutzeroberfläche",
+    "select_language": "Sprache auswählen",
+    "current_language": "Aktuelle Sprache",
+    "current_language_prefix": "Aktuelle Sprache",
+    "loading": "Lade Sprachoptionen...",
+    "change_success": "Sprache erfolgreich geändert!"
+  },
+  "bot_config": {
+    "identity": {
+      "title": "Bot-Identität",
+      "name": "Bot-Name",
+      "name_label": "Bot Name",
+      "personality": "Persönlichkeit",
+      "role": "Rolle",
+      "description": "Beschreibung",
+      "description_label": "Bot Beschreibung"
+    },
+    "appearance": {
+      "title": "Erscheinungsbild",
+      "avatar": "Avatar",
+      "theme": "Design",
+      "colors": "Farben"
+    },
+    "behavior": {
+      "title": "Verhalten",
+      "response_style": "Antwort-Stil",
+      "greeting": "Begrüßung",
+      "farewell": "Verabschiedung"
+    }
+  },
+  "services": {
+    "title": "Services & Preise",
+    "add_service": "Service hinzufügen",
+    "edit_service": "Service bearbeiten",
+    "delete_service": "Service löschen",
+    "name": "Name",
+    "description": "Beschreibung",
+    "price": "Preis",
+    "duration": "Dauer",
+    "available": "Verfügbar"
+  }
 }
