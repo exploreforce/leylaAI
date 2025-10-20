@@ -100,6 +100,30 @@ export const WasenderApiClient = {
       return { status: 'unknown', meNumber: null, qrAvailable: false, qrGeneratedAt: null };
     }
   },
+  async getSessionPhone(sessionId: string): Promise<string | null> {
+    const http = getClient();
+    try {
+      const resp = await http.get(`/api/whatsapp-sessions/${sessionId}`);
+      const data: any = resp.data?.data || resp.data || {};
+      
+      // Extract phone number from various possible fields
+      const phone = data?.phone_number || 
+                    data?.phoneNumber || 
+                    data?.me?.id?.replace('@s.whatsapp.net', '') ||
+                    data?.user?.id?.replace('@s.whatsapp.net', '') ||
+                    null;
+      
+      if (phone) {
+        // Normalize to digits only
+        return phone.replace(/[^0-9]/g, '');
+      }
+      
+      return null;
+    } catch (e: any) {
+      console.error(`Failed to get phone for session ${sessionId}:`, e.message);
+      return null;
+    }
+  },
   async getStatus(): Promise<InternalStatus> {
     const http = getClient();
     const sessionId = process.env.WASENDER_SESSION_ID;

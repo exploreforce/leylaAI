@@ -3,9 +3,13 @@ import crypto from 'crypto';
 import { asyncHandler } from '../middleware/errorHandler';
 import { whatsappService } from '../services/whatsappService';
 import { db } from '../models/database';
+import { WasenderApiClient } from '../services/wasenderApiClient';
 
 // Cache to prevent duplicate message processing
 const recentMessages = new Map<string, boolean>();
+
+// Cache for session-to-phone mapping (5 minute TTL)
+const sessionPhoneCache = new Map<string, { phone: string; expires: number }>();
 
 const router = Router();
 
@@ -82,6 +86,39 @@ async function findUserForIncomingMessage(
   }
 }
 
+async function getBusinessPhoneForSession(sessionId: string): Promise<string | null> {
+  if (!sessionId) return null;
+  
+  try {
+    // Check cache first
+    const cached = sessionPhoneCache.get(sessionId);
+    if (cached && cached.expires > Date.now()) {
+      console.log(`🔍 Using cached phone for session ${sessionId}: ${cached.phone}`);
+      return cached.phone;
+    }
+    
+    // Fetch from WasenderAPI
+    console.log(`🔍 Fetching business phone for session ${sessionId} from WasenderAPI...`);
+    const phone = await WasenderApiClient.getSessionPhone(sessionId);
+    
+    if (phone) {
+      // Cache for 5 minutes
+      sessionPhoneCache.set(sessionId, {
+        phone,
+        expires: Date.now() + (5 * 60 * 1000)
+      });
+      console.log(`✅ Found business phone for session ${sessionId}: ${phone}`);
+      return phone;
+    }
+    
+    console.log(`⚠️ No phone number found for session ${sessionId}`);
+    return null;
+  } catch (error) {
+    console.error(`❌ Error getting business phone for session ${sessionId}:`, error);
+    return null;
+  }
+}
+
 function verifySignature(signatureHeader: string | undefined, secret: string | undefined): boolean {
   if (!secret) return true; // if no secret configured, skip verification
   if (!signatureHeader) return false;
@@ -148,7 +185,13 @@ router.post('/wasender', asyncHandler(async (req: Request, res: Response) => {
         
         // Extract phone numbers (remove @s.whatsapp.net suffix if present)
         const from = fromRaw.replace('@s.whatsapp.net', '').replace(/[^0-9]/g, '');
-        const to = toRaw ? toRaw.replace('@s.whatsapp.net', '').replace(/[^0-9]/g, '') : null;
+        let to = toRaw ? toRaw.replace('@s.whatsapp.net', '').replace(/[^0-9]/g, '') : null;
+        
+        // If business phone not in webhook payload, look it up via sessionId
+        if (!to && payload?.sessionId) {
+          console.log(`🔍 Business phone not in payload, looking up via sessionId...`);
+          to = await getBusinessPhoneForSession(payload.sessionId);
+        }
         
         console.log(`📱 Processing message - FROM (customer): ${from}, TO (business): ${to || 'unknown'}, TEXT: "${text}"`);
         
