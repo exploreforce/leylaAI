@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useFetch, useApi } from '@/hooks/useApi';
 import { botApi, servicesApi } from '@/utils/api';
@@ -634,21 +634,21 @@ const LanguageSettings = () => {
 };
 
 const BotConfigForm = () => {
-  const { t } = useTranslation('settings');
+  const { t, i18n } = useTranslation('settings');
   const { t: tCommon } = useTranslation('common');
   
-  // Personality tone options with translations
-  const personalityToneOptions: { value: PersonalityTone; label: string; description: string }[] = [
-    { value: 'professional', label: t('bot_config.personality.tones.professional.label'), description: t('bot_config.personality.tones.professional.description') },
-    { value: 'friendly', label: t('bot_config.personality.tones.friendly.label'), description: t('bot_config.personality.tones.friendly.description') },
-    { value: 'casual', label: t('bot_config.personality.tones.casual.label'), description: t('bot_config.personality.tones.casual.description') },
-    { value: 'flirtatious', label: t('bot_config.personality.tones.flirtatious.label'), description: t('bot_config.personality.tones.flirtatious.description') },
-    { value: 'direct', label: t('bot_config.personality.tones.direct.label'), description: t('bot_config.personality.tones.direct.description') },
-    { value: 'emotional', label: t('bot_config.personality.tones.emotional.label'), description: t('bot_config.personality.tones.emotional.description') },
-    { value: 'warm', label: t('bot_config.personality.tones.warm.label'), description: t('bot_config.personality.tones.warm.description') },
-    { value: 'confident', label: t('bot_config.personality.tones.confident.label'), description: t('bot_config.personality.tones.confident.description') },
-    { value: 'playful', label: t('bot_config.personality.tones.playful.label'), description: t('bot_config.personality.tones.playful.description') }
-  ];
+  // Personality tone options with translations - reactive to language changes
+  const personalityToneOptions = useMemo(() => [
+    { value: 'professional' as PersonalityTone, label: t('bot_config.personality.tones.professional.label'), description: t('bot_config.personality.tones.professional.description') },
+    { value: 'friendly' as PersonalityTone, label: t('bot_config.personality.tones.friendly.label'), description: t('bot_config.personality.tones.friendly.description') },
+    { value: 'casual' as PersonalityTone, label: t('bot_config.personality.tones.casual.label'), description: t('bot_config.personality.tones.casual.description') },
+    { value: 'flirtatious' as PersonalityTone, label: t('bot_config.personality.tones.flirtatious.label'), description: t('bot_config.personality.tones.flirtatious.description') },
+    { value: 'direct' as PersonalityTone, label: t('bot_config.personality.tones.direct.label'), description: t('bot_config.personality.tones.direct.description') },
+    { value: 'emotional' as PersonalityTone, label: t('bot_config.personality.tones.emotional.label'), description: t('bot_config.personality.tones.emotional.description') },
+    { value: 'warm' as PersonalityTone, label: t('bot_config.personality.tones.warm.label'), description: t('bot_config.personality.tones.warm.description') },
+    { value: 'confident' as PersonalityTone, label: t('bot_config.personality.tones.confident.label'), description: t('bot_config.personality.tones.confident.description') },
+    { value: 'playful' as PersonalityTone, label: t('bot_config.personality.tones.playful.label'), description: t('bot_config.personality.tones.playful.description') }
+  ], [t, i18n.language]);
   
   const { data: initialConfig, isLoading, error, refetch } = useFetch(
     () => botApi.getConfig(),
