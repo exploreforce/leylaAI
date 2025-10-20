@@ -172,6 +172,7 @@ const ServicesManagement = ({
   botConfigId: string;
   onServicesChange?: (services: Service[]) => void;
 }) => {
+  const { t } = useTranslation(['settings', 'common']);
   const { data: servicesData, isLoading, error, refetch } = useFetch(
     () => servicesApi.getAll(botConfigId),
     [botConfigId]
