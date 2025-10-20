@@ -78,6 +78,18 @@ async function findUserForIncomingMessage(
       console.log(`❌ Strategy 3 FAILED: No users with active sessions found`);
     }
     
+    // Strategy 4: TEMPORARY FALLBACK to Susi account for testing
+    console.log(`🔍 Strategy 4 (TEMPORARY): Fallback to Susi account for testing`);
+    const susiUser = await db('users')
+      .select('id', 'email')
+      .where('account_id', '110dd6ca-a961-4df0-b4c1-57648c926dc4')
+      .first();
+    
+    if (susiUser) {
+      console.log(`✅ Strategy 4 SUCCESS: Routing to Susi account - ${susiUser.email}`);
+      return { userId: susiUser.id, email: susiUser.email };
+    }
+    
     console.log(`❌ ALL STRATEGIES FAILED: No user found for customer ${customerPhone}, business ${businessPhone}`);
     return null;
   } catch (error) {

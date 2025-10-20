@@ -101,23 +101,48 @@ export const WasenderApiClient = {
     }
   },
   async getSessionPhone(sessionId: string): Promise<string | null> {
-    const http = getClient();
     try {
-      const resp = await http.get(`/api/whatsapp-sessions/${sessionId}`);
-      const data: any = resp.data?.data || resp.data || {};
+      // Use listSessions which is known to work
+      const sessions = await this.listSessions();
+      
+      console.log(`🔍 Looking for session ${sessionId} in ${sessions.length} sessions`);
+      console.log(`🔍 Available session IDs:`, sessions.map(s => ({
+        id: s.id,
+        whatsappSession: s.whatsappSession,
+        sessionId: s.sessionId,
+        name: s.name
+      })));
+      
+      // Find the session by matching various possible ID fields
+      const session = sessions.find(s => 
+        (s.id === sessionId) || 
+        (s.whatsappSession === sessionId) || 
+        (s.sessionId === sessionId)
+      );
+      
+      if (!session) {
+        console.log(`⚠️ Session ${sessionId} not found in listSessions results`);
+        return null;
+      }
+      
+      console.log(`✅ Session matched! Full session data:`, session);
       
       // Extract phone number from various possible fields
-      const phone = data?.phone_number || 
-                    data?.phoneNumber || 
-                    data?.me?.id?.replace('@s.whatsapp.net', '') ||
-                    data?.user?.id?.replace('@s.whatsapp.net', '') ||
+      const phone = session.phone_number || 
+                    session.phoneNumber || 
+                    session.phone ||
+                    session.me?.id?.replace('@s.whatsapp.net', '') ||
+                    session.user?.id?.replace('@s.whatsapp.net', '') ||
                     null;
       
       if (phone) {
         // Normalize to digits only
-        return phone.replace(/[^0-9]/g, '');
+        const normalized = phone.replace(/[^0-9]/g, '');
+        console.log(`✅ Found phone ${normalized} for session ${sessionId}`);
+        return normalized;
       }
       
+      console.log(`⚠️ Session ${sessionId} found but no phone number in session data:`, Object.keys(session));
       return null;
     } catch (e: any) {
       console.error(`Failed to get phone for session ${sessionId}:`, e.message);
