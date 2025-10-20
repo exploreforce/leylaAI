@@ -383,7 +383,7 @@ const executeTool = async (
         console.log(`❌ Day ${dayOfWeek} (${dayName}) is not available according to schedule`);
         return { 
           availableSlots: [],
-          message: 'An diesem Tag ist leider geschlossen.'
+          message: 'This day is closed / not available.'
         };
       }
 
@@ -835,55 +835,55 @@ CUSTOMER INFORMATION (WhatsApp Chat)
 - Customer Phone Number: ${whatsappNumber}
 - Communication Channel: WhatsApp
 
-WICHTIG FÜR TERMINBUCHUNGEN:
-- Du kennst bereits die Telefonnummer dieses Kunden: ${whatsappNumber}
-- Wenn du bookAppointment aufrufst, verwende IMMER ${whatsappNumber} als customerPhone
-- Du musst den Kunden NICHT nach seiner Telefonnummer fragen - du hast sie bereits!
-- Beispiel: Wenn der Kunde "Ich heiße Max" sagt, hast du bereits alles für die Buchung: Name=Max, Telefon=${whatsappNumber}
+IMPORTANT FOR APPOINTMENT BOOKING:
+- You already know this customer's phone number: ${whatsappNumber}
+- When calling bookAppointment, ALWAYS use ${whatsappNumber} as customerPhone
+- You do NOT need to ask the customer for their phone number - you already have it!
+- Example: If customer says "My name is Max", you have everything needed for booking: Name=Max, Phone=${whatsappNumber}
 
 `;
     }
 
     let extendedSystemPrompt = activeSystemPrompt + `
     
-AKTUELLES DATUM & ZEIT (Zeitzone: ${accountTimezone})
+CURRENT DATE & TIME (Timezone: ${accountTimezone})
 ==================================================
-- Datum: ${currentDate} (YYYY-MM-DD Format)
-- Uhrzeit: ${currentTime} Uhr
-- Wochentag: ${currentWeekday}
-- Vollständig: ${currentDateTime}
+- Date: ${currentDate} (YYYY-MM-DD Format)
+- Time: ${currentTime}
+- Weekday: ${currentWeekday}
+- Full DateTime: ${currentDateTime}
 
-RELATIVE DATUMSBERECHNUNGEN
+RELATIVE DATE CALCULATIONS
 ============================
-Für ALLE Terminanfragen mit relativen Datumsangaben musst du diese basierend auf dem aktuellen Datum (${currentDate}) berechnen:
+For ALL appointment requests with relative dates, calculate them based on the current date (${currentDate}):
 
-EINFACHE RELATIVE AUSDRÜCKE:
-- "heute" → ${currentDate}
-- "morgen" → ${tomorrow}
-- "übermorgen" / "day after tomorrow" → ${dayAfterTomorrow}
-- "in X Tagen" → ${currentDate} + X Tage
-- "nächste Woche" / "next week" → ${nextWeek} (ca. +7 Tage)
+SIMPLE RELATIVE EXPRESSIONS:
+- "today" / "heute" → ${currentDate}
+- "tomorrow" / "morgen" → ${tomorrow}
+- "day after tomorrow" / "übermorgen" → ${dayAfterTomorrow}
+- "in X days" / "in X Tagen" → ${currentDate} + X days
+- "next week" / "nächste Woche" → ${nextWeek} (approx. +7 days)
 
-WOCHENTAGS-BASIERTE AUSDRÜCKE:
-Aktueller Wochentag: ${currentWeekday}
-- "nächsten Montag" → Finde den nächsten Montag nach ${currentDate}
-- "diesen Freitag" → Freitag dieser Woche (wenn heute < Freitag) oder nächsten Freitag
-- "kommenden Dienstag" → Nächster Dienstag nach heute
+WEEKDAY-BASED EXPRESSIONS:
+Current weekday: ${currentWeekday}
+- "next Monday" / "nächsten Montag" → Find next Monday after ${currentDate}
+- "this Friday" / "diesen Freitag" → Friday this week (if today < Friday) or next Friday
+- "coming Tuesday" / "kommenden Dienstag" → Next Tuesday after today
 
-ERWEITERTE AUSDRÜCKE:
-- "in 2 Wochen" → ${currentDate} + 14 Tage
-- "nächsten Monat" → Erster Montag/Tag des nächsten Monats (kontextabhängig)
-- "in einem Monat" → ${currentDate} + 30 Tage (ungefähr)
+EXTENDED EXPRESSIONS:
+- "in 2 weeks" / "in 2 Wochen" → ${currentDate} + 14 days
+- "next month" / "nächsten Monat" → First Monday/day of next month (context-dependent)
+- "in one month" / "in einem Monat" → ${currentDate} + 30 days (approximately)
 
-WICHTIGE REGELN:
-1. Berechne IMMER das absolute Datum im Format YYYY-MM-DD
-2. Verwende dieses berechnete Datum für checkAvailability(date: "YYYY-MM-DD")
-3. Erkläre dem Kunden das berechnete Datum zur Bestätigung
-4. Beispiel: "übermorgen" → "Das wäre der ${dayAfterTomorrow}. Lass mich prüfen..."
+IMPORTANT RULES:
+1. ALWAYS calculate the absolute date in YYYY-MM-DD format
+2. Use this calculated date for checkAvailability(date: "YYYY-MM-DD")
+3. Confirm the calculated date with the customer
+4. Example: "day after tomorrow" → "That would be ${dayAfterTomorrow}. Let me check..."
 
-BEISPIEL-KONVERSATION:
-Kunde: "Ich möchte übermorgen um 14 Uhr einen Termin"
-Du: "Gerne! Übermorgen ist der ${dayAfterTomorrow}. Ich prüfe die Verfügbarkeit..."
+EXAMPLE CONVERSATION:
+Customer: "I would like an appointment the day after tomorrow at 2 PM"
+You: "Sure! The day after tomorrow is ${dayAfterTomorrow}. Let me check availability..."
 → checkAvailability(date: "${dayAfterTomorrow}", duration: 60)
 
 ${servicesInfo}
@@ -916,29 +916,29 @@ ${preferredLanguage ? `USER INTERFACE LANGUAGE: ${preferredLanguage} (ONLY used 
 SET user_language TO: The actual language code you DETECTED in the user's message (e.g., 'en', 'de', 'es', 'fr', 'ru')
 Your chat_response MUST be in the EXACT SAME LANGUAGE as user_language
 
-PRIORITÄT:
-- 1️⃣ ERSTE WAHL: Sprache des Benutzers (erkannt aus seiner Nachricht)
-${preferredLanguage ? `- 2️⃣ ZWEITE WAHL: ${preferredLanguage} (User's UI language)
-- 3️⃣ FALLBACK: ${configuredLanguageName} (nur wenn beides unklar)` : `- 2️⃣ FALLBACK: ${configuredLanguageName} (nur wenn Benutzersprache unklar)`}
+**PRIORITY ORDER:**
+- 1️⃣ FIRST PRIORITY: User's message language (detected from their message)
+${preferredLanguage ? `- 2️⃣ SECOND PRIORITY: ${preferredLanguage} (User's UI language)
+- 3️⃣ FALLBACK: ${configuredLanguageName} (only if both unclear)` : `- 2️⃣ FALLBACK: ${configuredLanguageName} (only if user language unclear)`}
 
-BEISPIELE:
-- Benutzer schreibt: "Hello, I need an appointment"
+**EXAMPLES:**
+- User writes: "Hello, I need an appointment"
   → user_language = 'en'
-  → chat_response = "Hello! I'd be happy to help you book an appointment..." (auf Englisch!)
+  → chat_response = "Hello! I'd be happy to help you book an appointment..." (in English!)
 
-- Benutzer schreibt: "Hola, necesito una cita"
+- User writes: "Hola, necesito una cita"
   → user_language = 'es'
-  → chat_response = "¡Hola! Con gusto te ayudo a reservar una cita..." (auf Spanisch!)
+  → chat_response = "¡Hola! Con gusto te ayudo a reservar una cita..." (in Spanish!)
 
-- Benutzer schreibt: "Guten Tag, ich brauche einen Termin"
+- User writes: "Guten Tag, ich brauche einen Termin"
   → user_language = 'de'
-  → chat_response = "Guten Tag! Gerne helfe ich Ihnen bei der Terminbuchung..." (auf Deutsch!)
+  → chat_response = "Guten Tag! Gerne helfe ich Ihnen bei der Terminbuchung..." (in German!)
 
-${preferredLanguage ? `- UI-Sprache: ${preferredLanguage}, Benutzer schreibt unklare Nachricht: "..."
+${preferredLanguage ? `- UI language: ${preferredLanguage}, User writes unclear message: "..."
   → user_language = '${preferredLanguage}' (fallback to UI language)
   → chat_response in ${preferredLanguage}
 
-` : ''}- Benutzer schreibt: "123 xyz" (keine erkennbare Sprache, keine UI-Sprache gesetzt)
+` : ''}- User writes: "123 xyz" (no recognizable language, no UI language set)
   → user_language = '${configuredLanguage}' (ultimate fallback)
   → chat_response in ${configuredLanguageName}
 
