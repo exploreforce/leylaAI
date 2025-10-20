@@ -10,51 +10,71 @@ const recentMessages = new Map<string, boolean>();
 const router = Router();
 
 // Multi-Customer: Find which user/customer owns the WhatsApp session for incoming messages
-async function findUserForIncomingMessage(phoneNumber: string, webhookPayload: any): Promise<{userId: string, email: string} | null> {
+async function findUserForIncomingMessage(
+  customerPhone: string,      // The customer's phone number (sender)
+  businessPhone: string | null, // The business phone number that received the message
+  webhookPayload: any
+): Promise<{userId: string, email: string} | null> {
   try {
+    console.log(`🔍 Finding user for message - Customer: ${customerPhone}, Business: ${businessPhone || 'N/A'}`);
+    
     // Strategy 1: Try to find user by their linked WhatsApp session
-    // WasenderAPI might include session info in webhook payload
-    const sessionInfo = webhookPayload?.session || webhookPayload?.sessionId;
+    // WasenderAPI includes session info in webhook payload
+    const sessionInfo = webhookPayload?.sessionId || webhookPayload?.session || webhookPayload?.data?.sessionId;
     
     if (sessionInfo) {
-      console.log(`🔍 Looking for user with session: ${sessionInfo}`);
+      console.log(`🔍 Strategy 1: Looking for user with session: ${sessionInfo}`);
       const userBySession = await db('users')
-        .select('id', 'email')
+        .select('id', 'email', 'account_id')
         .where('wasender_session_id', sessionInfo)
         .first();
       
       if (userBySession) {
+        console.log(`✅ Strategy 1 SUCCESS: Found user by session - ${userBySession.email} (account: ${userBySession.account_id})`);
         return { userId: userBySession.id, email: userBySession.email };
       }
+      console.log(`❌ Strategy 1 FAILED: No user found with session ${sessionInfo}`);
+    } else {
+      console.log(`⚠️ Strategy 1 SKIPPED: No session info in payload`);
     }
     
-    // Strategy 2: Find user by their registered phone number
-    console.log(`🔍 Looking for user with phone: ${phoneNumber}`);
-    const userByPhone = await db('users')
-      .select('id', 'email')
-      .where('phone', phoneNumber)
-      .orWhere('phone', `+${phoneNumber}`)
-      .first();
-    
-    if (userByPhone) {
-      return { userId: userByPhone.id, email: userByPhone.email };
+    // Strategy 2: Find user by their registered business phone number
+    // This is the phone number that RECEIVED the message (the business WhatsApp number)
+    if (businessPhone && businessPhone.length > 5) {
+      console.log(`🔍 Strategy 2: Looking for user with BUSINESS phone: ${businessPhone}`);
+      const userByBusinessPhone = await db('users')
+        .select('id', 'email', 'account_id')
+        .where('phone', businessPhone)
+        .orWhere('phone', `+${businessPhone}`)
+        .first();
+      
+      if (userByBusinessPhone) {
+        console.log(`✅ Strategy 2 SUCCESS: Found user by business phone - ${userByBusinessPhone.email} (account: ${userByBusinessPhone.account_id})`);
+        return { userId: userByBusinessPhone.id, email: userByBusinessPhone.email };
+      }
+      console.log(`❌ Strategy 2 FAILED: No user found with business phone ${businessPhone}`);
+    } else {
+      console.log(`⚠️ Strategy 2 SKIPPED: No business phone available`);
     }
     
-    // Strategy 3: Check if any user has an active WhatsApp session that could receive this message
-    // This is for cases where the message comes to a business WhatsApp number
-    console.log(`🔍 Looking for users with active WhatsApp sessions`);
+    // Strategy 3: Single active session fallback
+    // If there's only one user with an active WhatsApp session, route to them
+    console.log(`🔍 Strategy 3: Looking for single user with active WhatsApp session`);
     const usersWithSessions = await db('users')
-      .select('id', 'email', 'wasender_session_id')
+      .select('id', 'email', 'account_id', 'wasender_session_id')
       .whereNotNull('wasender_session_id');
     
-    // For now, if we have active sessions but can't determine the exact user,
-    // we could route to the first active user or implement more sophisticated logic
     if (usersWithSessions.length === 1) {
-      console.log(`🔍 Single user with active session found, routing to them`);
+      console.log(`✅ Strategy 3 SUCCESS: Single user with active session found - ${usersWithSessions[0].email} (account: ${usersWithSessions[0].account_id})`);
       return { userId: usersWithSessions[0].id, email: usersWithSessions[0].email };
+    } else if (usersWithSessions.length > 1) {
+      console.log(`❌ Strategy 3 FAILED: Multiple users with sessions (${usersWithSessions.length}) - cannot determine which one`);
+      console.log(`   Users with sessions:`, usersWithSessions.map(u => `${u.email} (session: ${u.wasender_session_id})`));
+    } else {
+      console.log(`❌ Strategy 3 FAILED: No users with active sessions found`);
     }
     
-    console.log(`🔍 No specific user found for phone ${phoneNumber}`);
+    console.log(`❌ ALL STRATEGIES FAILED: No user found for customer ${customerPhone}, business ${businessPhone}`);
     return null;
   } catch (error) {
     console.error('🔍 Error finding user for incoming message:', error);
@@ -105,6 +125,7 @@ router.post('/wasender', asyncHandler(async (req: Request, res: Response) => {
       if (data) {
         // Try both possible data structures
         let fromRaw = '';
+        let toRaw = '';
         let text = '';
         let fromMe = false;
         
@@ -113,18 +134,23 @@ router.post('/wasender', asyncHandler(async (req: Request, res: Response) => {
           fromRaw = data.key.remoteJid;
           text = data.message?.conversation || '';
           fromMe = data.key?.fromMe || false;
+          // Try to get the business phone that received the message
+          toRaw = data.to || data.businessPhone || data.me || '';
         }
         // Structure 2: data.messages.key.remoteJid (new format)
         else if (data.messages?.key?.remoteJid) {
           fromRaw = data.messages.key.remoteJid;
           text = data.messages.message?.conversation || '';
           fromMe = data.messages.key?.fromMe || false;
+          // Try to get the business phone that received the message
+          toRaw = data.messages.to || data.to || data.businessPhone || data.me || '';
         }
         
-        // Extract phone number (remove @s.whatsapp.net suffix if present)
+        // Extract phone numbers (remove @s.whatsapp.net suffix if present)
         const from = fromRaw.replace('@s.whatsapp.net', '').replace(/[^0-9]/g, '');
+        const to = toRaw ? toRaw.replace('@s.whatsapp.net', '').replace(/[^0-9]/g, '') : null;
         
-        console.log(`📱 Processing message from ${from}: "${text}"`);
+        console.log(`📱 Processing message - FROM (customer): ${from}, TO (business): ${to || 'unknown'}, TEXT: "${text}"`);
         
         // CRITICAL: Ignore messages sent by the bot itself
         if (fromMe) {
@@ -150,7 +176,8 @@ router.post('/wasender', asyncHandler(async (req: Request, res: Response) => {
         
         if (from && text) {
           // Multi-Customer: Find which user/customer this message belongs to
-          const targetUser = await findUserForIncomingMessage(from, payload);
+          // Pass BOTH the customer phone (from) AND business phone (to)
+          const targetUser = await findUserForIncomingMessage(from, to, payload);
           
           if (targetUser) {
             console.log(`👤 Message routed to user ${targetUser.userId} (${targetUser.email})`);
@@ -162,7 +189,7 @@ router.post('/wasender', asyncHandler(async (req: Request, res: Response) => {
           }
         } else {
           console.log('⚠️ Missing from or text in message');
-          console.log(`🔍 Debug - fromRaw: "${fromRaw}", text: "${text}"`);
+          console.log(`🔍 Debug - fromRaw: "${fromRaw}", toRaw: "${toRaw}", text: "${text}"`);
           console.log(`🔍 Debug - data structure:`, JSON.stringify(data, null, 2));
         }
       }
