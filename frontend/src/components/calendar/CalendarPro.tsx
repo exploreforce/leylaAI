@@ -1566,11 +1566,11 @@ END:VCALENDAR`;
           <div className="mt-3 sm:mt-4">
             <h2 className="text-base sm:text-lg font-semibold text-dark-50 flex items-center">
               <Cog6ToothIcon className="h-5 w-5 mr-2 text-elysBlue-500" />
-              <span className="hidden sm:inline">Verfügbarkeiten konfigurieren</span>
-              <span className="sm:hidden">Verfügbarkeiten</span>
+              <span className="hidden sm:inline">{t('availability.title')}</span>
+              <span className="sm:hidden">{t('availability.title')}</span>
             </h2>
             <p className="text-xs sm:text-sm text-dark-200 mt-1">
-              Definiere deine wöchentlichen Arbeitszeiten und gesperrte Termine
+              {t('availability.description')}
             </p>
           </div>
         )}

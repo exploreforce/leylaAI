@@ -58,7 +58,19 @@ const generateSystemPrompt = (config: Partial<BotConfig>, services: Service[] = 
     behaviorGuidelines = DEFAULT_BEHAVIOR_GUIDELINES
   } = config;
 
-  const toneDescription = personalityToneOptions.find(opt => opt.value === personalityTone)?.description || 'freundlich';
+  // Tone descriptions for AI prompt (hardcoded as they're for the AI, not the UI)
+  const toneDescriptions: Record<string, string> = {
+    professional: 'Formell und geschäftsmäßig',
+    friendly: 'Warm und einladend',
+    casual: 'Entspannt und ungezwungen',
+    flirtatious: 'Charmant und spielerisch',
+    direct: 'Klar und auf den Punkt',
+    emotional: 'Empathisch und verständnisvoll',
+    warm: 'Mitfühlend und unterstützend',
+    confident: 'Sicher und kompetent',
+    playful: 'Humorvoll und leicht'
+  };
+  const toneDescription = toneDescriptions[personalityTone] || 'freundlich';
 
   // Format services for prompt
   const servicesText = services.length > 0 

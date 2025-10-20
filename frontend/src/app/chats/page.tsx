@@ -125,7 +125,7 @@ export default function AllChatsPage() {
     if (session.sessionType === 'whatsapp') {
       return session.displayName || session.whatsappNumber || `WhatsApp ${session.id}`;
     }
-    return `Chat Session ${session.sessionNumber || session.id}`;
+    return `${t('chat_list.session')} ${session.sessionNumber || session.id}`;
   };
 
   const getStatusColor = (status: string) => {
@@ -139,10 +139,10 @@ export default function AllChatsPage() {
 
   const getStatusLabel = (status: string) => {
     switch (status) {
-      case 'active': return 'Aktiv';
-      case 'archived': return 'Archiviert';
-      case 'inactive': return 'Inaktiv';
-      default: return 'Unbekannt';
+      case 'active': return t('chat_list.status.active');
+      case 'archived': return t('chat_list.status.archived');
+      case 'inactive': return t('chat_list.status.inactive');
+      default: return t('chat_list.status.unknown');
     }
   };
 
@@ -272,8 +272,8 @@ export default function AllChatsPage() {
       <div className="max-w-7xl mx-auto px-3 sm:px-4 py-3 sm:py-4">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0 mb-4 sm:mb-6">
           <div className="text-xs sm:text-sm text-dark-200">
-            {filteredSessions.length} von {sessions.length} Chat Session{filteredSessions.length !== 1 ? 's' : ''}
-            {filterStatus !== 'all' && ` (${getStatusLabel(filterStatus)} gefiltert)`}
+            {filteredSessions.length} {t('chat_list.count.of')} {sessions.length} {filteredSessions.length !== 1 ? t('chat_list.count.sessions_plural') : t('chat_list.count.sessions_singular')}
+            {filterStatus !== 'all' && ` (${getStatusLabel(filterStatus)} ${t('chat_list.count.filtered')})`}
           </div>
           
           <div className="relative flex space-x-2 w-full sm:w-auto">
@@ -344,12 +344,12 @@ export default function AllChatsPage() {
             <div className="bg-dark-700 rounded-xl shadow-2xl p-8 text-center border border-dark-600">
               <div className="flex items-center justify-center text-elysPink-400 text-lg mb-4">
                 <FunnelIcon className="h-6 w-6 mr-2" />
-                Keine Chat Sessions gefunden!
+                {t('chat_list.empty.filtered_title')}
               </div>
               <p className="text-dark-200 mb-6">
                 {filterStatus === 'all' 
-                  ? 'Aktuell sind alle Sessions herausgefiltert.' 
-                  : `Keine ${getStatusLabel(filterStatus)} Sessions vorhanden.`
+                  ? t('chat_list.empty.filtered_all')
+                  : t('chat_list.empty.filtered_status', { status: getStatusLabel(filterStatus) })
                 }
               </p>
               <button
