@@ -743,7 +743,8 @@ const executeTool = async (
 export class AIService {
   static async getChatResponse(
     messages: ChatMessage[],
-    sessionId: string
+    sessionId: string,
+    preferredLanguage?: string
   ): Promise<ChatMessage> {
     // Get session to determine which account this chat belongs to
     const session = await db('test_chat_sessions')
@@ -774,6 +775,9 @@ export class AIService {
     const configuredLanguageName = languageSettings?.language_name || 'Deutsch (German)';
     
     console.log(`🌍 Configured language: ${configuredLanguageName} (${configuredLanguage})`);
+    if (preferredLanguage) {
+      console.log(`🎨 User's UI language: ${preferredLanguage}`);
+    }
 
     const activeSystemPrompt = botConfig.generatedSystemPrompt || botConfig.systemPrompt || 'You are a helpful AI assistant.';
     const promptType = botConfig.generatedSystemPrompt ? 'generated' : 'legacy';
@@ -892,17 +896,23 @@ ${customerContext}SESSION MEMORY
 LANGUAGE SETTINGS - CRITICAL INSTRUCTIONS
 ========================================
 DEFAULT LANGUAGE: ${configuredLanguage} (${configuredLanguageName})
+${preferredLanguage ? `USER INTERFACE LANGUAGE: ${preferredLanguage}` : ''}
 
 WICHTIG - LANGUAGE RULES (HÖCHSTE PRIORITÄT):
 1. **ERKENNE DIE SPRACHE DES BENUTZERS** in seiner Nachricht
 2. **ANTWORTE IN DERSELBEN SPRACHE** wie der Benutzer schreibt
-3. **NUR WENN DIE SPRACHE NICHT ERKENNBAR IST** → Verwende ${configuredLanguageName} als Fallback
-4. Setze user_language auf den erkannten Sprachcode des Benutzers (z.B. 'de', 'en', 'es')
+3. **LANGUAGE PRIORITY ORDER**:
+   ${preferredLanguage ? `a) User writes in specific language → Respond in THAT language
+   b) User's language unclear → Respond in ${preferredLanguage} (their UI language)
+   c) UI language not set → Use ${configuredLanguageName} as fallback` : `a) User writes in specific language → Respond in THAT language
+   b) User's language unclear → Use ${configuredLanguageName} as fallback`}
+4. Setze user_language auf den erkannten Sprachcode des Benutzers (z.B. 'de', 'en', 'es', 'ru', etc.)
 5. Deine Antwort (chat_response) muss in DERSELBEN SPRACHE sein wie user_language
 
 PRIORITÄT:
 - 1️⃣ ERSTE WAHL: Sprache des Benutzers (erkannt aus seiner Nachricht)
-- 2️⃣ FALLBACK: ${configuredLanguageName} (nur wenn Benutzersprache unklar)
+${preferredLanguage ? `- 2️⃣ ZWEITE WAHL: ${preferredLanguage} (User's UI language)
+- 3️⃣ FALLBACK: ${configuredLanguageName} (nur wenn beides unklar)` : `- 2️⃣ FALLBACK: ${configuredLanguageName} (nur wenn Benutzersprache unklar)`}
 
 BEISPIELE:
 - Benutzer schreibt: "Hello, I need an appointment"
@@ -917,18 +927,22 @@ BEISPIELE:
   → user_language = 'de'
   → chat_response = "Guten Tag! Gerne helfe ich Ihnen bei der Terminbuchung..." (auf Deutsch!)
 
-- Benutzer schreibt: "123 xyz" (keine erkennbare Sprache)
-  → user_language = '${configuredLanguage}' (Fallback)
+${preferredLanguage ? `- UI-Sprache: ${preferredLanguage}, Benutzer schreibt unklare Nachricht: "..."
+  → user_language = '${preferredLanguage}' (fallback to UI language)
+  → chat_response in ${preferredLanguage}
+
+` : ''}- Benutzer schreibt: "123 xyz" (keine erkennbare Sprache, keine UI-Sprache gesetzt)
+  → user_language = '${configuredLanguage}' (ultimate fallback)
   → chat_response in ${configuredLanguageName}
 
 GUIDELINES
 - Always return JSON matching the provided schema (no prose outside JSON)
 - chat_response is what the user sees (MUST match the user_language you detected)
 - user_information is a concise rolling summary to carry across turns
-- user_language is the DETECTED language code of the USER'S message (e.g., 'de', 'en', 'es')
+- user_language is the DETECTED language code of the USER'S message (e.g., 'de', 'en', 'es', 'ru', 'pl')
 - is_flagged true only if content crosses a red line
 - user_sentiment is a short qualitative label
-- Response language = User's language (or fallback to ${configuredLanguageName} if unclear)
+- Response language priority: User's message language ${preferredLanguage ? `> UI language (${preferredLanguage})` : ''} > Default (${configuredLanguageName})
 
 IMPORTANT: Always check tools before answering questions about availability or appointments.
 `;

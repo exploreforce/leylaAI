@@ -1,5 +1,172 @@
 # WhatsApp Bot Documentation
 
+## 🌍 Internationalisierung (i18n)
+
+### Unterstützte Sprachen
+
+Die Applikation unterstützt **27 Sprachen** mit vollständiger UI-Übersetzung:
+
+- **Hauptsprachen (manuell gepflegt)**: Deutsch (de), English (en)
+- **Osteuropäische Sprachen**: Russisch (ru), Polnisch (pl), Tschechisch (cs), Slowakisch (sk), Ungarisch (hu), Rumänisch (ro), Bulgarisch (bg), Serbisch (sr), Kroatisch (hr), Slowenisch (sl), Bosnisch (bs), Mazedonisch (mk), Albanisch (sq), Lettisch (lv), Litauisch (lt), Estnisch (et), Ukrainisch (uk), Weißrussisch (be)
+- **Weitere Sprachen**: Spanisch (es), Italienisch (it), Griechisch (el), Thai (th), Tagalog (tl), Vietnamesisch (vi)
+
+### Architektur
+
+**Frontend i18n:**
+- **Framework**: next-i18next mit react-i18next
+- **Provider**: `DynamicTranslationProvider` lädt Sprachen dynamisch
+- **Namespaces**: 
+  - `common` - Navigation, Actions, Status, Forms, Auth
+  - `dashboard` - Dashboard Stats, Filters, Charts, Customers, Services
+  - `settings` - Bot Configuration, Language Settings
+  - `calendar` - Calendar, Availability, Weekdays
+  - `chat` - Chat & Test Chat Interface
+- **Dateistruktur**: `frontend/public/locales/{language}/{namespace}.json`
+
+**Bot-Sprache (Backend-Integration):**
+- Der Bot erkennt automatisch die Sprache des Users
+- **Prioritätsreihenfolge**:
+  1. **Sprache der User-Nachricht** (höchste Priorität - wenn erkennbar)
+  2. **UI-Sprache** (`preferredLanguage` vom Frontend)
+  3. **Default-Sprache** (Deutsch - letzte Fallback)
+- `preferredLanguage` wird vom Frontend an Backend gesendet (`backend/src/services/aiService.ts`)
+- System Prompt enthält dynamische Sprach-Anweisungen
+
+### Translation Keys hinzufügen
+
+**1. Deutsche & Englische Keys hinzufügen:**
+
+```bash
+# Dateien bearbeiten:
+frontend/public/locales/de/{namespace}.json
+frontend/public/locales/en/{namespace}.json
+```
+
+**2. Übersetzungen für alle 25 Sprachen generieren:**
+
+```bash
+cd frontend
+node scripts/translate-locales.js
+```
+
+Das Script generiert automatisch Übersetzungen für alle unterstützten Sprachen basierend auf den deutschen und englischen Basis-Übersetzungen.
+
+### Komponenten übersetzen
+
+**Import und Verwendung:**
+
+```tsx
+import { useTranslation } from 'react-i18next';
+
+export default function MyComponent() {
+  const { t } = useTranslation('common'); // oder 'dashboard', 'settings', etc.
+  
+  return (
+    <div>
+      <h1>{t('navigation.dashboard')}</h1>
+      <button>{t('actions.save')}</button>
+    </div>
+  );
+}
+```
+
+**Cross-Namespace-Referenzen:**
+
+```tsx
+// Zugriff auf Keys aus anderem Namespace
+const { t } = useTranslation('dashboard');
+return <span>{t('common:actions.loading')}</span>;
+```
+
+### Übersetzte Komponenten
+
+**Navigation & Layout:**
+- `frontend/src/components/HeaderAuth.tsx` - Login, Signup, Dashboard, Review, Logout
+
+**Dashboard:**
+- `frontend/src/app/dashboard/page.tsx` - Titel, Stats, Period Selector
+- `frontend/src/components/dashboard/DateRangeFilter.tsx` - Zeitfilter
+- `frontend/src/components/dashboard/RedFlagLog.tsx` - Red Flags Tabelle
+- `frontend/src/components/dashboard/TopCustomersTable.tsx` - Top Kunden
+- `frontend/src/components/dashboard/ServiceRanking.tsx` - Service Charts
+- `frontend/src/components/dashboard/ExportButton.tsx` - Export Button
+
+**Kalender:**
+- `frontend/src/components/calendar/CalendarPro.tsx` - Wochentage, Availability Settings, Buttons
+
+**Review:**
+- `frontend/src/app/appointments-review/page.tsx` - Review Seite, Filter
+- `frontend/src/components/review/AppointmentReviewCard.tsx` - Appointment Cards
+
+**Settings:**
+- `frontend/src/components/BotConfigForm.tsx` - Bot Config, Language Settings
+
+**Authentication:**
+- `frontend/src/app/auth/login/page.tsx` - Login Seite
+- `frontend/src/app/auth/signup/page.tsx` - Registrierungs-Seite
+
+**Chat:**
+- `frontend/src/components/chat/TestChat.tsx` - Test Chat (sendet `preferredLanguage` an Backend)
+- `frontend/src/app/test-chat/page.tsx` - Test Chat Seite
+
+### Backend-Integration
+
+**AI Service Language Detection:**
+
+```typescript
+// backend/src/services/aiService.ts
+static async getChatResponse(
+  messages: ChatMessage[],
+  sessionId: string,
+  preferredLanguage?: string  // ← UI-Sprache vom Frontend
+): Promise<ChatMessage>
+```
+
+Der System Prompt berücksichtigt:
+- User's Nachrichtensprache (automatische Erkennung)
+- `preferredLanguage` als Fallback bei unklaren Nachrichten
+- Konfigurierte Default-Sprache (Deutsch) als letzten Fallback
+
+**API Endpoints:**
+
+```typescript
+// backend/src/routes/bot.ts
+POST /api/bot/test-chat
+Body: {
+  messages: ChatMessage[],
+  sessionId: string,
+  preferredLanguage?: string  // z.B. 'de', 'en', 'ru'
+}
+```
+
+**Frontend API Call:**
+
+```typescript
+// frontend/src/utils/api.ts
+testChat: async (
+  messages: ChatMessage[],
+  sessionId: string,
+  targetLanguage?: string,
+  preferredLanguage?: string
+): Promise<ApiResponse<{ response: ChatMessage }>>
+```
+
+### Fehlende Übersetzungen debuggen
+
+**Browser Console prüfen:**
+
+```
+i18next::translator: missingKey de common navigation.missing_key
+```
+
+Der `DynamicTranslationProvider` loggt fehlende Keys automatisch in der Browser Console.
+
+**Linter-Integration:**
+
+Keine Linter-Fehler - alle Translation Keys sind korrekt in den JSON-Dateien definiert.
+
+---
+
 ## 📋 Changelog
 
 ### 2025-10-17 (Latest) - Admin User Management System

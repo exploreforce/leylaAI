@@ -50,5 +50,37 @@
     "price": "Preis",
     "duration": "Dauer",
     "available": "Verfügbar"
+  },
+  "page": {
+    "title": "Einstellungen",
+    "back_to_dashboard": "Zurück zum Dashboard",
+    "tabs": {
+      "bot_config": "Bot-Konfiguration",
+      "whatsapp_link": "WhatsApp-Link"
+    }
+  },
+  "whatsapp": {
+    "status": "Status",
+    "refresh": "Aktualisieren",
+    "logged_in_as": "Angemeldet als",
+    "phone_placeholder": "Telefonnummer (E.164, z.B. +491701234567)",
+    "create_session": "Meine Sitzung erstellen/sicherstellen",
+    "creating": "Wird erstellt...",
+    "generate_qr": "QR generieren / Verknüpfung starten",
+    "loading": "Lädt...",
+    "scan_qr": "Scannen Sie diesen QR-Code mit WhatsApp auf Ihrem Telefon",
+    "loading_qr": "Lade QR...",
+    "waiting_qr": "Warte auf QR...",
+    "connected": "Verbunden",
+    "connected_subtitle": "Der Bot kann jetzt WhatsApp-Nachrichten empfangen und senden.",
+    "session_management": "Sitzungsverwaltung",
+    "session_for": "Sitzung für",
+    "reset_broken": "Defekte Sitzung zurücksetzen",
+    "manage_session": "Verwalten Sie Ihre WhatsApp-Bot-Sitzung",
+    "delete_session": "Sitzung löschen",
+    "deleting": "Wird gelöscht...",
+    "delete_confirm": "Möchten Sie die aktuelle WhatsApp-Sitzung wirklich löschen? Dies trennt den Bot von WhatsApp und Sie müssen eine neue Sitzung erstellen.",
+    "delete_success": "Sitzung erfolgreich gelöscht.",
+    "auth_required": "Authentifizierung erforderlich"
   }
 }

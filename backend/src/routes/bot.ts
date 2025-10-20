@@ -191,13 +191,14 @@ router.put(
 router.post(
   '/test-chat',
   asyncHandler(async (req: Request, res: Response) => {
-    const { messages, sessionId, targetLanguage } = req.body as {
+    const { messages, sessionId, targetLanguage, preferredLanguage } = req.body as {
       messages: ChatMessage[];
       sessionId: string;
       targetLanguage?: string;
+      preferredLanguage?: string;
     };
 
-    console.log('🔵 Test chat request:', { sessionId, messagesCount: messages?.length });
+    console.log('🔵 Test chat request:', { sessionId, messagesCount: messages?.length, preferredLanguage });
 
     if (!sessionId) {
       return res.status(400).json({ error: 'Session ID is required' });
@@ -218,7 +219,8 @@ router.post(
 
     // Use identical logic as WhatsApp chat (but without sending to WhatsApp)
     // Language detection is now handled automatically by structured outputs in AIService
-    const aiResponse = await whatsappService.handleTestMessage(sessionId, userMessage.content);
+    // Pass preferredLanguage to respect user's UI language setting
+    const aiResponse = await whatsappService.handleTestMessage(sessionId, userMessage.content, preferredLanguage);
     
     // Update session activity
     await Database.updateChatSessionActivity(sessionId);

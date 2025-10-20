@@ -50,7 +50,8 @@ class WhatsAppService {
     messageBody: string, 
     context: string, 
     sendToWhatsApp: boolean = false,
-    whatsappRecipient?: string
+    whatsappRecipient?: string,
+    preferredLanguage?: string
   ): Promise<ChatMessage | null> {
     // User Nachricht speichern
     const userMessageData: DbChatMessage = {
@@ -64,7 +65,10 @@ class WhatsAppService {
     const messageHistory = await this.getMessageHistory(sessionId);
 
     console.log(`🤖 ${context}: Generating AI response...`);
-    const aiResponse = await AIService.getChatResponse(messageHistory, sessionId);
+    if (preferredLanguage) {
+      console.log(`🎨 User's preferred UI language: ${preferredLanguage}`);
+    }
+    const aiResponse = await AIService.getChatResponse(messageHistory, sessionId, preferredLanguage);
 
     if (aiResponse.content) {
       const isFlagged = Boolean((aiResponse as any)?.metadata?.isFlagged);
@@ -166,12 +170,14 @@ class WhatsAppService {
     return await Database.createWhatsAppChatSessionForAccount(phoneNumber, user.account_id);
   }
 
-  async handleTestMessage(sessionId: string, messageBody: string): Promise<ChatMessage | null> {
+  async handleTestMessage(sessionId: string, messageBody: string, preferredLanguage?: string): Promise<ChatMessage | null> {
     return await this.processMessage(
       sessionId, 
       messageBody, 
       `Test Chat (${sessionId})`, 
-      false // NICHT über WhatsApp senden
+      false, // NICHT über WhatsApp senden
+      undefined, // whatsappRecipient
+      preferredLanguage
     );
   }
 

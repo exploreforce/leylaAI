@@ -1,0 +1,69 @@
+{
+  "user_management": {
+    "title": "User Management",
+    "subtitle": "Manage all accounts and users across the platform",
+    "search_placeholder": "Search accounts or users...",
+    "refresh": "Refresh",
+    "total_accounts": "Total Accounts",
+    "total_users": "Total Users",
+    "total_appointments": "Total Appointments",
+    "no_matches": "No accounts or users match your search",
+    "no_accounts": "No accounts found",
+    "loading_accounts": "Loading accounts...",
+    "try_again": "Try Again",
+    "error": "Error"
+  },
+  "user_table": {
+    "email": "Email",
+    "role": "Role",
+    "last_login": "Last Login",
+    "joined": "Joined",
+    "actions": "Actions",
+    "never_logged_in": "Never",
+    "move_user": "Move to another account",
+    "delete_user": "Delete user",
+    "user": "User",
+    "admin": "Admin"
+  },
+  "delete_modal": {
+    "title": "Delete User",
+    "message": "Are you sure you want to delete user",
+    "warning": "This action cannot be undone.",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "deleting": "Deleting..."
+  },
+  "move_modal": {
+    "title": "Move User to Another Account",
+    "message": "Select the account to move",
+    "select_placeholder": "Select account...",
+    "cancel": "Cancel"
+  },
+  "account_stats": {
+    "users": "Users",
+    "appointments": "Appointments",
+    "created": "Created"
+  },
+  "webhook": {
+    "title": "Webhook Administration",
+    "subtitle": "Manage webhook configuration for all WasenderAPI sessions automatically.",
+    "check_status": "Check Status",
+    "setup_webhooks": "Setup All Webhooks",
+    "loading": "Loading...",
+    "setting_up": "Setting up...",
+    "success": "Webhooks successfully configured for all sessions!",
+    "config_summary": "Configuration Summary",
+    "total_sessions": "Total Sessions",
+    "webhook_url": "Webhook URL",
+    "session_details": "Session Details",
+    "session": "Session",
+    "configured": "Configured",
+    "not_configured": "Not Configured",
+    "status": "Status",
+    "current_webhook": "Current Webhook"
+  },
+  "messages": {
+    "error": "Error performing action"
+  }
+}
+

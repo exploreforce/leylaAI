@@ -15,6 +15,32 @@
     "title": "Chat Overview",
     "loading": "Loading chat sessions...",
     "no_sessions": "No chat sessions found",
+    "sessions_count": "of",
+    "session": "Chat Session",
+    "sessions": "Chat Sessions",
+    "filtered": "filtered",
+    "no_sessions_subtitle": "Start your first test chat to see it here.",
+    "start_chat": "Start AI Chat",
+    "no_filtered": "No Chat Sessions found!",
+    "all_filtered": "Currently all sessions are filtered out.",
+    "no_status_sessions": "No {status} Sessions available.",
+    "new_chat": "New AI Chat",
+    "conversation_history": "Conversation History",
+    "refresh": "Refresh",
+    "filter": "Filter",
+    "error_delete": "Error deleting session. Please try again.",
+    "error_archive": "Error archiving session. Please try again.",
+    "error_activate": "Error activating session. Please try again.",
+    "really_archive": "Really archive?",
+    "last_message_user": "user",
+    "last_message_assistant": "assistant",
+    "last_message": "Last message",
+    "translated_to": "Translated to",
+    "translate_to": "Translate to",
+    "show_original": "Show Original",
+    "translating": "Translating...",
+    "created": "Created",
+    "last_activity": "Last activity",
     "filters": {
       "all": "All",
       "active": "Active", 
@@ -33,7 +59,14 @@
     "status": {
       "active": "Active",
       "archived": "Archived", 
-      "inactive": "Inactive (2+ weeks inactive)"
+      "inactive": "Inactive (2+ weeks inactive)",
+      "unknown": "Unknown"
+    },
+    "stats": {
+      "total": "Total",
+      "user": "User",
+      "ai": "AI",
+      "drafts": "Drafts"
     }
   },
   

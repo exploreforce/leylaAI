@@ -10,6 +10,7 @@ import {
 import moment from 'moment';
 import { adminApi } from '@/utils/api';
 import AccountStats from './AccountStats';
+import { useTranslation } from 'react-i18next';
 
 interface User {
   userId: string;
@@ -38,6 +39,7 @@ interface UserManagementTableProps {
 }
 
 export default function UserManagementTable({ accounts, onRefresh }: UserManagementTableProps) {
+  const { t } = useTranslation('admin');
   const [expandedAccounts, setExpandedAccounts] = useState<Set<string>>(new Set());
   const [deleteModal, setDeleteModal] = useState<{ userId: string; email: string } | null>(null);
   const [moveModal, setMoveModal] = useState<{ userId: string; email: string; currentAccountId: string } | null>(null);
@@ -60,7 +62,7 @@ export default function UserManagementTable({ accounts, onRefresh }: UserManagem
       onRefresh();
     } catch (error) {
       console.error('Failed to change user role:', error);
-      alert('Failed to change user role');
+      alert(t('messages.error'));
     } finally {
       setLoading(false);
     }
@@ -76,7 +78,7 @@ export default function UserManagementTable({ accounts, onRefresh }: UserManagem
       onRefresh();
     } catch (error: any) {
       console.error('Failed to delete user:', error);
-      alert(error?.response?.data?.error || 'Failed to delete user');
+      alert(error?.response?.data?.error || t('messages.error'));
     } finally {
       setLoading(false);
     }
@@ -92,7 +94,7 @@ export default function UserManagementTable({ accounts, onRefresh }: UserManagem
       onRefresh();
     } catch (error: any) {
       console.error('Failed to move user:', error);
-      alert(error?.response?.data?.error || 'Failed to move user');
+      alert(error?.response?.data?.error || t('messages.error'));
     } finally {
       setLoading(false);
     }
@@ -137,19 +139,19 @@ export default function UserManagementTable({ accounts, onRefresh }: UserManagem
                     <thead className="bg-dark-800">
                       <tr>
                         <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                          Email
+                          {t('user_table.email')}
                         </th>
                         <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                          Role
+                          {t('user_table.role')}
                         </th>
                         <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                          Last Login
+                          {t('user_table.last_login')}
                         </th>
                         <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                          Joined
+                          {t('user_table.joined')}
                         </th>
                         <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                          Actions
+                          {t('user_table.actions')}
                         </th>
                       </tr>
                     </thead>
@@ -166,15 +168,15 @@ export default function UserManagementTable({ accounts, onRefresh }: UserManagem
                               disabled={loading}
                               className="bg-white text-gray-900 border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-elysPink-500"
                             >
-                              <option value="user">User</option>
-                              <option value="admin">Admin</option>
+                              <option value="user">{t('user_table.user')}</option>
+                              <option value="admin">{t('user_table.admin')}</option>
                             </select>
                           </td>
                           <td className="px-4 py-4 whitespace-nowrap">
                             <div className="text-sm text-gray-700">
                               {user.lastLogin 
                                 ? moment(user.lastLogin).fromNow()
-                                : <span className="text-gray-600">Never</span>
+                                : <span className="text-gray-600">{t('user_table.never_logged_in')}</span>
                               }
                             </div>
                           </td>
@@ -193,7 +195,7 @@ export default function UserManagementTable({ accounts, onRefresh }: UserManagem
                                 })}
                                 disabled={loading}
                                 className="text-elysBlue-400 hover:text-elysBlue-300 disabled:opacity-50"
-                                title="Move to another account"
+                                title={t('user_table.move_user')}
                               >
                                 <ArrowRightOnRectangleIcon className="w-5 h-5" />
                               </button>
@@ -201,7 +203,7 @@ export default function UserManagementTable({ accounts, onRefresh }: UserManagem
                                 onClick={() => setDeleteModal({ userId: user.userId, email: user.email })}
                                 disabled={loading}
                                 className="text-red-400 hover:text-red-300 disabled:opacity-50"
-                                title="Delete user"
+                                title={t('user_table.delete_user')}
                               >
                                 <TrashIcon className="w-5 h-5" />
                               </button>
@@ -222,10 +224,9 @@ export default function UserManagementTable({ accounts, onRefresh }: UserManagem
       {deleteModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4 border border-gray-300 shadow-xl">
-            <h3 className="text-xl font-bold text-gray-900 mb-4">Delete User</h3>
+            <h3 className="text-xl font-bold text-gray-900 mb-4">{t('delete_modal.title')}</h3>
             <p className="text-gray-700 mb-6">
-              Are you sure you want to delete user <strong>{deleteModal.email}</strong>? 
-              This action cannot be undone.
+              {t('delete_modal.message')} <strong>{deleteModal.email}</strong>? {t('delete_modal.warning')}
             </p>
             <div className="flex gap-4 justify-end">
               <button
@@ -233,14 +234,14 @@ export default function UserManagementTable({ accounts, onRefresh }: UserManagem
                 disabled={loading}
                 className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 disabled:opacity-50"
               >
-                Cancel
+                {t('delete_modal.cancel')}
               </button>
               <button
                 onClick={handleDeleteUser}
                 disabled={loading}
                 className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-500 disabled:opacity-50"
               >
-                {loading ? 'Deleting...' : 'Delete'}
+                {loading ? t('delete_modal.deleting') : t('delete_modal.delete')}
               </button>
             </div>
           </div>
@@ -251,9 +252,9 @@ export default function UserManagementTable({ accounts, onRefresh }: UserManagem
       {moveModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4 border border-gray-300 shadow-xl">
-            <h3 className="text-xl font-bold text-gray-900 mb-4">Move User to Another Account</h3>
+            <h3 className="text-xl font-bold text-gray-900 mb-4">{t('move_modal.title')}</h3>
             <p className="text-gray-700 mb-4">
-              Select the account to move <strong>{moveModal.email}</strong> to:
+              {t('move_modal.message')} <strong>{moveModal.email}</strong>:
             </p>
             <select
               id="targetAccount"
@@ -265,7 +266,7 @@ export default function UserManagementTable({ accounts, onRefresh }: UserManagem
               }}
               defaultValue=""
             >
-              <option value="">Select account...</option>
+              <option value="">{t('move_modal.select_placeholder')}</option>
               {accounts
                 .filter(acc => acc.accountId !== moveModal.currentAccountId)
                 .map(acc => (
@@ -281,7 +282,7 @@ export default function UserManagementTable({ accounts, onRefresh }: UserManagem
                 disabled={loading}
                 className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 disabled:opacity-50"
               >
-                Cancel
+                {t('move_modal.cancel')}
               </button>
             </div>
           </div>

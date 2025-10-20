@@ -24,14 +24,15 @@ export const supportedLanguages = [
 const loadLanguageResources = async (lang: string) => {
   try {
     const base = `/locales/${lang}`;
-    const [common, dashboard, settings, chat, calendar] = await Promise.all([
+    const [common, dashboard, settings, chat, calendar, admin] = await Promise.all([
       fetch(`${base}/common.json`).then(r => r.json()),
       fetch(`${base}/dashboard.json`).then(r => r.json()),
       fetch(`${base}/settings.json`).then(r => r.json()),
       fetch(`${base}/chat.json`).then(r => r.json()),
       fetch(`${base}/calendar.json`).then(r => r.json()),
+      fetch(`${base}/admin.json`).then(r => r.json()),
     ]);
-    return { common, dashboard, settings, chat, calendar };
+    return { common, dashboard, settings, chat, calendar, admin };
   } catch (error) {
     console.error(`Failed to load translations for ${lang}:`, error);
     throw error;
@@ -79,7 +80,7 @@ const initI18n = async () => {
       resources,
       
       defaultNS: 'common',
-      ns: ['common', 'dashboard', 'settings', 'chat', 'calendar'],
+      ns: ['common', 'dashboard', 'settings', 'chat', 'calendar', 'admin'],
     });
 
   console.log(`🌍 i18n initialized with language: ${preferredLanguage}`);
@@ -160,20 +161,27 @@ export const DynamicTranslationProvider = ({ children }: DynamicTranslationProvi
     return () => window.removeEventListener('changeLanguage', handleLanguageChange as EventListener);
   }, [currentLanguage]);
 
-  // No loading screen - render immediately!
-  if (!isInitialized) {
-    return <div className="min-h-screen bg-dark-900">{children}</div>;
-  }
-
+  // Always render I18nextProvider - show loading state inside it
   return (
     <I18nextProvider i18n={i18n}>
-      {isChangingLanguage && (
-        <div className="fixed top-4 right-4 z-50 bg-dark-700 text-dark-50 px-4 py-2 rounded-lg shadow-lg border border-dark-600 flex items-center space-x-2">
-          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-elysPink-600"></div>
-          <span className="text-sm">Loading language...</span>
+      {!isInitialized ? (
+        <div className="min-h-screen bg-dark-900 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-elysPink-600 mx-auto mb-4"></div>
+            <p className="text-dark-300">Loading translations...</p>
+          </div>
         </div>
+      ) : (
+        <>
+          {isChangingLanguage && (
+            <div className="fixed top-4 right-4 z-50 bg-dark-700 text-dark-50 px-4 py-2 rounded-lg shadow-lg border border-dark-600 flex items-center space-x-2">
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-elysPink-600"></div>
+              <span className="text-sm">Loading language...</span>
+            </div>
+          )}
+          {children}
+        </>
       )}
-      {children}
     </I18nextProvider>
   );
 };

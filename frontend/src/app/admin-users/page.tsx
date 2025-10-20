@@ -5,6 +5,7 @@ import { AdminRoute } from '@/components/ProtectedRoute';
 import UserManagementTable from '@/components/admin/UserManagementTable';
 import { adminApi } from '@/utils/api';
 import { MagnifyingGlassIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
+import { useTranslation } from 'react-i18next';
 
 export default function AdminUsersPage() {
   return (
@@ -15,6 +16,7 @@ export default function AdminUsersPage() {
 }
 
 function AdminUsersContent() {
+  const { t } = useTranslation('admin');
   const [accounts, setAccounts] = useState<any[]>([]);
   const [filteredAccounts, setFilteredAccounts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -71,7 +73,7 @@ function AdminUsersContent() {
       <div className="min-h-screen flex items-center justify-center bg-dark-900">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-elysPink-600 mx-auto"></div>
-          <p className="text-gray-700 mt-4">Loading accounts...</p>
+          <p className="text-gray-700 mt-4">{t('user_management.loading_accounts')}</p>
         </div>
       </div>
     );
@@ -81,13 +83,13 @@ function AdminUsersContent() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-dark-900">
         <div className="text-center max-w-md">
-          <div className="text-red-600 text-xl mb-4 font-bold">Error</div>
+          <div className="text-red-600 text-xl mb-4 font-bold">{t('user_management.error')}</div>
           <p className="text-gray-700 mb-6">{error}</p>
           <button
             onClick={loadData}
             className="px-4 py-2 bg-elysPink-600 text-white rounded hover:bg-elysPink-500"
           >
-            Try Again
+            {t('user_management.try_again')}
           </button>
         </div>
       </div>
@@ -102,10 +104,10 @@ function AdminUsersContent() {
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
               <h1 className="text-3xl font-bold text-gray-900">
-                User Management
+                {t('user_management.title')}
               </h1>
               <p className="text-gray-700 mt-1">
-                Manage all accounts and users across the platform
+                {t('user_management.subtitle')}
               </p>
             </div>
             
@@ -113,15 +115,15 @@ function AdminUsersContent() {
               {/* Stats */}
               <div className="flex gap-6 text-sm">
                 <div>
-                  <div className="text-gray-700">Total Accounts</div>
+                  <div className="text-gray-700">{t('user_management.total_accounts')}</div>
                   <div className="text-2xl font-bold text-elysPink-600">{accounts.length}</div>
                 </div>
                 <div>
-                  <div className="text-gray-700">Total Users</div>
+                  <div className="text-gray-700">{t('user_management.total_users')}</div>
                   <div className="text-2xl font-bold text-elysBlue-600">{totalUsers}</div>
                 </div>
                 <div>
-                  <div className="text-gray-700">Total Appointments</div>
+                  <div className="text-gray-700">{t('user_management.total_appointments')}</div>
                   <div className="text-2xl font-bold text-elysViolet-600">{totalAppointments}</div>
                 </div>
               </div>
@@ -131,7 +133,7 @@ function AdminUsersContent() {
                 onClick={loadData}
                 disabled={loading}
                 className="p-2 bg-dark-700 hover:bg-dark-600 rounded-lg transition-colors disabled:opacity-50"
-                title="Refresh"
+                title={t('user_management.refresh')}
               >
                 <ArrowPathIcon className={`w-5 h-5 text-gray-300 ${loading ? 'animate-spin' : ''}`} />
               </button>
@@ -144,7 +146,7 @@ function AdminUsersContent() {
               <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
               <input
                 type="text"
-                placeholder="Search accounts or users..."
+                placeholder={t('user_management.search_placeholder')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-elysPink-500"
@@ -159,7 +161,7 @@ function AdminUsersContent() {
         {filteredAccounts.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-gray-700">
-              {searchTerm ? 'No accounts or users match your search' : 'No accounts found'}
+              {searchTerm ? t('user_management.no_matches') : t('user_management.no_accounts')}
             </p>
           </div>
         ) : (

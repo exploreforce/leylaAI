@@ -149,5 +149,15 @@
       "login_link": "Zum Login",
       "error_failed": "Registrierung fehlgeschlagen"
     }
+  },
+  "reject_modal": {
+    "title": "Termin ablehnen",
+    "message": "Möchten Sie den Termin für",
+    "message_suffix": "wirklich ablehnen?",
+    "reason_label": "Ablehnungsgrund (optional)",
+    "reason_placeholder": "Grund für die Ablehnung des Termins...",
+    "cancel": "Abbrechen",
+    "reject": "Ablehnen",
+    "rejecting": "Wird abgelehnt..."
   }
 }

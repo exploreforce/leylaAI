@@ -14,6 +14,32 @@
     "title": "Chat-Übersicht",
     "loading": "Lade Chat-Sessions...",
     "no_sessions": "Keine Chat-Sessions gefunden",
+    "sessions_count": "von",
+    "session": "Chat Session",
+    "sessions": "Chat Sessions",
+    "filtered": "gefiltert",
+    "no_sessions_subtitle": "Starten Sie Ihren ersten Test-Chat, um ihn hier zu sehen.",
+    "start_chat": "AI Chat starten",
+    "no_filtered": "Keine Chat Sessions gefunden!",
+    "all_filtered": "Aktuell sind alle Sessions herausgefiltert.",
+    "no_status_sessions": "Keine {status} Sessions vorhanden.",
+    "new_chat": "Neuer AI Chat",
+    "conversation_history": "Gesprächsverlauf",
+    "refresh": "Aktualisieren",
+    "filter": "Filter",
+    "error_delete": "Fehler beim Löschen der Session. Bitte versuchen Sie es erneut.",
+    "error_archive": "Fehler beim Archivieren der Session. Bitte versuchen Sie es erneut.",
+    "error_activate": "Fehler beim Reaktivieren der Session. Bitte versuchen Sie es erneut.",
+    "really_archive": "Wirklich archivieren?",
+    "last_message_user": "Benutzer",
+    "last_message_assistant": "Assistent",
+    "last_message": "Letzte Nachricht",
+    "translated_to": "Übersetzt nach",
+    "translate_to": "Übersetzen nach",
+    "show_original": "Original anzeigen",
+    "translating": "Übersetze...",
+    "created": "Erstellt",
+    "last_activity": "Letzte Aktivität",
     "filters": {
       "all": "Alle",
       "active": "Aktiv",
@@ -32,7 +58,14 @@
     "status": {
       "active": "Aktiv",
       "archived": "Archiviert",
-      "inactive": "Inaktiv (2+ Wochen inaktiv)"
+      "inactive": "Inaktiv (2+ Wochen inaktiv)",
+      "unknown": "Unbekannt"
+    },
+    "stats": {
+      "total": "Gesamt",
+      "user": "Benutzer",
+      "ai": "KI",
+      "drafts": "Entwürfe"
     }
   },
   "chat_review": {

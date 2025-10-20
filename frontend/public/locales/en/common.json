@@ -159,5 +159,16 @@
       "login_link": "Go to Login",
       "error_failed": "Sign up failed"
     }
+  },
+  
+  "reject_modal": {
+    "title": "Reject Appointment",
+    "message": "Do you really want to reject the appointment for",
+    "message_suffix": "?",
+    "reason_label": "Rejection reason (optional)",
+    "reason_placeholder": "Reason for rejecting the appointment...",
+    "cancel": "Cancel",
+    "reject": "Reject",
+    "rejecting": "Rejecting..."
   }
 }

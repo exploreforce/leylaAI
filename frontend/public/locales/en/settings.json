@@ -54,5 +54,39 @@
     "price": "Price",
     "duration": "Duration",
     "available": "Available"
+  },
+  
+  "page": {
+    "title": "Settings",
+    "back_to_dashboard": "Back to Dashboard",
+    "tabs": {
+      "bot_config": "Bot Configuration",
+      "whatsapp_link": "WhatsApp Link"
+    }
+  },
+  
+  "whatsapp": {
+    "status": "Status",
+    "refresh": "Refresh",
+    "logged_in_as": "Logged in as",
+    "phone_placeholder": "Phone number (E.164, e.g., +491701234567)",
+    "create_session": "Create/Ensure My Session",
+    "creating": "Creating...",
+    "generate_qr": "Generate QR / Start Linking",
+    "loading": "Loading...",
+    "scan_qr": "Scan this QR with WhatsApp on your phone",
+    "loading_qr": "Loading QR...",
+    "waiting_qr": "Waiting for QR...",
+    "connected": "Connected",
+    "connected_subtitle": "The bot can now receive and send WhatsApp messages.",
+    "session_management": "Session Management",
+    "session_for": "Session for",
+    "reset_broken": "Reset broken session",
+    "manage_session": "Manage your WhatsApp bot session",
+    "delete_session": "Delete Session",
+    "deleting": "Deleting...",
+    "delete_confirm": "Are you sure you want to delete the current WhatsApp session? This will disconnect the bot from WhatsApp and you will need to create a new session.",
+    "delete_success": "Session deleted successfully.",
+    "auth_required": "Authentication required"
   }
 }

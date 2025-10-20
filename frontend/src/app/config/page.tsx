@@ -5,8 +5,10 @@ import { CogIcon, ChatBubbleLeftRightIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export default function ConfigPage() {
+  const { t } = useTranslation('settings');
   const [activeTab, setActiveTab] = useState<'bot' | 'whatsapp'>('bot');
 
   return (
@@ -23,10 +25,10 @@ export default function ConfigPage() {
                 className="h-8 sm:h-10 w-auto"
               />
               <CogIcon className="h-6 sm:h-8 w-6 sm:w-8 text-elysBlue-500" />
-              <h1 className="text-lg sm:text-2xl font-bold text-dark-50">Settings</h1>
+              <h1 className="text-lg sm:text-2xl font-bold text-dark-50">{t('page.title')}</h1>
             </div>
             <Link href="/" className="text-xs sm:text-sm font-medium text-elysViolet-400 hover:text-elysViolet-300 transition-colors px-2 py-1 sm:px-0">
-              <span className="hidden sm:inline">← Back to Dashboard</span>
+              <span className="hidden sm:inline">{t('page.back_to_dashboard')}</span>
               <span className="sm:hidden">←</span>
             </Link>
           </div>
@@ -42,7 +44,7 @@ export default function ConfigPage() {
             >
               <span className="inline-flex items-center gap-1.5 sm:gap-2">
                 <CogIcon className="h-4 sm:h-5 w-4 sm:w-5" />
-                <span className="text-xs sm:text-sm">Bot-Konfiguration</span>
+                <span className="text-xs sm:text-sm">{t('page.tabs.bot_config')}</span>
               </span>
             </button>
             <button
@@ -51,7 +53,7 @@ export default function ConfigPage() {
             >
               <span className="inline-flex items-center gap-1.5 sm:gap-2">
                 <ChatBubbleLeftRightIcon className="h-4 sm:h-5 w-4 sm:w-5" />
-                <span className="text-xs sm:text-sm">Whatsapp Link</span>
+                <span className="text-xs sm:text-sm">{t('page.tabs.whatsapp_link')}</span>
               </span>
             </button>
           </nav>

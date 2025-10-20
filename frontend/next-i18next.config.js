@@ -15,7 +15,7 @@ module.exports = {
   reloadOnPrerender: process.env.NODE_ENV === 'development',
   
   // Namespace-Konfiguration
-  ns: ['common', 'dashboard', 'settings', 'calendar', 'chat', 'navigation'],
+  ns: ['common', 'dashboard', 'settings', 'calendar', 'chat', 'navigation', 'admin'],
   
   // Interpolation-Optionen
   interpolation: {

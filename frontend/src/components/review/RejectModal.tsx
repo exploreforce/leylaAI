@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Button from '../ui/Button';
 import Textarea from '../ui/Textarea';
 import { XMarkIcon } from '@heroicons/react/24/outline';
+import { useTranslation } from 'react-i18next';
 
 interface RejectModalProps {
   appointmentId: string;
@@ -20,6 +21,7 @@ const RejectModal: React.FC<RejectModalProps> = ({
   onCancel,
   isLoading = false,
 }) => {
+  const { t } = useTranslation('common');
   const [reason, setReason] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -33,7 +35,7 @@ const RejectModal: React.FC<RejectModalProps> = ({
         <div className="p-6">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold text-dark-50">
-              Termin ablehnen
+              {t('reject_modal.title')}
             </h3>
             <button
               onClick={onCancel}
@@ -45,18 +47,18 @@ const RejectModal: React.FC<RejectModalProps> = ({
           </div>
 
           <p className="text-sm text-dark-300 mb-4">
-            Möchten Sie den Termin für <strong className="text-dark-100">{customerName}</strong> wirklich ablehnen?
+            {t('reject_modal.message')} <strong className="text-dark-100">{customerName}</strong> {t('reject_modal.message_suffix')}
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-dark-200 mb-2">
-                Ablehnungsgrund (optional)
+                {t('reject_modal.reason_label')}
               </label>
               <Textarea
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
-                placeholder="Grund für die Ablehnung des Termins..."
+                placeholder={t('reject_modal.reason_placeholder')}
                 rows={3}
                 disabled={isLoading}
               />
@@ -69,14 +71,14 @@ const RejectModal: React.FC<RejectModalProps> = ({
                 variant="secondary"
                 disabled={isLoading}
               >
-                Abbrechen
+                {t('reject_modal.cancel')}
               </Button>
               <Button
                 type="submit"
                 className="bg-red-600 hover:bg-red-700"
                 disabled={isLoading}
               >
-                {isLoading ? 'Wird abgelehnt...' : 'Ablehnen'}
+                {isLoading ? t('reject_modal.rejecting') : t('reject_modal.reject')}
               </Button>
             </div>
           </form>
