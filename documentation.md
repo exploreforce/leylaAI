@@ -1,5 +1,165 @@
 # WhatsApp Bot Documentation
 
+## 🏢 Multi-Account Support & Data Isolation
+
+### Übersicht
+
+Die Applikation unterstützt vollständige Multi-Tenancy mit Account-basierter Datenisolation. Jeder Account hat seine eigenen Daten und Einstellungen:
+
+- **Eigene Bot-Konfiguration** - System Prompt, Tone, Business Hours, etc.
+- **Eigene Test Chat Sessions** - Vollständig isolierte Chat-Historie
+- **Eigene Appointments** - Terminbuchungen sind account-spezifisch
+- **Eigene Services** - Jeder Account definiert seine eigenen Services
+- **Eigene Availability & Blackout Dates** - Verfügbarkeiten pro Account
+- **Eigene Language Settings** - Spracheinstellungen pro Account
+- **Eigene WhatsApp Verbindungen** - WhatsApp-Integration per User/Account
+
+### Account-Struktur
+
+**Database Schema:**
+- `accounts` - Account Tabelle (z.B. ein Unternehmen)
+- `users` - User Tabelle mit `account_id` Foreign Key
+- `account_members` - Zuordnung User zu Accounts mit Rollen
+
+**Alle Daten-Tabellen haben `account_id`:**
+- `bot_configs.account_id`
+- `appointments.account_id`
+- `availability_configs.account_id`
+- `blackout_dates.account_id`
+- `services.account_id`
+- `test_chat_sessions.account_id`
+- `language_settings.account_id`
+
+### Authentication & Authorization
+
+**JWT Token Structure:**
+```typescript
+{
+  userId: string,    // User ID
+  accountId: string  // Account ID des Users
+}
+```
+
+**API Routes:**
+- Alle geschützten Routes verwenden `requireAuth` Middleware
+- `req.accountId` wird automatisch aus JWT extrahiert
+- Alle Database Queries filtern nach `accountId`
+
+**Beispiel Route:**
+```typescript
+router.get('/config', requireAuth, async (req: AuthRequest, res) => {
+  const config = await Database.getBotConfig(req.accountId!);
+  // ...
+});
+```
+
+### Neuer Account Signup
+
+**Automatische Setup-Schritte:**
+
+1. **Account & User erstellt** - Neuer Account und Owner User
+2. **Bot Config kopiert** - Kopie von Admin-Account Bot Config (susi@susi.com)
+3. **Leerer Start** - Keine Services, Appointments, Chat Sessions
+4. **Default Availability** - Standard 9-17 Uhr Mo-Fr wird bei erstem Zugriff erstellt
+5. **Language Settings** - Standard-Sprachen werden bei erstem Zugriff erstellt
+
+**Admin Account:**
+- `susi@susi.com` ist der Master-Admin Account
+- Neue Accounts erhalten eine Kopie der Bot-Konfiguration von diesem Account
+- Keine anderen Daten werden kopiert
+
+### WhatsApp Integration per Account
+
+**WhatsApp Session Management:**
+- Jeder User kann eine eigene WhatsApp-Nummer verbinden
+- `users.wasender_session_id` - Session ID pro User
+- WhatsApp Chat Sessions gehören zum Account des Users
+- Eingehende Nachrichten werden via `wasender_session_id` dem richtigen User/Account zugeordnet
+
+**Multi-User WhatsApp:**
+- User A mit WhatsApp Nummer A → Messages gehen an Account A
+- User B mit WhatsApp Nummer B → Messages gehen an Account B
+- Vollständige Isolation zwischen Accounts
+
+### Database Helper Functions
+
+**Alle wichtigen Functions akzeptieren `accountId`:**
+
+```typescript
+// Bot Config
+Database.getBotConfig(accountId: string)
+Database.updateBotConfig(accountId: string, updates)
+
+// Test Chat Sessions
+Database.getActiveTestChatSession(accountId: string)
+Database.createTestChatSession(accountId: string)
+
+// Appointments
+Database.getAppointments({ accountId, ...filters })
+Database.createAppointment({ ...data, accountId })
+Database.updateAppointment(id, updates, accountId)
+
+// Services
+Database.getServices(accountId: string)
+Database.createService(accountId: string, data)
+
+// Availability
+Database.getAvailabilityConfig(accountId: string)
+Database.updateAvailabilityConfig(accountId: string, schedule)
+
+// Language Settings
+Database.getLanguageSettings(accountId: string)
+Database.getCurrentLanguageSetting(accountId: string)
+```
+
+### Migrations
+
+**Existierende Daten Migration:**
+- Migration `20251022000000_assign_existing_data_to_susi_account.js`
+- Weist alle existierenden Daten dem Account von `susi@susi.com` zu
+- Wird automatisch beim AWS Deployment ausgeführt
+
+**Language Settings Migration:**
+- Migration `20251022000001_add_account_id_to_language_settings.js`
+- Fügt `account_id` zu `language_settings` hinzu
+- Kopiert Settings für alle existierenden Accounts
+
+### Testing Multi-Account
+
+**Test-Szenario:**
+
+1. Login als `susi@susi.com` → Sieht alle existierenden Daten
+2. Signup als neuer User (z.B. `test@example.com`)
+3. Neuer User sollte sehen:
+   - ✅ Kopierte Bot Config von Admin
+   - ✅ Keine Test Chat Sessions
+   - ✅ Keine Appointments
+   - ✅ Keine Services (leere Liste)
+   - ✅ Standard Availability (9-17 Uhr)
+4. Erstelle Test Session als neuer User
+5. Login wieder als `susi@susi.com`
+6. Verifiziere: Neue Session ist NICHT sichtbar für susi@susi.com
+
+### Troubleshooting
+
+**User sieht fremde Daten:**
+- Prüfe ob Route `requireAuth` Middleware verwendet
+- Prüfe ob Database Function `accountId` Parameter hat
+- Prüfe Browser Console für Auth-Fehler
+- Verifiziere JWT Token enthält `accountId`
+
+**WhatsApp Nachrichten gehen an falschen Account:**
+- Prüfe `users.wasender_session_id` Zuordnung
+- Prüfe Webhook Handler Log für User-Routing
+- Verifiziere `createWhatsAppChatSession` verwendet korrekte `accountId`
+
+**Neue Accounts haben keine Bot Config:**
+- Prüfe ob `susi@susi.com` existiert
+- Prüfe ob Admin Account eine aktive Bot Config hat
+- Siehe Backend Logs für Signup Flow
+
+---
+
 ## 🌍 Internationalisierung (i18n)
 
 ### Unterstützte Sprachen
