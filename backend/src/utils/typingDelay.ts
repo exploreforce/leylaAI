@@ -6,9 +6,9 @@
 export class TypingDelayService {
   // Konfiguration für Typing-Verzögerung
   private static readonly TYPING_DELAY_ENABLED = process.env.WHATSAPP_TYPING_DELAY !== 'false';
-  private static readonly MIN_RANDOM_DELAY = 4; // Mindest-Zufallsverzögerung in Sekunden
-  private static readonly MAX_RANDOM_DELAY = 15; // Maximal-Zufallsverzögerung in Sekunden
-  private static readonly CHARS_PER_SECOND = 2.5; // Zeichen pro Sekunde beim Tippen
+  private static readonly MIN_RANDOM_DELAY = 1; // Mindest-Zufallsverzögerung in Sekunden
+  private static readonly MAX_RANDOM_DELAY = 12; // Maximal-Zufallsverzögerung in Sekunden
+  private static readonly CHARS_PER_SECOND = 2.5; // Zeichen pro Sekunde beim Tippen (= 0.4 sec/char)
 
   /**
    * Berechnet realistische Typing-Verzögerung basierend auf Nachrichtenlänge

@@ -33,6 +33,9 @@ class WhatsAppService {
   }
 
   async sendMessage(to: string, message: string): Promise<void> {
+    // Apply realistic typing delay before sending to WhatsApp (not for Test Chat)
+    await TypingDelayService.applyTypingDelay(message, `WhatsApp (${to})`);
+    
     await WasenderApiClient.sendTextMessage(to, message);
     console.log(`WhatsApp message sent to ${to}`);
   }

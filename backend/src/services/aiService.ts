@@ -162,7 +162,7 @@ const tools: ChatCompletionTool[] = [
     type: 'function',
     function: {
       name: 'findAppointments',
-      description: 'Finds all existing appointments for a specific customer by their phone number. Use this tool BEFORE cancelling to get the correct appointment UUID. Returns a list of appointments with their IDs, dates, times, and details.',
+      description: 'Finds all existing appointments for a specific customer by their phone number. Use this tool BEFORE cancelling to get the correct appointment UUID. Returns appointments with timezone-converted times: use localDateTime/localDate/localTime fields for displaying to users (in account timezone), datetime field is UTC for internal reference only.',
       parameters: {
         type: 'object',
         properties: {
@@ -674,16 +674,43 @@ const executeTool = async (
         
         console.log(`✅ Found ${activeAppointments.length} active appointments for ${searchPhone}`);
         
-        // Return formatted appointment data
-        const formattedAppointments = activeAppointments.map(apt => ({
-          id: apt.id,
-          customerName: apt.customerName,
-          datetime: apt.datetime,
-          duration: apt.duration,
-          status: apt.status,
-          appointmentType: apt.appointmentType,
-          notes: apt.notes,
-        }));
+        // Get account timezone for datetime conversion
+        const accountTimezone = await Database.getAccountTimezone(accountId || undefined);
+        
+        // Return formatted appointment data with timezone conversion
+        const formattedAppointments = activeAppointments.map(apt => {
+          // Convert UTC datetime to account timezone for display
+          const utcDate = new Date(apt.datetime);
+          const localDateTimeStr = utcDate.toLocaleString('de-AT', { 
+            timeZone: accountTimezone,
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+          });
+          
+          // Also provide ISO format in local timezone for easier parsing
+          const localDate = new Date(utcDate.toLocaleString('en-US', { timeZone: accountTimezone }));
+          const localISODate = localDate.toISOString().split('T')[0]; // YYYY-MM-DD
+          const localTime = `${String(localDate.getHours()).padStart(2, '0')}:${String(localDate.getMinutes()).padStart(2, '0')}`; // HH:mm
+          
+          console.log(`   📅 Appointment ${apt.id}: ${apt.datetime} (UTC) → ${localDateTimeStr} (${accountTimezone})`);
+          
+          return {
+            id: apt.id,
+            customerName: apt.customerName,
+            datetime: apt.datetime, // UTC for internal reference
+            localDateTime: localDateTimeStr, // "27.10.2025, 10:00" - for user display
+            localDate: localISODate, // "2025-10-27" - for easier matching
+            localTime: localTime, // "10:00" - for easier matching
+            duration: apt.duration,
+            status: apt.status,
+            appointmentType: apt.appointmentType,
+            notes: apt.notes,
+          };
+        });
         
         return { 
           success: true, 
@@ -906,15 +933,17 @@ When a customer wants to cancel an appointment, you MUST follow this exact workf
 STEP 1: FIND THE APPOINTMENT
 - Call findAppointments(customerPhone: "CUSTOMER_PHONE_NUMBER")
 - This returns a list with appointment IDs (UUIDs), dates, times, and details
+- CRITICAL: Use localDateTime/localDate/localTime fields when showing times to customers
+- The 'datetime' field is in UTC for internal use only - NEVER show this to customers
 
 STEP 2: IDENTIFY THE CORRECT APPOINTMENT
 - Look through the returned appointments
-- Match based on date, time, service type, or customer description
+- Match based on localDate, localTime, service type, or customer description
 - If multiple appointments exist, ask the customer which one to cancel
 
 STEP 3: CONFIRM WITH CUSTOMER
-- Show the appointment details to the customer
-- Example: "I found your appointment on [DATE] at [TIME] for [SERVICE]. Shall I cancel it?"
+- Show the appointment details to the customer using LOCAL times
+- Example: "I found your appointment on [localDate] at [localTime] for [SERVICE]. Shall I cancel it?"
 - Wait for confirmation if unclear
 
 STEP 4: CANCEL THE APPOINTMENT
@@ -927,6 +956,8 @@ CRITICAL RULES:
 - NEVER use date/time as appointmentId (e.g., "11:30-22.10.2025" is WRONG)
 - If findAppointments returns no results, inform customer no appointments were found
 - Always use the customer's phone number from the WhatsApp session
+- ALWAYS use localDateTime/localDate/localTime fields when communicating with customers
+- NEVER show UTC times (datetime field) to customers
 
 EXAMPLE WORKFLOW:
 Customer: "Cancel my appointment on October 22nd at 11:30"
@@ -935,11 +966,14 @@ Bot receives: [
   {
     "id": "ba903e6d-0558-447f-a4b9-41037c32d9d3",
     "customerName": "P Diddy",
-    "datetime": "2025-10-22T11:30:00.000Z",
+    "datetime": "2025-10-22T09:30:00.000Z",
+    "localDateTime": "22.10.2025, 11:30",
+    "localDate": "2025-10-22",
+    "localTime": "11:30",
     "appointmentType": "Massage"
   }
 ]
-Bot Response: "I found your Massage appointment on October 22nd at 11:30. Should I cancel it?"
+Bot Response: "I found your Massage appointment on 22.10.2025 at 11:30. Should I cancel it?"
 Customer: "Yes"
 Bot Action 2: cancelAppointment(
   appointmentId: "ba903e6d-0558-447f-a4b9-41037c32d9d3",

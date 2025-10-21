@@ -29,6 +29,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Prevents invalid cancellation attempts
   - Location: `backend/src/services/aiService.ts` (lines 161-198, 902-948)
 
+#### 🕐 Timezone Fix for findAppointments
+- **Fixed bot showing wrong time during appointment cancellation**
+  - Bot was showing UTC times (9:00) instead of local times (10:00) from `findAppointments`
+  - Added automatic timezone conversion in `findAppointments` tool
+  - Now returns three time formats:
+    - `localDateTime`: "27.10.2025, 10:00" (formatted for display)
+    - `localDate`: "2025-10-27" (for date matching)
+    - `localTime`: "10:00" (for time matching)
+    - `datetime`: UTC string (for internal reference only)
+  - Updated system prompt to instruct bot to use local time fields when communicating with customers
+  - Added detailed logging for timezone conversions
+  - Location: `backend/src/services/aiService.ts` (lines 677-713)
+
+#### ⏱️ WhatsApp Realistic Typing Delay
+- **Activated realistic typing delays for WhatsApp messages**
+  - Bot now waits before sending messages to WhatsApp (feels more human)
+  - Delay formula: `characters * 0.4 seconds + random(1-12 seconds)`
+  - Examples:
+    - 50 characters: 21-32 seconds delay
+    - 100 characters: 41-52 seconds delay
+    - 200 characters: 81-92 seconds delay
+  - **Test Chat unaffected**: No delay in Test Chat for efficient testing
+  - Can be disabled with environment variable: `WHATSAPP_TYPING_DELAY=false`
+  - Location: `backend/src/utils/typingDelay.ts` and `backend/src/services/whatsappService.ts`
+
 ### Added - 2025-10-01
 
 #### 🌍 Internationalization (i18n)

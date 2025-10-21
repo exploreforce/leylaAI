@@ -1041,7 +1041,7 @@ The `src` directory contains the source code for the backend.
 *   `types/index.ts`: Contains the TypeScript type definitions for the backend, including types for bot configuration, appointments, availability, chat messages (with status), and newly added service management.
 *   `utils/calendarUtils.ts`: Contains utility functions for calendar-related operations, suchs as generating time slots and checking for blackout dates.
 *   `utils/index.ts`: Contains various utility functions that are used throughout the backend.
-*   `utils/typingDelay.ts`: Contains the `TypingDelayService` class, which provides realistic typing delays for bot responses, simulating human-like response timing based on message length plus random delays.
+*   `utils/typingDelay.ts`: Contains the `TypingDelayService` class, which provides realistic typing delays for bot responses, simulating human-like response timing based on message length (0.4 sec/char) plus random delays (1-12 seconds). **Active for WhatsApp only** - Test Chat has no delay for efficient testing.
 
 ### 3.2. `database`
 
@@ -1477,7 +1477,7 @@ This section provides a list of the most important functions in the project, wha
         *   `backend/src/routes/calendar.ts`
         *   `backend/src/routes/appointments.ts`
 *   **`TypingDelayService.calculateTypingDelay`**
-    *   **Description:** Calculates realistic typing delay based on message length (2.5 chars/second) plus random delay (4-15 seconds).
+    *   **Description:** Calculates realistic typing delay based on message length (2.5 chars/second = 0.4 sec/char) plus random delay (1-12 seconds). Formula: `characters * 0.4 + random(1-12)`.
     *   **Defined in:** `backend/src/utils/typingDelay.ts`
     *   **Used in:**
         *   `backend/src/utils/typingDelay.ts` (internal)
@@ -1694,7 +1694,9 @@ The AI bot seamlessly integrates with the calendar system through tool functions
     *   **Multi-Tenant Support**: Automatically assigns appointments to the default account (first account in system)
 *   **`findAppointments`**: Bot can search for existing appointments by customer phone number
     *   Parameters: customerPhone
-    *   Returns: Array of active appointments for the customer with UUIDs
+    *   Returns: Array of active appointments with timezone-converted times
+    *   **Timezone-aware**: Returns `localDateTime`, `localDate`, `localTime` for user display (in account timezone)
+    *   **UTC Reference**: Also includes `datetime` field in UTC for internal use
     *   Filters out cancelled and no-show appointments automatically
     *   **Smart Phone Matching**: Handles different phone number formats (+49, 0049, etc.)
     *   **Required before cancellation**: Must be called first to get appointment UUID
