@@ -109,7 +109,7 @@ const tools: ChatCompletionTool[] = [
     type: 'function',
     function: {
       name: 'checkAvailability',
-      description: 'Checks availability for appointments. Returns free TIME BLOCKS where appointments can be booked. If the customer requests a time that falls WITHIN any returned block, that time IS AVAILABLE. Example: blocks "09:00-12:00, 13:00-17:00" means 10:00, 11:30, 14:00, 15:30 are ALL available.',
+      description: 'Checks availability for appointments. Returns free TIME BLOCKS (start-end ranges). CRITICAL: Any requested time that falls WITHIN a block IS AVAILABLE. Example: Block "13:00-17:00" means 13:00, 13:15, 13:30, 14:00, 14:15, 14:30, 15:00, 15:30, 16:00, 16:15, 16:30, 16:45 are ALL AVAILABLE. Always check if customer requested time falls within returned blocks.',
       parameters: {
         type: 'object',
         properties: {
@@ -319,10 +319,22 @@ const executeTool = async (
           console.log(`⏰ Adjusted for today - ${freeBlocks.length} time blocks still available after ${currentTimeHHmm}`);
         }
         
+        // Build explicit time validation
+        let explicitTimeCheck = '';
+        if (freeBlocks.length > 0) {
+          const commonTimes = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00'];
+          const availableTimes = commonTimes.filter(time => {
+            return freeBlocks.some(block => time >= block.start && time < block.end);
+          });
+          if (availableTimes.length > 0) {
+            explicitTimeCheck = ` EXPLICIT AVAILABILITY: ${availableTimes.join(', ')} are ALL AVAILABLE.`;
+          }
+        }
+        
         return { 
           availableSlots: freeBlocks,
           message: freeBlocks.length > 0 
-            ? `AVAILABLE on ${date}: ${freeBlocks.map(b => `${b.start}-${b.end}`).join(', ')}. ANY time within these blocks can be booked (appointments start every 15 minutes).`
+            ? `AVAILABLE on ${date}: ${freeBlocks.map(b => `${b.start}-${b.end}`).join(', ')}. ANY time within these blocks can be booked (appointments start every 15 minutes).${explicitTimeCheck} IMPORTANT: If customer requested a specific time, check if it falls WITHIN these ranges. If yes, that time IS AVAILABLE.`
             : 'Not available on this date.'
         };
       }
@@ -428,10 +440,22 @@ const executeTool = async (
         console.log(`⏰ Adjusted for today - ${freeBlocks.length} time blocks still available after ${currentTimeHHmm}`);
       }
       
+      // Build explicit time validation
+      let explicitTimeCheck = '';
+      if (freeBlocks.length > 0) {
+        const commonTimes = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00'];
+        const availableTimes = commonTimes.filter(time => {
+          return freeBlocks.some(block => time >= block.start && time < block.end);
+        });
+        if (availableTimes.length > 0) {
+          explicitTimeCheck = ` EXPLICIT AVAILABILITY: ${availableTimes.join(', ')} are ALL AVAILABLE.`;
+        }
+      }
+      
       const result = { 
         availableSlots: freeBlocks,
         message: freeBlocks.length > 0 
-          ? `AVAILABLE on ${date}: ${freeBlocks.map(b => `${b.start}-${b.end}`).join(', ')}. ANY time within these blocks can be booked (appointments start every 15 minutes).`
+          ? `AVAILABLE on ${date}: ${freeBlocks.map(b => `${b.start}-${b.end}`).join(', ')}. ANY time within these blocks can be booked (appointments start every 15 minutes).${explicitTimeCheck} IMPORTANT: If customer requested a specific time, check if it falls WITHIN these ranges. If yes, that time IS AVAILABLE.`
           : 'Not available on this date.'
       };
       
@@ -919,6 +943,36 @@ AVAILABILITY INTERPRETATION RULES:
 - If customer requests 14:00 and blocks are "13:00-17:00", then 14:00 IS AVAILABLE (it falls within the block)
 - Only times OUTSIDE all blocks are unavailable
 - Appointments can start every 15 minutes within blocks (e.g., 09:00, 09:15, 09:30, etc.)
+
+CRITICAL AVAILABILITY INTERPRETATION - READ CAREFULLY:
+========================================
+WARNING: NEVER say a time is unavailable if it falls within a returned time block!
+
+EXPLICIT STEP-BY-STEP LOGIC:
+1. checkAvailability returns time blocks (e.g., "13:00-17:00")
+2. Customer requests specific time (e.g., "14:00")
+3. Check: Is 14:00 >= 13:00 AND 14:00 < 17:00? → YES
+4. Conclusion: 14:00 IS AVAILABLE
+
+REAL EXAMPLES FROM THIS SYSTEM:
+Example 1:
+- Tool returns: "09:00-12:00, 13:00-17:00"
+- Customer asks: "Do you have time at 14:00?"
+- CORRECT answer: "Yes, 14:00 is available! That falls within my 13:00-17:00 time block."
+- WRONG answer: "Sorry, I don't have availability between 14:00 and 17:00" (This is INCORRECT!)
+
+Example 2:
+- Tool returns: "13:00-17:00"
+- Customer asks: "I would like an appointment at 2 PM tomorrow"
+- CORRECT: "Perfect! 2 PM (14:00) is available. Let me book that for you."
+- WRONG: "I don't have appointments available at that time" (14:00 is WITHIN 13:00-17:00!)
+
+Example 3:
+- Tool returns: "09:00-12:00"
+- Customer asks: "Is 10:30 available?"
+- CORRECT: "Yes! 10:30 is available within my 09:00-12:00 time block."
+
+ONLY say a time is unavailable if it falls OUTSIDE all returned blocks.
 `;
 
     const systemMessage: OpenAI.Chat.ChatCompletionMessageParam = {
@@ -946,6 +1000,7 @@ AVAILABILITY INTERPRETATION RULES:
       messages: [systemMessage, ...conversationHistory],
       tools: tools,
       tool_choice: 'auto',
+      temperature: 0.3, // Lower temperature for more consistent logical reasoning
       response_format: {
         type: "json_schema",
         json_schema: {
@@ -1009,6 +1064,7 @@ AVAILABILITY INTERPRETATION RULES:
           toolResponseMessage,
           ...toolFeedbackMessages,
         ],
+        temperature: 0.3, // Lower temperature for more consistent logical reasoning
         response_format: {
           type: "json_schema",
           json_schema: {
