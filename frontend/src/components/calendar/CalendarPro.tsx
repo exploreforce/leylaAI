@@ -632,21 +632,38 @@ const CalendarPro: React.FC<CalendarProProps> = ({ className = '' }) => {
           appointmentType: appointment.appointmentType
         });
         
-        // Convert local datetime string to DayPilot Date (NO TIMEZONE CONVERSION)
+        // Convert UTC datetime from backend to local time for calendar display
         let appointmentStart;
         let appointmentEnd;
         
         try {
-          // Normalize to strict ISO local string 'YYYY-MM-DDTHH:mm:ss'
+          // Backend sends UTC datetime - we need to convert to local time for display
           const raw = String(appointment.datetime || '');
-          let isoLocal = raw.includes('T') ? raw.replace('Z', '') : raw.replace(' ', 'T');
-          if (isoLocal.length === 16) {
-            isoLocal = isoLocal + ':00';
-          }
-          // Validate minimal length 'YYYY-MM-DDTHH:mm:ss' = 19
-          if (isoLocal.length < 19) {
+          
+          // Parse UTC datetime string correctly
+          const utcDate = new Date(raw);
+          
+          if (isNaN(utcDate.getTime())) {
             throw new Error(`Invalid datetime format: ${raw}`);
           }
+          
+          // Convert to local timezone components (getHours, getMinutes etc. return local time)
+          const year = utcDate.getFullYear();
+          const month = String(utcDate.getMonth() + 1).padStart(2, '0');
+          const day = String(utcDate.getDate()).padStart(2, '0');
+          const hours = String(utcDate.getHours()).padStart(2, '0');
+          const minutes = String(utcDate.getMinutes()).padStart(2, '0');
+          const seconds = String(utcDate.getSeconds()).padStart(2, '0');
+          
+          // Build local ISO string (no Z suffix, this is local time)
+          const isoLocal = `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
+          
+          console.log('🕐 Timezone conversion:', {
+            utc: raw,
+            localISO: isoLocal,
+            utcHours: utcDate.getUTCHours(),
+            localHours: utcDate.getHours()
+          });
 
           appointmentStart = new window.DayPilot.Date(isoLocal);
           appointmentEnd = new window.DayPilot.Date(isoLocal).addMinutes(appointment.duration);
