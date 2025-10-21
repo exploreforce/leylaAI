@@ -243,11 +243,11 @@ const executeTool = async (
       const currentTimeHHmm = `${String(nowTime.getHours()).padStart(2, '0')}:${String(nowTime.getMinutes()).padStart(2, '0')}`;
       console.log(`⏰ Current time: ${currentTimeHHmm}, isToday: ${isToday}`);
       
-      const availabilityConfig = await Database.getAvailabilityConfig();
+      const availabilityConfig = await Database.getAvailabilityConfig(accountId || '');
       if (!availabilityConfig) {
         console.log('❌ No availability configuration found, creating default config and using 9-17');
         
-        // Create default availability config for all weekdays
+        // Create default availability config for all weekdays  
         const defaultWeeklySchedule = {
           monday: { dayOfWeek: 1, isAvailable: true, timeSlots: [{ start: '09:00', end: '17:00' }] },
           tuesday: { dayOfWeek: 2, isAvailable: true, timeSlots: [{ start: '09:00', end: '17:00' }] },
@@ -259,7 +259,7 @@ const executeTool = async (
         };
         
         try {
-          await Database.updateAvailabilityConfig(defaultWeeklySchedule);
+          await Database.updateAvailabilityConfig(accountId || '', defaultWeeklySchedule);
           console.log('✅ Default availability config created');
         } catch (error) {
           console.error('❌ Failed to create default config:', error);
@@ -571,7 +571,7 @@ const executeTool = async (
         }
         
       // Load bot config to determine review mode
-      const botConfig = await Database.getBotConfig();
+      const botConfig = await Database.getBotConfig(accountId || '');
       const reviewMode = botConfig?.reviewMode || 'never';
       
       // Determine appointment status based on review mode and flag status
@@ -798,13 +798,14 @@ export class AIService {
       sessionType
     });
     
-    const botConfig = await Database.getBotConfig();
+    const botConfig = await Database.getBotConfig(accountId || '');
     if (!botConfig) {
       throw new Error('Bot configuration not found.');
     }
 
-    // Load language settings from database
+    // Load language settings from database (account-specific)
     const languageSettings = await db('language_settings')
+      .where('account_id', accountId)
       .where('is_default', true)
       .first();
     

@@ -5,17 +5,18 @@ import moment from 'moment';
 import { Appointment, TimeSlot } from '../types';
 import { db } from '../models/database';
 import { generateTimeSlots, isBlackoutDate } from '../utils/calendarUtils';
+import { requireAuth, AuthRequest } from '../middleware/auth';
 
 const router = Router();
 
-// Get availability slots
-router.get('/availability', asyncHandler(async (req: Request, res: Response) => {
+// Get availability slots (requires auth to get account-specific availability)
+router.get('/availability', requireAuth, asyncHandler(async (req: AuthRequest, res: Response) => {
   const { date, duration } = req.query;
   if (!date || !duration) {
     return res.status(400).json({ error: 'date and duration are required' });
   }
 
-  const config = await Database.getAvailabilityConfig();
+  const config = await Database.getAvailabilityConfig(req.accountId!);
   if (!config) {
     return res.status(404).json({ error: 'Availability configuration not found' });
   }
@@ -61,10 +62,10 @@ router.get('/availability', asyncHandler(async (req: Request, res: Response) => 
 }));
 
 // Create/update availability
-router.put('/availability', asyncHandler(async (req: Request, res: Response) => {
+router.put('/availability', requireAuth, asyncHandler(async (req: AuthRequest, res: Response) => {
   const { weeklySchedule, blackoutDates } = req.body;
 
-  const config = await Database.updateAvailabilityConfig(weeklySchedule);
+  const config = await Database.updateAvailabilityConfig(req.accountId!, weeklySchedule);
 
   return res.json({
     message: 'Availability updated successfully',
@@ -73,13 +74,13 @@ router.put('/availability', asyncHandler(async (req: Request, res: Response) => 
 }));
 
 // Get calendar overview
-router.get('/overview', asyncHandler(async (req: Request, res: Response) => {
+router.get('/overview', requireAuth, asyncHandler(async (req: AuthRequest, res: Response) => {
   const { startDate, endDate } = req.query;
   if (!startDate || !endDate) {
     return res.status(400).json({ error: 'startDate and endDate are required' });
   }
 
-  const config = await Database.getAvailabilityConfig();
+  const config = await Database.getAvailabilityConfig(req.accountId!);
   if (!config) {
     return res.status(404).json({ error: 'Availability configuration not found' });
   }

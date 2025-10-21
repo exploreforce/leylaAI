@@ -840,7 +840,7 @@ export class Database {
     const [created] = await db('services')
       .insert({
         account_id: accountId,
-        bot_config_id: serviceData.botConfigId || null, // Optional bot_config_id
+        bot_config_id: null, // Services are now account-based, not bot_config based
         name: serviceData.name,
         description: serviceData.description,
         price: serviceData.price,

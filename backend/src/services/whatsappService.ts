@@ -74,8 +74,14 @@ class WhatsAppService {
     const aiResponse = await AIService.getChatResponse(messageHistory, sessionId, preferredLanguage);
 
     if (aiResponse.content) {
+      // Get accountId from session to load correct bot config
+      const session = await db('test_chat_sessions')
+        .where('id', parseInt(sessionId, 10))
+        .first();
+      const accountId = session?.account_id || '';
+      
       // Load bot config to determine message review mode
-      const botConfig = await Database.getBotConfig();
+      const botConfig = await Database.getBotConfig(accountId);
       const messageReviewMode = botConfig?.messageReviewMode || 'never';
       
       const isFlagged = Boolean((aiResponse as any)?.metadata?.isFlagged);
