@@ -932,6 +932,54 @@ export class Database {
       .update({ is_active: false, updated_at: new Date() });
   }
 
+  /**
+   * Create default services for a new account
+   * Called automatically when a new account is created
+   */
+  static async createDefaultServicesForAccount(accountId: string): Promise<void> {
+    console.log(`📝 [Database] Creating default services for account: ${accountId}`);
+    
+    const { v4: uuidv4 } = require('uuid');
+    
+    try {
+      await db('services').insert([
+        {
+          id: uuidv4(),
+          account_id: accountId,
+          bot_config_id: null,
+          name: 'Beratungsgespräch',
+          description: 'Persönliches Beratungsgespräch für individuelle Lösungen',
+          price: 75.00,
+          currency: 'EUR',
+          duration_minutes: 60,
+          is_active: true,
+          sort_order: 1,
+          created_at: new Date(),
+          updated_at: new Date()
+        },
+        {
+          id: uuidv4(),
+          account_id: accountId,
+          bot_config_id: null,
+          name: 'Schnell-Check',
+          description: 'Kurzer Check-up Termin',
+          price: 45.00,
+          currency: 'EUR',
+          duration_minutes: 30,
+          is_active: true,
+          sort_order: 2,
+          created_at: new Date(),
+          updated_at: new Date()
+        }
+      ]);
+      
+      console.log(`✅ [Database] Created 2 default services for account: ${accountId}`);
+    } catch (error) {
+      console.error(`❌ [Database] Error creating default services for account ${accountId}:`, error);
+      // Don't throw - service creation failure shouldn't block account creation
+    }
+  }
+
   // ================== STATS & ANALYTICS ==================
 
   /**

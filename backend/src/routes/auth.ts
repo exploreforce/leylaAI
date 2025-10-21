@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { db } from '../models/database';
+import { db, Database } from '../models/database';
 import { v4 as uuidv4 } from 'uuid';
 import { requireAuth, AuthRequest } from '../middleware/auth';
 
@@ -106,6 +106,14 @@ router.post('/signup', async (req, res) => {
       updated_at: new Date()
     });
     console.log(`✅ [Signup] Default bot config created for account: ${accountId}`);
+  }
+
+  // Create default services for new account
+  try {
+    await Database.createDefaultServicesForAccount(accountId);
+  } catch (error) {
+    console.error(`❌ [Signup] Error creating default services:`, error);
+    // Don't fail signup if service creation fails
   }
 
   const token = jwt.sign({ userId, accountId }, process.env.JWT_SECRET || 'dev-secret', { expiresIn: '7d' });
