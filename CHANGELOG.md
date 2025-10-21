@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed - 2025-10-21
+
+#### 🗓️ Improved Weekday-based Appointment Booking
+- **14-Day Dynamic Calendar in System Prompt**
+  - Bot now receives a dynamically generated list of the next 14 days with weekdays
+  - Fixes weekday calculation errors (e.g., booking "Friday" on the wrong date)
+  - Calendar updates automatically every session
+  - Example: "Friday" → looks up exact date from calendar instead of guessing
+  - Location: `backend/src/services/aiService.ts` and `backend/src/utils/timezone.ts`
+  
+#### 🔧 Two-Step Appointment Cancellation Flow
+- **Fixed "Appointment not found" errors during cancellation**
+  - Bot was trying to guess appointmentId as date/time string (e.g., "11:30-22.10.2025")
+  - Now follows proper workflow:
+    1. Call `findAppointments(customerPhone)` to get UUID
+    2. Confirm appointment details with customer
+    3. Call `cancelAppointment(appointmentId: UUID)`
+  - Enhanced tool descriptions with explicit UUID requirement
+  - Added comprehensive cancellation workflow instructions to system prompt
+  - Prevents invalid cancellation attempts
+  - Location: `backend/src/services/aiService.ts` (lines 161-198, 902-948)
+
 ### Added - 2025-10-01
 
 #### 🌍 Internationalization (i18n)

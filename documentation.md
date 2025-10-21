@@ -1694,14 +1694,17 @@ The AI bot seamlessly integrates with the calendar system through tool functions
     *   **Multi-Tenant Support**: Automatically assigns appointments to the default account (first account in system)
 *   **`findAppointments`**: Bot can search for existing appointments by customer phone number
     *   Parameters: customerPhone
-    *   Returns: Array of active appointments for the customer
+    *   Returns: Array of active appointments for the customer with UUIDs
     *   Filters out cancelled and no-show appointments automatically
     *   **Smart Phone Matching**: Handles different phone number formats (+49, 0049, etc.)
+    *   **Required before cancellation**: Must be called first to get appointment UUID
 *   **`cancelAppointment`**: Bot can cancel existing appointments
-    *   Parameters: appointmentId, reason (optional)
+    *   Parameters: appointmentId (UUID), reason (optional)
     *   Returns: Confirmation with cancelled appointment details
     *   Updates appointment status to 'cancelled' and optionally adds cancellation reason to notes
     *   **Safety Check**: Prevents cancelling already-cancelled appointments
+    *   **Two-Step Workflow**: Bot must call `findAppointments` first to get UUID, then use exact UUID to cancel
+    *   **Critical**: appointmentId must be UUID format (e.g., "ba903e6d-..."), never date/time strings
 
 #### Integration Benefits
 *   **Seamless Booking**: Customers can book directly through WhatsApp

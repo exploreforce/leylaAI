@@ -3,7 +3,7 @@ import { ChatCompletionTool } from 'openai/resources/chat/completions';
 import { ChatMessage } from '../types';
 import { Database, db } from '../models/database';
 import { getBusinessDaySlots, isTimeSlotAvailable } from '../utils';
-import { getViennaDate, getViennaTime, getViennaWeekday, getViennaDateTime, calculateRelativeDate, getAccountDate, getAccountTime, getAccountWeekday, getAccountDateTime, calculateAccountRelativeDate } from '../utils/timezone';
+import { getViennaDate, getViennaTime, getViennaWeekday, getViennaDateTime, calculateRelativeDate, getAccountDate, getAccountTime, getAccountWeekday, getAccountDateTime, calculateAccountRelativeDate, getWeekdayForDate } from '../utils/timezone';
 import { formatForDatabase } from '../utils/timezoneUtils';
 
 // Initialize OpenAI client
@@ -162,7 +162,7 @@ const tools: ChatCompletionTool[] = [
     type: 'function',
     function: {
       name: 'findAppointments',
-      description: 'Finds all existing appointments for a specific customer by their phone number.',
+      description: 'Finds all existing appointments for a specific customer by their phone number. Use this tool BEFORE cancelling to get the correct appointment UUID. Returns a list of appointments with their IDs, dates, times, and details.',
       parameters: {
         type: 'object',
         properties: {
@@ -179,13 +179,13 @@ const tools: ChatCompletionTool[] = [
     type: 'function',
     function: {
       name: 'cancelAppointment',
-      description: 'Cancels an existing appointment by its ID.',
+      description: 'Cancels an existing appointment by its UUID. CRITICAL: You MUST call findAppointments first to get the appointment UUID. Never guess the appointmentId - always use the UUID returned by findAppointments. The appointmentId must be a UUID format (e.g., "ba903e6d-0558-447f-a4b9-41037c32d9d3"), not a date/time string.',
       parameters: {
         type: 'object',
         properties: {
           appointmentId: {
             type: 'string',
-            description: 'The ID of the appointment to cancel.',
+            description: 'The UUID of the appointment to cancel (obtained from findAppointments).',
           },
           reason: {
             type: 'string',
@@ -291,12 +291,25 @@ const executeTool = async (
         };
         
         const bookedSlots = booked.map(appt => {
-          const start = toHHmm(String(appt.datetime));
-          const end = addMinutesToHHmm(start, appt.duration || 0);
-          return { start, end };
+          // Convert UTC datetime to account timezone
+          const utcDate = new Date(appt.datetime);
+          const accountDate = new Date(utcDate.toLocaleString('en-US', { timeZone: accountTimezone }));
+          const appointmentStart = `${String(accountDate.getHours()).padStart(2, '0')}:${String(accountDate.getMinutes()).padStart(2, '0')}`;
+          const appointmentEnd = addMinutesToHHmm(appointmentStart, appt.duration || 0);
+          
+          // Add 30-minute buffer before and after appointment
+          const bufferedStart = addMinutesToHHmm(appointmentStart, -30);
+          const bufferedEnd = addMinutesToHHmm(appointmentEnd, 30);
+          
+          console.log(`   📌 Appointment: ${appt.customerName} at ${appointmentStart}-${appointmentEnd} (UTC: ${appt.datetime}) → Blocked: ${bufferedStart}-${bufferedEnd}`);
+          
+          return { start: bufferedStart, end: bufferedEnd };
         });
         
         console.log(`📅 Found ${bookedSlots.length} booked appointments on ${date} (default hours)`);
+        if (bookedSlots.length > 0) {
+          console.log(`   Blocked time slots (with 30min buffer):`, bookedSlots);
+        }
         
         // Calculate free time blocks directly from business hours and bookings
         let freeBlocks = calculateFreeTimeBlocks(businessHours, bookedSlots);
@@ -412,12 +425,25 @@ const executeTool = async (
         includeInactive: false // Only include active appointments (pending, booked, confirmed)
       });
       const bookedSlots = booked.map(appt => {
-        const start = toHHmm(String(appt.datetime));
-        const end = addMinutesToHHmm(start, appt.duration || 0);
-        return { start, end };
+        // Convert UTC datetime to account timezone
+        const utcDate = new Date(appt.datetime);
+        const accountDate = new Date(utcDate.toLocaleString('en-US', { timeZone: accountTimezone }));
+        const appointmentStart = `${String(accountDate.getHours()).padStart(2, '0')}:${String(accountDate.getMinutes()).padStart(2, '0')}`;
+        const appointmentEnd = addMinutesToHHmm(appointmentStart, appt.duration || 0);
+        
+        // Add 30-minute buffer before and after appointment
+        const bufferedStart = addMinutesToHHmm(appointmentStart, -30);
+        const bufferedEnd = addMinutesToHHmm(appointmentEnd, 30);
+        
+        console.log(`   📌 Appointment: ${appt.customerName} at ${appointmentStart}-${appointmentEnd} (UTC: ${appt.datetime}) → Blocked: ${bufferedStart}-${bufferedEnd}`);
+        
+        return { start: bufferedStart, end: bufferedEnd };
       });
       
       console.log(`📅 Found ${bookedSlots.length} booked appointments on ${date}`);
+      if (bookedSlots.length > 0) {
+        console.log(`   Blocked time slots (with 30min buffer):`, bookedSlots);
+      }
       
       // Calculate free time blocks directly from business hours and bookings
       let freeBlocks = calculateFreeTimeBlocks(businessHours, bookedSlots);
@@ -795,6 +821,15 @@ export class AIService {
     const dayAfterTomorrow = await calculateAccountRelativeDate(2, accountId);
     const nextWeek = await calculateAccountRelativeDate(7, accountId);
     
+    // Calculate next 14 days with weekdays for accurate weekday-based booking
+    const next14DaysCalendar: string[] = [];
+    for (let i = 0; i < 14; i++) {
+      const futureDate = await calculateAccountRelativeDate(i, accountId);
+      const futureWeekday = await getWeekdayForDate(futureDate, accountId);
+      next14DaysCalendar.push(`- ${futureDate} (${futureWeekday})`);
+    }
+    const weekdayCalendar = next14DaysCalendar.join('\n');
+    
     console.log(`📅 Account Timezone Context (${accountTimezone}):`, {
       date: currentDate,
       time: currentTime,
@@ -802,6 +837,7 @@ export class AIService {
       tomorrow,
       dayAfterTomorrow
     });
+    console.log(`📅 Generated 14-day weekday calendar for accurate date lookups`);
     
     // Pull last assistant metadata to seed session memory (handle object or JSON string)
     const lastAssistant = [...messages].reverse().find(m => m.role === 'assistant');
@@ -837,38 +873,79 @@ CURRENT DATE & TIME (Timezone: ${accountTimezone})
 - Weekday: ${currentWeekday}
 - Full DateTime: ${currentDateTime}
 
+NEXT 14 DAYS WITH WEEKDAYS (USE THIS FOR ALL WEEKDAY-BASED BOOKINGS):
+==================================================
+${weekdayCalendar}
+
+CRITICAL RULES FOR WEEKDAY-BASED APPOINTMENTS:
+1. When user says "Friday", "Monday", etc. → Look up the date from the list above
+2. When user says "next Friday" → Find the next occurrence of Friday in the list
+3. When user says "this Friday" → Find the first Friday in the list
+4. NEVER guess or calculate weekdays yourself - ALWAYS use the list above
+5. After finding the date, ALWAYS confirm with customer: "That would be [DATE] ([WEEKDAY])"
+
+EXAMPLE:
+User: "I'd like an appointment on Friday at 2pm"
+You: "Sure! This Friday is [DATE FROM CALENDAR]. Let me check availability..."
+
 RELATIVE DATE CALCULATIONS
 ============================
-For ALL appointment requests with relative dates, calculate them based on the current date (${currentDate}):
+For appointment requests:
+1. Weekday names (Friday, Monday, etc.) → Use the 14-day calendar above
+2. "today" / "heute" → ${currentDate}
+3. "tomorrow" / "morgen" → ${tomorrow}
+4. "day after tomorrow" / "übermorgen" → ${dayAfterTomorrow}
+5. "in X days" → Use the 14-day calendar above
 
-SIMPLE RELATIVE EXPRESSIONS:
-- "today" / "heute" → ${currentDate}
-- "tomorrow" / "morgen" → ${tomorrow}
-- "day after tomorrow" / "übermorgen" → ${dayAfterTomorrow}
-- "in X days" / "in X Tagen" → ${currentDate} + X days
-- "next week" / "nächste Woche" → ${nextWeek} (approx. +7 days)
+ALWAYS confirm the calculated date with the customer before booking!
 
-WEEKDAY-BASED EXPRESSIONS:
-Current weekday: ${currentWeekday}
-- "next Monday" / "nächsten Montag" → Find next Monday after ${currentDate}
-- "this Friday" / "diesen Freitag" → Friday this week (if today < Friday) or next Friday
-- "coming Tuesday" / "kommenden Dienstag" → Next Tuesday after today
+APPOINTMENT CANCELLATION WORKFLOW - CRITICAL INSTRUCTIONS:
+==================================================
+When a customer wants to cancel an appointment, you MUST follow this exact workflow:
 
-EXTENDED EXPRESSIONS:
-- "in 2 weeks" / "in 2 Wochen" → ${currentDate} + 14 days
-- "next month" / "nächsten Monat" → First Monday/day of next month (context-dependent)
-- "in one month" / "in einem Monat" → ${currentDate} + 30 days (approximately)
+STEP 1: FIND THE APPOINTMENT
+- Call findAppointments(customerPhone: "CUSTOMER_PHONE_NUMBER")
+- This returns a list with appointment IDs (UUIDs), dates, times, and details
 
-IMPORTANT RULES:
-1. ALWAYS calculate the absolute date in YYYY-MM-DD format
-2. Use this calculated date for checkAvailability(date: "YYYY-MM-DD")
-3. Confirm the calculated date with the customer
-4. Example: "day after tomorrow" → "That would be ${dayAfterTomorrow}. Let me check..."
+STEP 2: IDENTIFY THE CORRECT APPOINTMENT
+- Look through the returned appointments
+- Match based on date, time, service type, or customer description
+- If multiple appointments exist, ask the customer which one to cancel
 
-EXAMPLE CONVERSATION:
-Customer: "I would like an appointment the day after tomorrow at 2 PM"
-You: "Sure! The day after tomorrow is ${dayAfterTomorrow}. Let me check availability..."
-→ checkAvailability(date: "${dayAfterTomorrow}", duration: 60)
+STEP 3: CONFIRM WITH CUSTOMER
+- Show the appointment details to the customer
+- Example: "I found your appointment on [DATE] at [TIME] for [SERVICE]. Shall I cancel it?"
+- Wait for confirmation if unclear
+
+STEP 4: CANCEL THE APPOINTMENT
+- Call cancelAppointment(appointmentId: "UUID_FROM_STEP_1", reason: "optional")
+- Use the EXACT UUID from findAppointments result
+- NEVER guess or construct an appointmentId
+
+CRITICAL RULES:
+- appointmentId MUST be a UUID (e.g., "ba903e6d-0558-447f-a4b9-41037c32d9d3")
+- NEVER use date/time as appointmentId (e.g., "11:30-22.10.2025" is WRONG)
+- If findAppointments returns no results, inform customer no appointments were found
+- Always use the customer's phone number from the WhatsApp session
+
+EXAMPLE WORKFLOW:
+Customer: "Cancel my appointment on October 22nd at 11:30"
+Bot Action 1: findAppointments(customerPhone: "436605610913")
+Bot receives: [
+  {
+    "id": "ba903e6d-0558-447f-a4b9-41037c32d9d3",
+    "customerName": "P Diddy",
+    "datetime": "2025-10-22T11:30:00.000Z",
+    "appointmentType": "Massage"
+  }
+]
+Bot Response: "I found your Massage appointment on October 22nd at 11:30. Should I cancel it?"
+Customer: "Yes"
+Bot Action 2: cancelAppointment(
+  appointmentId: "ba903e6d-0558-447f-a4b9-41037c32d9d3",
+  reason: "Customer requested cancellation"
+)
+Bot Response: "Your appointment has been cancelled successfully."
 
 ${servicesInfo}
 
@@ -996,7 +1073,7 @@ ONLY say a time is unavailable if it falls OUTSIDE all returned blocks.
 
     // OpenAI API Call mit Structured Outputs
     const apiParams: any = {
-      model: process.env.OPENAI_MODEL || 'gpt-5-mini', // Use GPT-5-mini as default
+      model: process.env.OPENAI_MODEL || 'gpt-5', // Use GPT-5 as default
       messages: [systemMessage, ...conversationHistory],
       tools: tools,
       tool_choice: 'auto',
@@ -1057,7 +1134,7 @@ ONLY say a time is unavailable if it falls OUTSIDE all returned blocks.
       
       // Send tool results back to the model with structured outputs
       const secondApiParams: any = {
-        model: process.env.OPENAI_MODEL || 'gpt-5-mini',
+        model: process.env.OPENAI_MODEL || 'gpt-5',
         messages: [
           systemMessage,
           ...conversationHistory,

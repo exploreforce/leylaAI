@@ -141,3 +141,18 @@ export async function calculateAccountRelativeDate(daysOffset: number, accountId
   return tzDate.toISOString().split('T')[0];
 }
 
+/**
+ * Get weekday name for a specific date in account's timezone
+ * @param date - Date object or date string
+ * @param accountId - Account ID
+ * @returns Promise<string> - Weekday name in German
+ */
+export async function getWeekdayForDate(date: Date | string, accountId: string | undefined): Promise<string> {
+  const timezone = await Database.getAccountTimezone(accountId);
+  const dateObj = typeof date === 'string' ? new Date(date) : date;
+  return dateObj.toLocaleDateString('de-AT', {
+    timeZone: timezone,
+    weekday: 'long'
+  });
+}
+
