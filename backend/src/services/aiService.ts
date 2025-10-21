@@ -546,9 +546,8 @@ const executeTool = async (
         // Check if appointmentType is already a UUID (contains dashes)
         if (!appointmentType.includes('-')) {
           // It's a name, need to look it up
-          // Use default bot_config_id from seeds (all services are linked to this)
-          const DEFAULT_BOT_CONFIG_ID = '550e8400-e29b-41d4-a716-446655440000';
-          const services = await Database.getServices(DEFAULT_BOT_CONFIG_ID);
+          // Load services for the current account
+          const services = await Database.getServices(accountId || '');
           const matchingService = services.find(s => 
             s.name.toLowerCase() === appointmentType.toLowerCase() ||
             s.name.toLowerCase().includes(appointmentType.toLowerCase()) ||

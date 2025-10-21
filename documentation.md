@@ -1765,7 +1765,8 @@ The services management system allows comprehensive configuration of bot service
 
 #### Services Table
 *   `id`: UUID primary key
-*   `bot_config_id`: Foreign key to bot_configs table
+*   `account_id`: Foreign key to accounts table - determines which account owns the service
+*   `bot_config_id`: Foreign key to bot_configs table (legacy, optional reference)
 *   `name`: VARCHAR - Service name
 *   `description`: TEXT - Optional service description
 *   `price`: DECIMAL(10,2) - Service price
@@ -1774,6 +1775,23 @@ The services management system allows comprehensive configuration of bot service
 *   `is_active`: BOOLEAN - Soft delete flag
 *   `sort_order`: INTEGER - Display ordering
 *   `created_at`, `updated_at`: Timestamps
+
+#### Multi-Tenant Behavior
+
+Services are account-specific and fully isolated between accounts:
+
+*   **Account Isolation**: Services are filtered by `account_id` - each account only sees and manages their own services
+*   **AI Service Lookup**: The AI assistant automatically uses the session's `account_id` to fetch available services when booking appointments
+*   **Service Creation**: New services are automatically assigned to the creating user's account via the auth token
+*   **Cross-Account Privacy**: Account A cannot see, book, or access Account B's services
+*   **WhatsApp Integration**: When customers book appointments via WhatsApp, the bot uses services from the business owner's account
+
+**Example Flow:**
+1. Customer sends WhatsApp message to business owner's WhatsApp number
+2. System identifies which account owns that WhatsApp session
+3. AI loads services for that specific account only
+4. Customer can only book services that belong to that account
+5. Appointment is created with the correct account_id
 
 ### 6.3. API Integration
 
