@@ -5,25 +5,16 @@ import { Appointment, TimeSlot } from '../types';
 import { generateTimeSlots, isBlackoutDate } from '../utils/calendarUtils';
 import { convertToUTC, convertFromUTC, formatForDatabase } from '../utils/timezoneUtils';
 import moment from 'moment';
+import { requireAuth, AuthRequest } from '../middleware/auth';
 
 const router = Router();
 
 // Get all appointments
-router.get('/', asyncHandler(async (req: Request, res: Response) => {
+router.get('/', requireAuth, asyncHandler(async (req: AuthRequest, res: Response) => {
   const { startDate, endDate, status } = req.query;
-  // Optional auth for per-account scoping
-  let accountId: string | undefined;
-  try {
-    const auth = req.headers.authorization as string | undefined;
-    if (auth && auth.startsWith('Bearer ')) {
-      const jwt = require('jsonwebtoken');
-      const payload = jwt.verify(auth.split(' ')[1], process.env.JWT_SECRET || 'dev-secret') as any;
-      accountId = payload?.accountId;
-    }
-  } catch {}
+  const accountId = req.accountId!;
   
-  console.log('🔍 GET /appointments query params:', { startDate, endDate, status });
-  console.log('🔍 GET /appointments accountId from JWT:', accountId);
+  console.log(`🔍 [AccountId: ${accountId}] GET /appointments query params:`, { startDate, endDate, status });
   
   // NO Date objects - pass strings directly for local datetime filtering
   const startDateStr = startDate as string;
@@ -72,26 +63,17 @@ router.get('/', asyncHandler(async (req: Request, res: Response) => {
 }));
 
 // Create new appointment
-router.post('/', asyncHandler(async (req: Request, res: Response) => {
+router.post('/', requireAuth, asyncHandler(async (req: AuthRequest, res: Response) => {
   const { customerName, customerPhone, customerEmail, datetime, duration, notes, appointmentType } = req.body;
-  // Extract accountId from JWT if present to stamp row
-  let accountId: string | undefined;
-  try {
-    const auth = req.headers.authorization as string | undefined;
-    if (auth && auth.startsWith('Bearer ')) {
-      const jwt = require('jsonwebtoken');
-      const payload = jwt.verify(auth.split(' ')[1], process.env.JWT_SECRET || 'dev-secret') as any;
-      accountId = payload?.accountId;
-    }
-  } catch {}
+  const accountId = req.accountId!;
   
-  console.log('📝 Creating appointment:', { customerName, customerPhone, customerEmail, datetime, duration, notes, appointmentType });
+  console.log(`📝 [AccountId: ${accountId}] Creating appointment:`, { customerName, customerPhone, customerEmail, datetime, duration, notes, appointmentType });
   
   if (!customerName || !customerPhone || !datetime || !duration) {
     return res.status(400).json({ error: 'Missing required appointment information' });
   }
 
-  const config = await Database.getAvailabilityConfig();
+  const config = await Database.getAvailabilityConfig(accountId);
   console.log('📅 Availability config:', config ? 'Found' : 'Not found');
   
   if (!config) {
@@ -184,18 +166,19 @@ router.post('/', asyncHandler(async (req: Request, res: Response) => {
 }));
 
 // Update appointment
-router.put('/:id', asyncHandler(async (req: Request, res: Response) => {
+router.put('/:id', requireAuth, asyncHandler(async (req: AuthRequest, res: Response) => {
   const { id } = req.params;
   const updates: Partial<Appointment> = req.body;
   
-  console.log('🔄 UPDATE appointment request:', {
+  console.log(`🔄 [AccountId: ${req.accountId}] UPDATE appointment request:`, {
     id,
     updates,
     datetimeInUpdates: updates.datetime,
     datetimeType: typeof updates.datetime
   });
   
-  const updatedAppointment = await Database.updateAppointment(id, updates);
+  // Ensure we only update appointments belonging to this account
+  const updatedAppointment = await Database.updateAppointment(id, updates, req.accountId!);
 
   console.log('🔄 UPDATE appointment result:', {
     found: !!updatedAppointment,
@@ -216,10 +199,10 @@ router.put('/:id', asyncHandler(async (req: Request, res: Response) => {
 }));
 
 // Cancel appointment
-router.delete('/:id', asyncHandler(async (req: Request, res: Response) => {
+router.delete('/:id', requireAuth, asyncHandler(async (req: AuthRequest, res: Response) => {
   const { id } = req.params;
   
-  const updatedAppointment = await Database.updateAppointment(id, { status: 'cancelled' });
+  const updatedAppointment = await Database.updateAppointment(id, { status: 'cancelled' }, req.accountId!);
 
   if (!updatedAppointment) {
     return res.status(404).json({ error: 'Appointment not found' });

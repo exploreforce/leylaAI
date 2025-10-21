@@ -69,12 +69,17 @@ export class Database {
   }
 
   // Bot Config operations
-  static async getBotConfig(): Promise<BotConfig | null> {
+  static async getBotConfig(accountId: string): Promise<BotConfig | null> {
+    console.log(`[AccountId: ${accountId}] Fetching bot config...`);
     const result = await db('bot_configs')
+      .where('account_id', accountId)
       .where('is_active', true)
       .first();
     
-    if (!result) return null;
+    if (!result) {
+      console.log(`[AccountId: ${accountId}] No bot config found, will create default`);
+      return null;
+    }
     
     // Transform database snake_case to TypeScript camelCase
     return {
@@ -105,7 +110,9 @@ export class Database {
     };
   }
 
-  static async updateBotConfig(updates: Partial<BotConfig>): Promise<BotConfig> {
+  static async updateBotConfig(accountId: string, updates: Partial<BotConfig>): Promise<BotConfig> {
+    console.log(`[AccountId: ${accountId}] Updating bot config...`);
+
     // Transform camelCase to snake_case for database
     const dbUpdates: any = {};
     
@@ -132,11 +139,12 @@ export class Database {
     dbUpdates.updated_at = new Date();
 
     await db('bot_configs')
+      .where('account_id', accountId)
       .where('is_active', true)
       .update(dbUpdates);
 
     // Return the updated config
-    return this.getBotConfig() as Promise<BotConfig>;
+    return this.getBotConfig(accountId) as Promise<BotConfig>;
   }
 
   // Appointment operations (NO DATE OBJECTS - STRING ONLY!)
@@ -291,10 +299,11 @@ export class Database {
     }
   }
 
-  static async updateAppointment(id: string, updates: Partial<Appointment>): Promise<Appointment | null> {
+  static async updateAppointment(id: string, updates: Partial<Appointment>, accountId?: string): Promise<Appointment | null> {
     console.log('🔄 Database.updateAppointment called:', {
       id,
       updates,
+      accountId,
       datetimeInUpdates: updates.datetime,
       datetimeType: typeof updates.datetime
     });
@@ -335,8 +344,15 @@ export class Database {
       });
     }
 
-    const [updated] = await db('appointments')
-      .where('id', id)
+    let query = db('appointments')
+      .where('id', id);
+    
+    // Filter by accountId if provided
+    if (accountId) {
+      query = query.where('account_id', accountId);
+    }
+    
+    const [updated] = await query
       .update({
         ...processedUpdates,
         updated_at: new Date()
@@ -380,14 +396,27 @@ export class Database {
   }
 
   // Availability operations
-  static async getAvailabilityConfig(): Promise<AvailabilityConfig | null> {
+  static async getAvailabilityConfig(accountId: string): Promise<AvailabilityConfig | null> {
     try {
+      console.log(`[AccountId: ${accountId}] Fetching availability config...`);
       const result = await db('availability_configs')
+        .where('account_id', accountId)
         .where('is_active', true)
         .first();
       
       if (!result) {
-        return null;
+        console.log(`[AccountId: ${accountId}] No availability config found, creating default...`);
+        // Create default availability config
+        const defaultWeeklySchedule = {
+          monday: { dayOfWeek: 1, isAvailable: true, timeSlots: [{ start: '09:00', end: '17:00' }] },
+          tuesday: { dayOfWeek: 2, isAvailable: true, timeSlots: [{ start: '09:00', end: '17:00' }] },
+          wednesday: { dayOfWeek: 3, isAvailable: true, timeSlots: [{ start: '09:00', end: '17:00' }] },
+          thursday: { dayOfWeek: 4, isAvailable: true, timeSlots: [{ start: '09:00', end: '17:00' }] },
+          friday: { dayOfWeek: 5, isAvailable: true, timeSlots: [{ start: '09:00', end: '17:00' }] },
+          saturday: { dayOfWeek: 6, isAvailable: false, timeSlots: [] },
+          sunday: { dayOfWeek: 0, isAvailable: false, timeSlots: [] }
+        };
+        return await this.updateAvailabilityConfig(accountId, defaultWeeklySchedule);
       }
       
       try {
@@ -398,7 +427,7 @@ export class Database {
       }
       
       // Load blackout dates from separate table
-      const blackoutDates = await this.getBlackoutDates();
+      const blackoutDates = await this.getBlackoutDates(accountId);
       
       // Transform database fields to camelCase
       return {
@@ -414,23 +443,46 @@ export class Database {
     }
   }
 
-  static async updateAvailabilityConfig(weeklySchedule: any): Promise<AvailabilityConfig> {
-    const [updated] = await db('availability_configs')
-      .where('is_active', true)
-      .update({
-        weekly_schedule: JSON.stringify(weeklySchedule),
-        updated_at: new Date()
-      })
-      .returning('*');
+  static async updateAvailabilityConfig(accountId: string, weeklySchedule: any): Promise<AvailabilityConfig> {
+    console.log(`[AccountId: ${accountId}] Updating availability config...`);
     
-    updated.weekly_schedule = JSON.parse(updated.weekly_schedule);
-    return updated;
+    // Check if config exists for this account
+    const existing = await db('availability_configs')
+      .where('account_id', accountId)
+      .where('is_active', true)
+      .first();
+    
+    if (existing) {
+      // Update existing
+      await db('availability_configs')
+        .where('account_id', accountId)
+        .where('is_active', true)
+        .update({
+          weekly_schedule: JSON.stringify(weeklySchedule),
+          updated_at: new Date()
+        });
+    } else {
+      // Create new
+      const { v4: uuidv4 } = require('uuid');
+      await db('availability_configs').insert({
+        id: uuidv4(),
+        account_id: accountId,
+        weekly_schedule: JSON.stringify(weeklySchedule),
+        is_active: true,
+        created_at: new Date(),
+        updated_at: new Date()
+      });
+    }
+    
+    return await this.getAvailabilityConfig(accountId) as AvailabilityConfig;
   }
 
   // Blackout dates operations
-  static async getBlackoutDates(startDate?: Date, endDate?: Date): Promise<BlackoutDate[]> {
+  static async getBlackoutDates(accountId: string, startDate?: Date, endDate?: Date): Promise<BlackoutDate[]> {
     try {
-      let query = db('blackout_dates').select('*');
+      let query = db('blackout_dates')
+        .where('account_id', accountId)
+        .select('*');
       
       if (startDate) {
         query = query.where('date', '>=', startDate);
@@ -447,9 +499,12 @@ export class Database {
     }
   }
 
-  static async addBlackoutDate(blackoutDate: Omit<BlackoutDate, 'id' | 'createdAt' | 'updatedAt'>): Promise<BlackoutDate> {
+  static async addBlackoutDate(accountId: string, blackoutDate: Omit<BlackoutDate, 'id' | 'createdAt' | 'updatedAt'>): Promise<BlackoutDate> {
     const [created] = await db('blackout_dates')
-      .insert(blackoutDate)
+      .insert({
+        ...blackoutDate,
+        account_id: accountId
+      })
       .returning('*');
     return created;
   }
@@ -462,18 +517,19 @@ export class Database {
   }
 
   // Test chat operations
-  static async getActiveTestChatSession(): Promise<TestChatSession | null> {
-    console.log('💾 Database: Getting active test chat session...');
+  static async getActiveTestChatSession(accountId: string): Promise<TestChatSession | null> {
+    console.log(`💾 Database: [AccountId: ${accountId}] Getting active test chat session...`);
     
     try {
-      // Get the most recent session (within last 24 hours to keep it reasonable)
+      // Get the most recent session for this account (within last 24 hours to keep it reasonable)
       const session = await db('test_chat_sessions')
+        .where('account_id', accountId)
         .where('created_at', '>', new Date(Date.now() - 24 * 60 * 60 * 1000))
         .orderBy('last_activity', 'desc')
         .first();
       
       if (!session) {
-        console.log('💾 Database: No active session found');
+        console.log(`💾 Database: [AccountId: ${accountId}] No active session found`);
         return null;
       }
       
@@ -560,14 +616,15 @@ export class Database {
   }
 
   // WhatsApp Chat Sessions
-  static async createWhatsAppChatSession(whatsappNumber: string): Promise<TestChatSession> {
-    console.log('📱 Database: Creating WhatsApp chat session for:', whatsappNumber);
+  static async createWhatsAppChatSession(whatsappNumber: string, accountId: string): Promise<TestChatSession> {
+    console.log(`📱 Database: [AccountId: ${accountId}] Creating WhatsApp chat session for:`, whatsappNumber);
     
     try {
-      // Check if session already exists for this WhatsApp number
+      // Check if session already exists for this WhatsApp number AND account
       const existing = await db('test_chat_sessions')
         .where('whatsapp_number', whatsappNumber)
         .andWhere('session_type', 'whatsapp')
+        .andWhere('account_id', accountId)
         .first();
       
       if (existing) {
@@ -587,26 +644,40 @@ export class Database {
         };
       }
       
-      // Get default account (first account ordered by creation date)
-      const defaultAccount = await db('accounts')
-        .select('id')
-        .orderBy('created_at', 'asc')
-        .first();
+      const [insertResult] = await db('test_chat_sessions')
+        .insert({
+          session_type: 'whatsapp',
+          whatsapp_number: whatsappNumber,
+          display_name: whatsappNumber, // Use phone number as display name
+          status: 'active',
+          account_id: accountId
+        })
+        .returning('id');
       
-      if (!defaultAccount) {
-        console.error('❌ No accounts found in database - cannot create WhatsApp session');
-        throw new Error('No accounts available. Please create an account first.');
+      let recordId: number;
+      if (typeof insertResult === 'number') {
+        recordId = insertResult;
+      } else if (insertResult && typeof insertResult === 'object' && insertResult.id) {
+        recordId = insertResult.id;
+      } else {
+        throw new Error('Could not determine record ID from insert result');
       }
       
-      console.log('✅ Using default account for WhatsApp session:', defaultAccount.id);
+      console.log('📱 Database: Created WhatsApp chat session with ID:', recordId);
       
-      return await this.createWhatsAppChatSessionForAccount(whatsappNumber, defaultAccount.id);
+      return {
+        id: String(recordId),
+        messages: [],
+        createdAt: new Date().toISOString(),
+        lastActivity: new Date().toISOString()
+      };
     } catch (error) {
       console.error('📱 Database: Error creating WhatsApp chat session:', error);
       throw error;
     }
   }
 
+  // DEPRECATED: Use createWhatsAppChatSession with accountId instead
   static async createWhatsAppChatSessionForAccount(whatsappNumber: string, accountId: string): Promise<TestChatSession> {
     console.log('📱 Database: Creating WhatsApp chat session for:', whatsappNumber, 'with account:', accountId);
     
@@ -737,10 +808,11 @@ export class Database {
   }
 
   // Services operations
-  static async getServices(botConfigId: string): Promise<Service[]> {
+  static async getServices(accountId: string): Promise<Service[]> {
     try {
+      console.log(`[AccountId: ${accountId}] Fetching services...`);
       const results = await db('services')
-        .where({ bot_config_id: botConfigId, is_active: true })
+        .where({ account_id: accountId, is_active: true })
         .orderBy('sort_order', 'asc')
         .orderBy('name', 'asc');
       
@@ -763,10 +835,12 @@ export class Database {
     }
   }
 
-  static async createService(botConfigId: string, serviceData: CreateServiceRequest): Promise<Service> {
+  static async createService(accountId: string, serviceData: CreateServiceRequest): Promise<Service> {
+    console.log(`[AccountId: ${accountId}] Creating service...`);
     const [created] = await db('services')
       .insert({
-        bot_config_id: botConfigId,
+        account_id: accountId,
+        bot_config_id: serviceData.botConfigId || null, // Optional bot_config_id
         name: serviceData.name,
         description: serviceData.description,
         price: serviceData.price,
@@ -1301,6 +1375,77 @@ export class Database {
       cancellations,
       revenue
     };
+  }
+
+  // Language Settings operations
+  static async getLanguageSettings(accountId: string): Promise<any[]> {
+    try {
+      console.log(`[AccountId: ${accountId}] Fetching language settings...`);
+      const languages = await db('language_settings')
+        .where('account_id', accountId)
+        .orderBy('language_name', 'asc');
+      
+      return languages;
+    } catch (error) {
+      console.error('Error fetching language settings:', error);
+      return [];
+    }
+  }
+
+  static async getCurrentLanguageSetting(accountId: string): Promise<any | null> {
+    try {
+      console.log(`[AccountId: ${accountId}] Fetching current language setting...`);
+      const currentLanguage = await db('language_settings')
+        .where('account_id', accountId)
+        .where('is_default', true)
+        .first();
+      
+      if (!currentLanguage) {
+        // Set German as default if none set
+        const germanSetting = await db('language_settings')
+          .where('account_id', accountId)
+          .where('language_code', 'de')
+          .first();
+        
+        if (germanSetting) {
+          await db('language_settings')
+            .where('account_id', accountId)
+            .where('language_code', 'de')
+            .update({ is_default: true });
+          
+          return germanSetting;
+        }
+        
+        return null;
+      }
+      
+      return currentLanguage;
+    } catch (error) {
+      console.error('Error fetching current language setting:', error);
+      return null;
+    }
+  }
+
+  static async updateLanguageSetting(accountId: string, languageCode: string): Promise<void> {
+    try {
+      console.log(`[AccountId: ${accountId}] Updating language setting to:`, languageCode);
+      
+      // Set all languages for this account to not default
+      await db('language_settings')
+        .where('account_id', accountId)
+        .update({ is_default: false });
+      
+      // Set the selected language as default
+      await db('language_settings')
+        .where('account_id', accountId)
+        .where('language_code', languageCode)
+        .update({ is_default: true });
+      
+      console.log(`✅ [AccountId: ${accountId}] Language updated to ${languageCode}`);
+    } catch (error) {
+      console.error('Error updating language setting:', error);
+      throw error;
+    }
   }
 }
 

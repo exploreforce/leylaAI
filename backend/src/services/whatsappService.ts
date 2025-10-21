@@ -13,10 +13,10 @@ class WhatsAppService {
     return;
   }
 
+  // DEPRECATED: Use findOrCreateSessionForUser instead which properly includes accountId
   async findOrCreateSession(phoneNumber: string): Promise<TestChatSession> {
-    // Create or find existing WhatsApp session for this phone number
-    const session = await Database.createWhatsAppChatSession(phoneNumber);
-    return session;
+    console.warn('⚠️ DEPRECATED: findOrCreateSession called without accountId - this should not be used');
+    throw new Error('findOrCreateSession is deprecated. Use findOrCreateSessionForUser with userId/accountId instead.');
   }
 
   async getMessageHistory(sessionId: string): Promise<ChatMessage[]> {

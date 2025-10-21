@@ -31,6 +31,57 @@ router.post('/signup', async (req, res) => {
   });
   await db('account_members').insert({ id: uuidv4(), account_id: accountId, user_id: userId, role: 'owner', created_at: new Date() });
 
+  // Copy bot config from admin account (susi@susi.com)
+  try {
+    console.log(`📋 [Signup] Copying bot config for new account: ${accountId}`);
+    const adminUser = await db('users')
+      .where('email', 'susi@susi.com')
+      .first();
+    
+    if (adminUser) {
+      const adminConfig = await db('bot_configs')
+        .where('account_id', adminUser.account_id)
+        .where('is_active', true)
+        .first();
+      
+      if (adminConfig) {
+        console.log(`✅ [Signup] Found admin config, copying to new account...`);
+        await db('bot_configs').insert({
+          id: uuidv4(),
+          account_id: accountId,
+          system_prompt: adminConfig.system_prompt,
+          tone: adminConfig.tone,
+          business_hours: adminConfig.business_hours,
+          timezone: adminConfig.timezone,
+          max_appointment_duration: adminConfig.max_appointment_duration,
+          buffer_time: adminConfig.buffer_time,
+          bot_name: adminConfig.bot_name,
+          bot_description: adminConfig.bot_description,
+          personality_tone: adminConfig.personality_tone,
+          character_traits: adminConfig.character_traits,
+          background_info: adminConfig.background_info,
+          services_offered: adminConfig.services_offered,
+          escalation_rules: adminConfig.escalation_rules,
+          bot_limitations: adminConfig.bot_limitations,
+          generated_system_prompt: adminConfig.generated_system_prompt,
+          review_mode: adminConfig.review_mode,
+          message_review_mode: adminConfig.message_review_mode,
+          is_active: true,
+          created_at: new Date(),
+          updated_at: new Date()
+        });
+        console.log(`✅ [Signup] Bot config copied successfully for account: ${accountId}`);
+      } else {
+        console.warn(`⚠️ [Signup] No admin bot config found, new account will start with empty config`);
+      }
+    } else {
+      console.warn(`⚠️ [Signup] Admin user susi@susi.com not found, new account will start with empty config`);
+    }
+  } catch (error) {
+    console.error(`❌ [Signup] Error copying bot config:`, error);
+    // Don't fail signup if config copy fails
+  }
+
   const token = jwt.sign({ userId, accountId }, process.env.JWT_SECRET || 'dev-secret', { expiresIn: '7d' });
   return res.status(201).json({ token });
 });

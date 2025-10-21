@@ -11,9 +11,10 @@ const router = Router();
 // Get bot configuration
 router.get(
   '/config',
-  asyncHandler(async (req: Request, res: Response) => {
-    console.log('🔍 Bot API: Getting bot configuration...');
-    const config = await Database.getBotConfig();
+  requireAuth,
+  asyncHandler(async (req: AuthRequest, res: Response) => {
+    console.log(`🔍 Bot API: [AccountId: ${req.accountId}] Getting bot configuration...`);
+    const config = await Database.getBotConfig(req.accountId!);
     console.log('🔍 Bot API: Bot config retrieved:', {
       hasConfig: !!config,
       configId: config?.id,
@@ -177,8 +178,9 @@ router.get(
 // Update bot configuration
 router.put(
   '/config',
-  asyncHandler(async (req: Request, res: Response) => {
-    const updatedConfig = await Database.updateBotConfig(req.body);
+  requireAuth,
+  asyncHandler(async (req: AuthRequest, res: Response) => {
+    const updatedConfig = await Database.updateBotConfig(req.accountId!, req.body);
     res.json({
       success: true,
       message: 'Bot configuration updated',
@@ -241,26 +243,12 @@ router.post(
 // Create new test chat session (always creates new session)
 router.post(
   '/test-chat/session',
-  asyncHandler(async (req: Request, res: Response) => {
-    console.log('🔵 Creating new test chat session...');
+  requireAuth,
+  asyncHandler(async (req: AuthRequest, res: Response) => {
+    console.log(`🔵 [AccountId: ${req.accountId}] Creating new test chat session...`);
     
-    // Try to get account_id from JWT token (optional)
-    let accountId: string | undefined;
-    try {
-      const auth = req.headers.authorization;
-      if (auth && auth.startsWith('Bearer ')) {
-        const token = auth.split(' ')[1];
-        const jwt = require('jsonwebtoken');
-        const payload = jwt.verify(token, process.env.JWT_SECRET || 'dev-secret') as any;
-        accountId = payload.accountId;
-        console.log('👤 Using account_id from JWT:', accountId);
-      }
-    } catch (error) {
-      console.warn('⚠️ No valid JWT token, will use default account');
-    }
-    
-    // Always create a new session (with accountId if available, otherwise fallback to default)
-    const session = await Database.createTestChatSession(accountId);
+    // Create session for this account
+    const session = await Database.createTestChatSession(req.accountId!);
     console.log('📝 New session created:', JSON.stringify(session, null, 2));
     
     const responseData = {
@@ -276,11 +264,12 @@ router.post(
 // Get active test chat session (last active session from database)
 router.get(
   '/test-chat/active-session',
-  asyncHandler(async (req: Request, res: Response) => {
-    console.log('🔍 Getting active test chat session...');
+  requireAuth,
+  asyncHandler(async (req: AuthRequest, res: Response) => {
+    console.log(`🔍 [AccountId: ${req.accountId}] Getting active test chat session...`);
     
     try {
-      const session = await Database.getActiveTestChatSession();
+      const session = await Database.getActiveTestChatSession(req.accountId!);
       
       if (!session) {
         return res.status(404).json({ 
@@ -306,14 +295,16 @@ router.get(
 // Get existing test chat session with messages
 router.get(
   '/test-chat/session/:sessionId',
-  asyncHandler(async (req: Request, res: Response) => {
+  requireAuth,
+  asyncHandler(async (req: AuthRequest, res: Response) => {
     const { sessionId } = req.params;
     // console.log('🔍 Getting test chat session:', sessionId); // Reduced polling spam
     
     try {
-      // Get session info
+      // Get session info - must belong to this account
       const session = await db('test_chat_sessions')
         .where('id', parseInt(sessionId, 10))
+        .where('account_id', req.accountId)
         .first();
       
       if (!session) {
@@ -519,8 +510,9 @@ const updateInactiveStatus = async () => {
 // Get all test chat sessions with stats
 router.get(
   '/test-chat/sessions',
-  asyncHandler(async (req: Request, res: Response) => {
-    console.log('🔍 Getting all test chat sessions...');
+  requireAuth,
+  asyncHandler(async (req: AuthRequest, res: Response) => {
+    console.log(`🔍 [AccountId: ${req.accountId}] Getting all test chat sessions...`);
     
     try {
       // Assign session numbers and update inactive status
@@ -528,6 +520,7 @@ router.get(
       await updateInactiveStatus();
       
       const sessions = await db('test_chat_sessions')
+        .where('account_id', req.accountId)
         .orderBy('last_activity', 'desc');
       
       const sessionsWithStats = await Promise.all(sessions.map(async (session: any) => {
@@ -598,14 +591,16 @@ router.get(
 // Delete test chat session
 router.delete(
   '/test-chat/sessions/:sessionId',
-  asyncHandler(async (req: Request, res: Response) => {
+  requireAuth,
+  asyncHandler(async (req: AuthRequest, res: Response) => {
     const { sessionId } = req.params;
-    console.log('🗑️ Deleting test chat session:', sessionId);
+    console.log(`🗑️ [AccountId: ${req.accountId}] Deleting test chat session:`, sessionId);
     
     try {
-      // Get session info first to free up the session number
+      // Get session info first - must belong to this account
       const session = await db('test_chat_sessions')
         .where('id', parseInt(sessionId, 10))
+        .where('account_id', req.accountId)
         .first();
         
       if (!session) {
@@ -620,6 +615,7 @@ router.delete(
       // Delete the session
       const deletedCount = await db('test_chat_sessions')
         .where('id', parseInt(sessionId, 10))
+        .where('account_id', req.accountId)
         .del();
       
       // The session number becomes available for reuse (handled automatically by assignSessionNumbers)
@@ -636,7 +632,8 @@ router.delete(
 // Archive/Unarchive test chat session
 router.patch(
   '/test-chat/sessions/:sessionId/status',
-  asyncHandler(async (req: Request, res: Response) => {
+  requireAuth,
+  asyncHandler(async (req: AuthRequest, res: Response) => {
     const { sessionId } = req.params;
     const { status } = req.body;
     
@@ -644,11 +641,12 @@ router.patch(
       return res.status(400).json({ error: 'Invalid status. Must be active, archived, or inactive' });
     }
     
-    console.log(`📝 Updating session ${sessionId} status to:`, status);
+    console.log(`📝 [AccountId: ${req.accountId}] Updating session ${sessionId} status to:`, status);
     
     try {
       const updatedCount = await db('test_chat_sessions')
         .where('id', parseInt(sessionId, 10))
+        .where('account_id', req.accountId)
         .update({ status: status });
       
       if (updatedCount === 0) {
@@ -667,28 +665,13 @@ router.patch(
 // Debug: Check/Create availability configuration
 router.post(
   '/debug/availability-config',
-  asyncHandler(async (req: Request, res: Response) => {
-    console.log('🔧 Debug: Checking availability configuration...');
+  requireAuth,
+  asyncHandler(async (req: AuthRequest, res: Response) => {
+    console.log(`🔧 Debug: [AccountId: ${req.accountId}] Checking availability configuration...`);
     
     try {
-      let config = await Database.getAvailabilityConfig();
-      
-      if (!config) {
-        console.log('❌ No config found, creating default...');
-        
-        const defaultWeeklySchedule = {
-          monday: { dayOfWeek: 1, isAvailable: true, timeSlots: [{ start: '09:00', end: '17:00' }] },
-          tuesday: { dayOfWeek: 2, isAvailable: true, timeSlots: [{ start: '09:00', end: '17:00' }] },
-          wednesday: { dayOfWeek: 3, isAvailable: true, timeSlots: [{ start: '09:00', end: '17:00' }] },
-          thursday: { dayOfWeek: 4, isAvailable: true, timeSlots: [{ start: '09:00', end: '17:00' }] },
-          friday: { dayOfWeek: 5, isAvailable: true, timeSlots: [{ start: '09:00', end: '17:00' }] },
-          saturday: { dayOfWeek: 6, isAvailable: false, timeSlots: [] },
-          sunday: { dayOfWeek: 0, isAvailable: false, timeSlots: [] }
-        };
-        
-        config = await Database.updateAvailabilityConfig(defaultWeeklySchedule);
-        console.log('✅ Default config created');
-      }
+      // getAvailabilityConfig now creates default if not found
+      let config = await Database.getAvailabilityConfig(req.accountId!);
       
       return res.json({
         success: true,
@@ -706,13 +689,12 @@ router.post(
 // Get all available languages
 router.get(
   '/languages',
-  asyncHandler(async (req: Request, res: Response) => {
-    console.log('🌍 Getting available languages...');
+  requireAuth,
+  asyncHandler(async (req: AuthRequest, res: Response) => {
+    console.log(`🌍 [AccountId: ${req.accountId}] Getting available languages...`);
     
     try {
-      const languages = await db('language_settings')
-        .select('*')
-        .orderBy('language_name', 'asc');
+      const languages = await Database.getLanguageSettings(req.accountId!);
       
       console.log('✅ Found', languages.length, 'languages');
       return res.json({
@@ -730,32 +712,13 @@ router.get(
 // Get current language setting
 router.get(
   '/language-setting',
-  asyncHandler(async (req: Request, res: Response) => {
-    console.log('🌍 Getting current language setting...');
+  requireAuth,
+  asyncHandler(async (req: AuthRequest, res: Response) => {
+    console.log(`🌍 [AccountId: ${req.accountId}] Getting current language setting...`);
     
     try {
-      const currentLanguage = await db('language_settings')
-        .where('is_default', true)
-        .first();
+      const currentLanguage = await Database.getCurrentLanguageSetting(req.accountId!);
       
-      if (!currentLanguage) {
-        // Set German as default if none set
-        await db('language_settings')
-          .where('language_code', 'de')
-          .update({ is_default: true });
-        
-        const defaultLanguage = await db('language_settings')
-          .where('language_code', 'de')
-          .first();
-          
-        return res.json({
-          success: true,
-          data: defaultLanguage,
-          message: 'Default language set to German'
-        });
-      }
-      
-      console.log('✅ Current language:', currentLanguage.language_name);
       return res.json({
         success: true,
         data: currentLanguage,
@@ -771,37 +734,20 @@ router.get(
 // Update language setting
 router.put(
   '/language-setting',
-  asyncHandler(async (req: Request, res: Response) => {
+  requireAuth,
+  asyncHandler(async (req: AuthRequest, res: Response) => {
     const { language_code } = req.body;
     
     if (!language_code) {
       return res.status(400).json({ error: 'Language code is required' });
     }
     
-    console.log('🌍 Updating language setting to:', language_code);
+    console.log(`🌍 [AccountId: ${req.accountId}] Updating language setting to:`, language_code);
     
     try {
-      // Check if the language exists
-      const language = await db('language_settings')
-        .where('language_code', language_code)
-        .first();
+      await Database.updateLanguageSetting(req.accountId!, language_code);
       
-      if (!language) {
-        return res.status(404).json({ error: 'Language not found' });
-      }
-      
-      // Reset all languages to not default
-      await db('language_settings')
-        .update({ is_default: false });
-      
-      // Set the new default language
-      await db('language_settings')
-        .where('language_code', language_code)
-        .update({ is_default: true });
-      
-      const updatedLanguage = await db('language_settings')
-        .where('language_code', language_code)
-        .first();
+      const updatedLanguage = await Database.getCurrentLanguageSetting(req.accountId!);
       
       console.log('✅ Language setting updated to:', updatedLanguage.language_name);
       return res.json({
