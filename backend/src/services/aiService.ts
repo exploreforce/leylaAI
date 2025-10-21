@@ -109,7 +109,7 @@ const tools: ChatCompletionTool[] = [
     type: 'function',
     function: {
       name: 'checkAvailability',
-      description: 'Checks for available appointment slots on a given date. Returns continuous time blocks (e.g., "09:00 bis 12:00") instead of individual slots.',
+      description: 'Checks availability for appointments. Returns free TIME BLOCKS where appointments can be booked. If the customer requests a time that falls WITHIN any returned block, that time IS AVAILABLE. Example: blocks "09:00-12:00, 13:00-17:00" means 10:00, 11:30, 14:00, 15:30 are ALL available.',
       parameters: {
         type: 'object',
         properties: {
@@ -319,31 +319,11 @@ const executeTool = async (
           console.log(`⏰ Adjusted for today - ${freeBlocks.length} time blocks still available after ${currentTimeHHmm}`);
         }
         
-        // Generate explicit list of available times (15-min intervals)
-        const explicitTimes: string[] = [];
-        for (const block of freeBlocks) {
-          const [startH, startM] = block.start.split(':').map(Number);
-          const [endH, endM] = block.end.split(':').map(Number);
-          const startMinutes = startH * 60 + startM;
-          const endMinutes = endH * 60 + endM;
-          
-          // ✅ FIX: Appointment must fit completely within block
-          // Stop `duration` minutes before block end
-          const maxStartTime = endMinutes - duration;
-          
-          for (let minutes = startMinutes; minutes <= maxStartTime; minutes += 15) {
-            const h = Math.floor(minutes / 60);
-            const m = minutes % 60;
-            explicitTimes.push(`${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`);
-          }
-        }
-        
         return { 
           availableSlots: freeBlocks,
-          availableTimes: explicitTimes,
           message: freeBlocks.length > 0 
-            ? `Available time blocks for ${date}: ${freeBlocks.map(b => `${b.start}-${b.end}`).join(', ')}. The customer can choose any time within these blocks. To verify if a specific time is available, check if it exists in the availableTimes array.`
-            : 'No availability on this date.'
+            ? `AVAILABLE on ${date}: ${freeBlocks.map(b => `${b.start}-${b.end}`).join(', ')}. ANY time within these blocks can be booked (appointments start every 15 minutes).`
+            : 'Not available on this date.'
         };
       }
       
@@ -383,7 +363,7 @@ const executeTool = async (
         console.log(`❌ Day ${dayOfWeek} (${dayName}) is not available according to schedule`);
         return { 
           availableSlots: [],
-          message: 'This day is closed / not available.'
+          message: 'Not available on this date - closed.'
         };
       }
 
@@ -447,32 +427,12 @@ const executeTool = async (
           });
         console.log(`⏰ Adjusted for today - ${freeBlocks.length} time blocks still available after ${currentTimeHHmm}`);
       }
-
-      // Generate explicit list of available times (15-min intervals)
-      const explicitTimes: string[] = [];
-      for (const block of freeBlocks) {
-        const [startH, startM] = block.start.split(':').map(Number);
-        const [endH, endM] = block.end.split(':').map(Number);
-        const startMinutes = startH * 60 + startM;
-        const endMinutes = endH * 60 + endM;
-        
-        // ✅ FIX: Appointment must fit completely within block
-        // Stop `duration` minutes before block end
-        const maxStartTime = endMinutes - duration;
-        
-        for (let minutes = startMinutes; minutes <= maxStartTime; minutes += 15) {
-          const h = Math.floor(minutes / 60);
-          const m = minutes % 60;
-          explicitTimes.push(`${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`);
-        }
-      }
       
       const result = { 
         availableSlots: freeBlocks,
-        availableTimes: explicitTimes,
         message: freeBlocks.length > 0 
-          ? `Available time blocks for ${date}: ${freeBlocks.map(b => `${b.start}-${b.end}`).join(', ')}. The customer can choose any time within these blocks. To verify if a specific time is available, check if it exists in the availableTimes array.`
-          : 'No availability on this date.'
+          ? `AVAILABLE on ${date}: ${freeBlocks.map(b => `${b.start}-${b.end}`).join(', ')}. ANY time within these blocks can be booked (appointments start every 15 minutes).`
+          : 'Not available on this date.'
       };
       
       console.log(`\n✅ CHECK AVAILABILITY RESULT:`);
@@ -952,6 +912,13 @@ GUIDELINES
 - Response language priority: User's message language ${preferredLanguage ? `> UI language (${preferredLanguage})` : ''} > Default (${configuredLanguageName})
 
 IMPORTANT: Always check tools before answering questions about availability or appointments.
+
+AVAILABILITY INTERPRETATION RULES:
+- When checkAvailability returns time blocks (e.g., "09:00-12:00, 13:00-17:00"), ANY time within those blocks is available
+- If customer requests 10:30 and blocks are "09:00-12:00", then 10:30 IS AVAILABLE (it falls within the block)
+- If customer requests 14:00 and blocks are "13:00-17:00", then 14:00 IS AVAILABLE (it falls within the block)
+- Only times OUTSIDE all blocks are unavailable
+- Appointments can start every 15 minutes within blocks (e.g., 09:00, 09:15, 09:30, etc.)
 `;
 
     const systemMessage: OpenAI.Chat.ChatCompletionMessageParam = {
