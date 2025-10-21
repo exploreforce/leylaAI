@@ -1,4 +1,4 @@
-import { Database } from '../models/database';
+import { Database, db } from '../models/database';
 import { AIService } from './aiService';
 import { TestChatSession, ChatMessage, DbChatMessage } from '../types';
 import { TypingDelayService } from '../utils/typingDelay';
