@@ -82,6 +82,32 @@ router.post('/signup', async (req, res) => {
     // Don't fail signup if config copy fails
   }
 
+  // Ensure account has a bot config (create default if copy failed)
+  const existingConfig = await db('bot_configs')
+    .where('account_id', accountId)
+    .where('is_active', true)
+    .first();
+
+  if (!existingConfig) {
+    console.log(`📝 [Signup] Creating default bot config for account: ${accountId}`);
+    await db('bot_configs').insert({
+      id: uuidv4(),
+      account_id: accountId,
+      system_prompt: 'Du bist ein hilfreicher AI-Assistent.',
+      bot_name: 'AI Assistant',
+      bot_description: 'Ein hilfreicher AI-Assistent',
+      tone: 'friendly',
+      personality_tone: 'friendly',
+      character_traits: 'Hilfsbereit, geduldig, verständnisvoll',
+      review_mode: 'never',
+      message_review_mode: 'never',
+      is_active: true,
+      created_at: new Date(),
+      updated_at: new Date()
+    });
+    console.log(`✅ [Signup] Default bot config created for account: ${accountId}`);
+  }
+
   const token = jwt.sign({ userId, accountId }, process.env.JWT_SECRET || 'dev-secret', { expiresIn: '7d' });
   return res.status(201).json({ token });
 });

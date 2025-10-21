@@ -806,7 +806,7 @@ const BotConfigForm = () => {
               label={t('bot_config.identity.name_label')}
               value={config.botName || ''}
               onChange={(e) => handleInputChange('botName', e.target.value)}
-              placeholder="z.B. Dr. Schmidt's Assistent"
+              placeholder={t('bot_config.identity.name_placeholder')}
               required
             />
             
@@ -817,7 +817,7 @@ const BotConfigForm = () => {
               <Textarea
                 value={config.botDescription || ''}
                 onChange={(e) => handleInputChange('botDescription', e.target.value)}
-                placeholder="Kurze Beschreibung was der Bot tut und ist..."
+                placeholder={t('bot_config.identity.description_placeholder')}
                 rows={3}
                 required
               />

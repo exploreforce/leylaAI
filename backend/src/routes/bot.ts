@@ -14,7 +14,25 @@ router.get(
   requireAuth,
   asyncHandler(async (req: AuthRequest, res: Response) => {
     console.log(`🔍 Bot API: [AccountId: ${req.accountId}] Getting bot configuration...`);
-    const config = await Database.getBotConfig(req.accountId!);
+    let config = await Database.getBotConfig(req.accountId!);
+
+    // Auto-create default config if missing (for existing accounts without config)
+    if (!config) {
+      console.log(`📝 [Bot API] No config found, creating default for account: ${req.accountId}`);
+      config = await Database.updateBotConfig(req.accountId!, {
+        botName: 'AI Assistant',
+        botDescription: 'Ein hilfreicher AI-Assistent',
+        tone: 'friendly',
+        personalityTone: 'friendly',
+        characterTraits: 'Hilfsbereit, geduldig, verständnisvoll',
+        reviewMode: 'never',
+        messageReviewMode: 'never',
+        systemPrompt: 'Du bist ein hilfreicher AI-Assistent.',
+        generatedSystemPrompt: 'Du bist ein hilfreicher AI-Assistent.'
+      });
+      console.log(`✅ [Bot API] Default bot config created for account: ${req.accountId}`);
+    }
+
     console.log('🔍 Bot API: Bot config retrieved:', {
       hasConfig: !!config,
       configId: config?.id,

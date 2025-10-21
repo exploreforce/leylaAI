@@ -36,10 +36,12 @@
       "title": "Bot-Identität",
       "name": "Bot-Name",
       "name_label": "Bot Name",
+      "name_placeholder": "z.B. Dr. Schmidt's Assistent",
       "personality": "Persönlichkeit",
       "role": "Rolle",
       "description": "Beschreibung",
-      "description_label": "Bot Beschreibung"
+      "description_label": "Bot Beschreibung",
+      "description_placeholder": "Kurze Beschreibung was der Bot tut und ist..."
     },
     
     "personality": {
