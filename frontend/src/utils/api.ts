@@ -190,12 +190,11 @@ export const calendarApi = {
 
 // Services API
 export const servicesApi = {
-  getAll: async (botConfigId: string): Promise<ApiResponse<Service[]>> => {
-    console.log('🔍 servicesApi.getAll: Called with botConfigId:', botConfigId);
-    console.log('🔍 servicesApi.getAll: Making request to:', `/services/${botConfigId}`);
+  getAll: async (): Promise<ApiResponse<Service[]>> => {
+    console.log('🔍 servicesApi.getAll: Making request to: /services');
     
     try {
-      const result = await api.get(`/services/${botConfigId}`) as ApiResponse<Service[]>;
+      const result = await api.get('/services') as ApiResponse<Service[]>;
       console.log('🔍 servicesApi.getAll: Raw API result:', result);
       return result;
     } catch (error) {
@@ -204,8 +203,8 @@ export const servicesApi = {
     }
   },
 
-  create: async (botConfigId: string, service: CreateServiceRequest): Promise<ApiResponse<Service>> => {
-    return api.post(`/services/${botConfigId}`, service);
+  create: async (service: CreateServiceRequest): Promise<ApiResponse<Service>> => {
+    return api.post('/services', service);
   },
 
   update: async (serviceId: string, updates: Partial<CreateServiceRequest>): Promise<ApiResponse<Service>> => {

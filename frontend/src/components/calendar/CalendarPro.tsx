@@ -546,44 +546,32 @@ const CalendarPro: React.FC<CalendarProProps> = ({ className = '' }) => {
   // Fetch services
   useEffect(() => {
     console.log('🚀 SERVICES USEEFFECT TRIGGERED!');
-    console.log('🔍 CalendarPro: Bot config loaded:', botConfig);
-    console.log('🔍 CalendarPro: botConfig?.data?.id exists?', !!botConfig?.data?.id);
-    console.log('🔍 CalendarPro: botConfig?.data?.id value:', botConfig?.data?.id);
+    console.log('🔍 CalendarPro: Fetching services...');
     
-    if (botConfig?.data?.id) {
-      console.log('🔍 CalendarPro: Fetching services for botConfig.data.id:', botConfig.data.id);
-      console.log('🔍 CalendarPro: About to call servicesApi.getAll...');
-      
-      servicesApi.getAll(botConfig.data.id)
-        .then(response => {
-          console.log('🔍 CalendarPro: Services API response:', response);
-          console.log('🔍 CalendarPro: Response type:', typeof response);
-          console.log('🔍 CalendarPro: Response success:', response?.success);
-          console.log('🔍 CalendarPro: Response data:', response?.data);
-          
-          if (response && response.success && Array.isArray(response.data)) {
-            console.log('✅ CalendarPro: Services loaded successfully:', response.data);
-            console.log('✅ CalendarPro: Services count:', response.data.length);
-            setServices(response.data);
-          } else {
-            console.warn('⚠️ CalendarPro: Services response invalid:', response);
-            console.warn('⚠️ CalendarPro: Setting empty services array');
-            setServices([]); // Set empty array as fallback
-          }
-        })
-        .catch(error => {
-          console.error('❌ CalendarPro: Error loading services:', error);
-          console.error('❌ CalendarPro: Error details:', error?.message || 'Unknown error');
-          console.error('❌ CalendarPro: Setting empty services array');
+    servicesApi.getAll()
+      .then(response => {
+        console.log('🔍 CalendarPro: Services API response:', response);
+        console.log('🔍 CalendarPro: Response type:', typeof response);
+        console.log('🔍 CalendarPro: Response success:', response?.success);
+        console.log('🔍 CalendarPro: Response data:', response?.data);
+        
+        if (response && response.success && Array.isArray(response.data)) {
+          console.log('✅ CalendarPro: Services loaded successfully:', response.data);
+          console.log('✅ CalendarPro: Services count:', response.data.length);
+          setServices(response.data);
+        } else {
+          console.warn('⚠️ CalendarPro: Services response invalid:', response);
+          console.warn('⚠️ CalendarPro: Setting empty services array');
           setServices([]); // Set empty array as fallback
-        });
-    } else {
-      console.warn('⚠️ CalendarPro: Bot config ID not available');
-      console.warn('⚠️ CalendarPro: BotConfig:', botConfig);
-      console.warn('⚠️ CalendarPro: Setting empty services array due to no bot config ID');
-      setServices([]);
-    }
-  }, [botConfig?.data?.id]);
+        }
+      })
+      .catch(error => {
+        console.error('❌ CalendarPro: Error loading services:', error);
+        console.error('❌ CalendarPro: Error details:', error?.message || 'Unknown error');
+        console.error('❌ CalendarPro: Setting empty services array');
+        setServices([]); // Set empty array as fallback
+      });
+  }, []);
   
   // Load availability configuration for calendar display
   useEffect(() => {

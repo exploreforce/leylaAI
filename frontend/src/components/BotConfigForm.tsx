@@ -166,16 +166,14 @@ WICHTIGE VERHALTENSREGELN:
 };
 
 const ServicesManagement = ({ 
-  botConfigId, 
   onServicesChange 
 }: { 
-  botConfigId: string;
   onServicesChange?: (services: Service[]) => void;
 }) => {
   const { t } = useTranslation(['settings', 'common']);
   const { data: servicesData, isLoading, error, refetch } = useFetch(
-    () => servicesApi.getAll(botConfigId),
-    [botConfigId]
+    () => servicesApi.getAll(),
+    []
   );
 
   const { execute: createService, isLoading: isCreating } = useApi();
@@ -235,7 +233,7 @@ const ServicesManagement = ({
       if (editingService) {
         await updateService(() => servicesApi.update(editingService.id, formData));
       } else {
-        await createService(() => servicesApi.create(botConfigId, formData));
+        await createService(() => servicesApi.create(formData));
       }
       
       setSaveSuccess(true);
@@ -666,8 +664,8 @@ const BotConfigForm = () => {
 
   // Load services when config is available
   const { data: servicesData } = useFetch(
-    () => config.id ? servicesApi.getAll(config.id) : Promise.resolve({ success: true, data: [] }),
-    [config.id]
+    () => servicesApi.getAll(),
+    []
   );
 
   // Update config when data loads
@@ -1170,17 +1168,9 @@ const BotConfigForm = () => {
           </div>
         </form>
       ) : activeTab === 'services' ? (
-        config.id ? (
-          <ServicesManagement 
-            botConfigId={config.id} 
-            onServicesChange={setServices}
-          />
-        ) : (
-          <div className="flex items-center justify-center p-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-            <span className="ml-2">{t('messages.loading_config')}</span>
-          </div>
-        )
+        <ServicesManagement 
+          onServicesChange={setServices}
+        />
       ) : (
         <LanguageSettings />
       )}
