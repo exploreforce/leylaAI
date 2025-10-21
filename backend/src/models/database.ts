@@ -1,4 +1,5 @@
 import knex from 'knex';
+import { v4 as uuidv4 } from 'uuid';
 import { BotConfig, Appointment, AvailabilityConfig, BlackoutDate, TestChatSession, ChatMessage, DbChatMessage, Service, CreateServiceRequest } from '../types';
 
 const environment = process.env.NODE_ENV || 'development';
@@ -138,13 +139,38 @@ export class Database {
     
     dbUpdates.updated_at = new Date();
 
-    await db('bot_configs')
+    // Check if config exists (UPSERT logic)
+    const existing = await db('bot_configs')
       .where('account_id', accountId)
       .where('is_active', true)
-      .update(dbUpdates);
+      .first();
 
-    // Return the updated config
-    return this.getBotConfig(accountId) as Promise<BotConfig>;
+    if (existing) {
+      // UPDATE existing config
+      console.log(`[AccountId: ${accountId}] Bot config exists, updating...`);
+      await db('bot_configs')
+        .where('account_id', accountId)
+        .where('is_active', true)
+        .update(dbUpdates);
+    } else {
+      // INSERT new config
+      console.log(`[AccountId: ${accountId}] Bot config does not exist, creating new...`);
+      await db('bot_configs').insert({
+        id: uuidv4(),
+        account_id: accountId,
+        is_active: true,
+        created_at: new Date(),
+        ...dbUpdates
+      });
+      console.log(`[AccountId: ${accountId}] Bot config created successfully`);
+    }
+
+    // Return the updated/created config
+    const result = await this.getBotConfig(accountId);
+    if (!result) {
+      throw new Error(`Failed to create/update bot config for account ${accountId}`);
+    }
+    return result;
   }
 
   // Appointment operations (NO DATE OBJECTS - STRING ONLY!)
