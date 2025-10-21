@@ -259,6 +259,93 @@ router.post('/wasender', asyncHandler(async (req: Request, res: Response) => {
   return res.status(200).json({ received: true });
 }));
 
+// TEMPORARY: One-time webhook setup endpoint (remove after first use!)
+// This endpoint configures webhooks for all existing WasenderAPI sessions
+router.post('/setup', asyncHandler(async (req: Request, res: Response) => {
+  const { secret } = req.body;
+  
+  // Simple security: require a secret key from environment or request
+  const expectedSecret = process.env.WEBHOOK_SETUP_SECRET || 'setup-webhooks-2025';
+  if (secret !== expectedSecret) {
+    console.log('⚠️ Webhook setup attempted with invalid secret');
+    return res.status(403).json({ error: 'Invalid secret key' });
+  }
+  
+  try {
+    console.log('🔧 Manual webhook setup triggered');
+    
+    // Get webhook URL from environment
+    const webhookUrl = process.env.WASENDER_WEBHOOK_URL || 
+                       'https://wnn8pretct.eu-central-1.awsapprunner.com/api/webhooks/wasender';
+    
+    console.log(`🔗 Configuring webhook URL: ${webhookUrl}`);
+    
+    // Get all sessions from WasenderAPI
+    const sessions = await WasenderApiClient.listSessions();
+    console.log(`📋 Found ${sessions.length} sessions to configure`);
+    
+    const results = [];
+    
+    for (const session of sessions) {
+      const sessionId = session.id || session.whatsappSession || session.sessionId;
+      const sessionName = session.name || 'Unnamed';
+      const sessionPhone = session.phone_number || session.phoneNumber || 'Unknown';
+      
+      if (!sessionId) {
+        console.log(`⚠️ Skipping session without ID`);
+        continue;
+      }
+      
+      try {
+        console.log(`🔧 Configuring webhook for session ${sessionId} (${sessionName} - ${sessionPhone})...`);
+        await WasenderApiClient.updateSessionWebhook(sessionId, webhookUrl);
+        
+        results.push({
+          sessionId,
+          name: sessionName,
+          phone: sessionPhone,
+          status: 'success'
+        });
+        
+        console.log(`✅ Webhook configured successfully for ${sessionId}`);
+      } catch (error: any) {
+        console.error(`❌ Failed to configure webhook for session ${sessionId}:`, error.message);
+        results.push({
+          sessionId,
+          name: sessionName,
+          phone: sessionPhone,
+          status: 'failed',
+          error: error.message
+        });
+      }
+    }
+    
+    const successCount = results.filter(r => r.status === 'success').length;
+    const failCount = results.filter(r => r.status === 'failed').length;
+    
+    console.log(`✅ Webhook setup completed: ${successCount} successful, ${failCount} failed`);
+    
+    return res.json({ 
+      success: true, 
+      message: `Webhooks configured for ${successCount} out of ${sessions.length} sessions`,
+      webhookUrl,
+      results,
+      summary: {
+        total: sessions.length,
+        successful: successCount,
+        failed: failCount
+      }
+    });
+  } catch (error: any) {
+    console.error('🔧 Webhook setup failed:', error);
+    return res.status(500).json({ 
+      success: false, 
+      error: error.message || 'Failed to setup webhooks',
+      details: error.toString()
+    });
+  }
+}));
+
 export default router;
 
 
