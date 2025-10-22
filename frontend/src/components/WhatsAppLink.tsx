@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { getToken } from '@/utils/auth';
+import { authApi } from '@/utils/api';
 import WebhookAdmin from './WebhookAdmin';
 
 type WaStatus = {
@@ -24,6 +25,7 @@ export default function WhatsAppLink() {
   const [loading, setLoading] = useState<boolean>(false);
   const [jwt, setJwt] = useState<string | null>(null);
   const [phoneNumber, setPhoneNumber] = useState<string>("");
+  const [isAdmin, setIsAdmin] = useState<boolean>(false);
 
   const loadStatus = async () => {
     try {
@@ -195,6 +197,25 @@ export default function WhatsAppLink() {
     }
   }, [status?.status, status?.sessionId]);
 
+  useEffect(() => {
+    const checkAdminStatus = async () => {
+      if (!jwt) {
+        setIsAdmin(false);
+        return;
+      }
+      
+      try {
+        const response = await authApi.getCurrentUser();
+        setIsAdmin(response.data?.role === 'admin');
+      } catch (error) {
+        console.error('Failed to check admin status:', error);
+        setIsAdmin(false);
+      }
+    };
+
+    checkAdminStatus();
+  }, [jwt]);
+
   // Special polling ONLY during active QR scanning
   useEffect(() => {
     if (status?.status === 'qr') {
@@ -324,8 +345,8 @@ export default function WhatsAppLink() {
         </div>
       )}
       
-      {/* Webhook Administration - for managing multiple customers */}
-      <WebhookAdmin />
+      {/* Webhook Administration - only visible for admin role */}
+      {isAdmin && <WebhookAdmin />}
     </div>
   );
 }

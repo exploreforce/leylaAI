@@ -2,14 +2,14 @@ import { Router, Request, Response } from 'express';
 import { asyncHandler } from '../middleware/errorHandler';
 import { WasenderApiClient } from '../services/wasenderApiClient';
 import { requireAuth } from '../middleware/auth';
+import { requireAdmin } from '../middleware/adminAuth';
 
 const router = Router();
 
 // Admin endpoint to setup webhooks for all existing sessions
-router.post('/setup-webhooks', requireAuth as any, asyncHandler(async (req: any, res: Response) => {
+router.post('/setup-webhooks', requireAdmin as any, asyncHandler(async (req: any, res: Response) => {
   const userId = req.userId;
   
-  // TODO: Add proper admin role check
   console.log(`🔧 Admin webhook setup requested by user ${userId}`);
   
   try {
@@ -28,7 +28,7 @@ router.post('/setup-webhooks', requireAuth as any, asyncHandler(async (req: any,
 }));
 
 // Admin endpoint to get webhook configuration status for all sessions
-router.get('/webhook-status', requireAuth as any, asyncHandler(async (req: any, res: Response) => {
+router.get('/webhook-status', requireAdmin as any, asyncHandler(async (req: any, res: Response) => {
   const userId = req.userId;
   
   console.log(`🔧 Webhook status requested by user ${userId}`);
