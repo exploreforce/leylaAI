@@ -217,6 +217,9 @@ const executeTool = async (
   console.log(`👤 Account ID: ${accountId || 'N/A'}`);
   console.log(`📥 Parameters:`, JSON.stringify(args, null, 2));
 
+  // Fetch account timezone once for all tool calls that need it
+  const accountTimezone = await Database.getAccountTimezone(accountId || undefined);
+
   switch (toolName) {
     case 'checkAvailability':
       const { date, duration } = args;
@@ -512,7 +515,6 @@ const executeTool = async (
       console.log(`   Notes: ${notes || 'N/A'}`);
       
       // Convert datetime to UTC for storage
-      const accountTimezone = await Database.getAccountTimezone(accountId || undefined);
       const utcDate = formatForDatabase(datetime, accountTimezone);
       console.log(`📅 Timezone conversion: "${datetime}" (${accountTimezone}) → "${utcDate.toISOString()}" (UTC)`);
       
@@ -672,9 +674,6 @@ const executeTool = async (
         });
         
         console.log(`✅ Found ${activeAppointments.length} active appointments for ${searchPhone}`);
-        
-        // Get account timezone for datetime conversion
-        const accountTimezone = await Database.getAccountTimezone(accountId || undefined);
         
         // Return formatted appointment data with timezone conversion
         const formattedAppointments = activeAppointments.map(apt => {
