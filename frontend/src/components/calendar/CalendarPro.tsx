@@ -89,30 +89,33 @@ const AvailabilitySettings = () => {
   useEffect(() => {
     const loadAvailabilityConfig = async () => {
       try {
-        // Create/ensure default config exists
-        const configResponse = await fetch('/api/bot/debug/availability-config', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' }
-        });
+        // Create/ensure default config exists using API with auth
+        const configResponse = await botApi.getAvailabilityConfig();
         
-        if (configResponse.ok) {
-          const configData = await configResponse.json();
-          if (configData.config && configData.config.weeklySchedule) {
-            console.log('📅 Loaded availability config:', configData.config);
-            
-            // Transform backend format to frontend format
-            const backendSchedule = configData.config.weeklySchedule;
-            const frontendSchedule: { [key: string]: DaySchedule } = {};
-            
-            Object.keys(backendSchedule).forEach(day => {
-              const dayConfig = backendSchedule[day];
-              frontendSchedule[day] = {
-                isAvailable: dayConfig.isAvailable || false,
-                timeSlots: dayConfig.timeSlots || []
-              };
-            });
-            
-            setSchedule(frontendSchedule);
+        if (configResponse.config && configResponse.config.weeklySchedule) {
+          console.log('📅 Loaded availability config:', configResponse.config);
+          
+          // Transform backend format to frontend format
+          const backendSchedule = configResponse.config.weeklySchedule;
+          const frontendSchedule: { [key: string]: DaySchedule } = {};
+          
+          Object.keys(backendSchedule).forEach(day => {
+            const dayConfig = backendSchedule[day];
+            frontendSchedule[day] = {
+              isAvailable: dayConfig.isAvailable || false,
+              timeSlots: dayConfig.timeSlots || []
+            };
+          });
+          
+          setSchedule(frontendSchedule);
+          
+          // Load blackout dates if available
+          if (configResponse.config.blackoutDates && Array.isArray(configResponse.config.blackoutDates)) {
+            console.log('📅 Loaded blackout dates:', configResponse.config.blackoutDates);
+            setBlackoutDates(configResponse.config.blackoutDates.map((bd: any) => ({
+              date: bd.date,
+              reason: bd.reason || ''
+            })));
           }
         }
       } catch (error) {
@@ -577,17 +580,11 @@ const CalendarPro: React.FC<CalendarProProps> = ({ className = '' }) => {
   useEffect(() => {
     const loadAvailabilityForCalendar = async () => {
       try {
-        const configResponse = await fetch('/api/bot/debug/availability-config', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' }
-        });
+        const configResponse = await botApi.getAvailabilityConfig();
         
-        if (configResponse.ok) {
-          const configData = await configResponse.json();
-          if (configData.config && configData.config.weeklySchedule) {
-            console.log('📅 Loaded availability config for calendar:', configData.config);
-            setAvailabilityConfig(configData.config.weeklySchedule);
-          }
+        if (configResponse.config && configResponse.config.weeklySchedule) {
+          console.log('📅 Loaded availability config for calendar:', configResponse.config);
+          setAvailabilityConfig(configResponse.config.weeklySchedule);
         }
       } catch (error) {
         console.error('Failed to load availability config for calendar:', error);

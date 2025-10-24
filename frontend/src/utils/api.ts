@@ -126,6 +126,11 @@ export const botApi = {
   updateLanguage: async (language_code: string): Promise<ApiResponse<any>> => {
     return api.put('/bot/language-setting', { language_code });
   },
+
+  // Availability Config API
+  getAvailabilityConfig: async (): Promise<any> => {
+    return api.post('/bot/debug/availability-config');
+  },
 };
 
 // Appointments API

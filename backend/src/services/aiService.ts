@@ -253,6 +253,23 @@ const executeTool = async (
       console.log(`⏰ Current time: ${currentTimeHHmm}, isToday: ${isToday}`);
       
       const availabilityConfig = await Database.getAvailabilityConfig(accountId || '');
+      
+      // Check if date is a blackout date
+      if (availabilityConfig && availabilityConfig.blackoutDates) {
+        const isBlackout = availabilityConfig.blackoutDates.some((bd: any) => {
+          const blackoutDate = bd.date.split('T')[0]; // Normalize to YYYY-MM-DD
+          return blackoutDate === date;
+        });
+        
+        if (isBlackout) {
+          console.log(`❌ Date ${date} is a blackout date`);
+          return {
+            availableSlots: [],
+            message: 'This date is blocked (blackout date). No appointments can be booked on this day.'
+          };
+        }
+      }
+      
       if (!availabilityConfig) {
         console.log('❌ No availability configuration found, creating default config and using 9-17');
         
@@ -545,6 +562,70 @@ const executeTool = async (
               hasServiceType: !!appointmentType
             }
           };
+        }
+        
+        // ✅ VALIDATE AVAILABILITY BEFORE BOOKING
+        console.log('🔒 Validating day availability before booking...');
+        const bookingDate = datetime.split('T')[0]; // Extract date part (YYYY-MM-DD)
+        const bookingDateTime = new Date(bookingDate);
+        const dayOfWeekForBooking = bookingDateTime.getDay();
+        const dayNamesForValidation = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+        const dayNameForBooking = dayNamesForValidation[dayOfWeekForBooking];
+        const dayNamesGermanForValidation = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
+        const germanDayName = dayNamesGermanForValidation[dayOfWeekForBooking];
+        
+        const availabilityConfigForBooking = await Database.getAvailabilityConfig(accountId || '');
+        
+        // Check if booking date is a blackout date
+        if (availabilityConfigForBooking && availabilityConfigForBooking.blackoutDates) {
+          const isBlackoutForBooking = availabilityConfigForBooking.blackoutDates.some((bd: any) => {
+            const blackoutDate = bd.date.split('T')[0]; // Normalize to YYYY-MM-DD
+            return blackoutDate === bookingDate;
+          });
+          
+          if (isBlackoutForBooking) {
+            console.log(`❌ BOOKING BLOCKED: Date ${bookingDate} is a blackout date`);
+            return {
+              error: `Cannot book appointment on ${bookingDate}. This date is blocked (blackout date). Please choose a different date.`,
+              isBlackout: true
+            };
+          }
+        }
+        
+        if (availabilityConfigForBooking) {
+          let weeklyScheduleForBooking = availabilityConfigForBooking.weeklySchedule;
+          
+          // Parse if it's a string
+          if (typeof weeklyScheduleForBooking === 'string') {
+            try {
+              weeklyScheduleForBooking = JSON.parse(weeklyScheduleForBooking);
+            } catch (e) {
+              console.error(`❌ Failed to parse weeklySchedule:`, e);
+            }
+          }
+          
+          // Try to find schedule by dayOfWeek property first, fallback to day name key
+          let dayScheduleForBooking = Object.values(weeklyScheduleForBooking || {}).find((d: any) => d.dayOfWeek === dayOfWeekForBooking);
+          
+          // Fallback: If dayOfWeek property doesn't exist, try to get by key name
+          if (!dayScheduleForBooking && weeklyScheduleForBooking?.[dayNameForBooking]) {
+            dayScheduleForBooking = weeklyScheduleForBooking[dayNameForBooking];
+          }
+          
+          // Check if day is available
+          if (!dayScheduleForBooking || !dayScheduleForBooking.isAvailable) {
+            console.log(`❌ BOOKING BLOCKED: Day ${dayOfWeekForBooking} (${dayNameForBooking}/${germanDayName}) is not available according to schedule`);
+            return {
+              error: `Cannot book appointment on ${bookingDate} (${germanDayName}). This day is marked as CLOSED in the availability schedule. Please choose a different date from the available days.`,
+              dayName: dayNameForBooking,
+              germanDayName: germanDayName,
+              isAvailable: false
+            };
+          }
+          
+          console.log(`✅ Day ${dayOfWeekForBooking} (${dayNameForBooking}/${germanDayName}) is available for booking`);
+        } else {
+          console.log('⚠️ No availability config found - allowing booking (fallback behavior)');
         }
         
         // Convert service name to UUID (AI sends name, DB expects UUID)
@@ -900,12 +981,97 @@ export class AIService {
     // Note: Services are loaded internally for bookAppointment tool
     // No need to list them in system prompt - keeps prompt clean
     
+    // Load availability configuration to show AI which days are available
+    let availabilityInfo = '';
+    try {
+      const availabilityConfig = await Database.getAvailabilityConfig(accountId || '');
+      if (availabilityConfig) {
+        let weeklySchedule = availabilityConfig.weeklySchedule;
+        
+        // Parse if it's a string
+        if (typeof weeklySchedule === 'string') {
+          try {
+            weeklySchedule = JSON.parse(weeklySchedule);
+          } catch (e) {
+            console.error('❌ Failed to parse weeklySchedule:', e);
+          }
+        }
+        
+        const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+        const dayNamesGerman = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
+        
+        const availableDays: string[] = [];
+        const unavailableDays: string[] = [];
+        
+        dayNames.forEach((dayName, dayOfWeek) => {
+          // Try to find schedule by dayOfWeek property first, fallback to day name key
+          let daySchedule = Object.values(weeklySchedule || {}).find((d: any) => d.dayOfWeek === dayOfWeek);
+          if (!daySchedule && weeklySchedule?.[dayName]) {
+            daySchedule = weeklySchedule[dayName];
+          }
+          
+          const germanName = dayNamesGerman[dayOfWeek];
+          
+          if (daySchedule && daySchedule.isAvailable && daySchedule.timeSlots && daySchedule.timeSlots.length > 0) {
+            const timeSlots = daySchedule.timeSlots.map((slot: any) => `${slot.start}-${slot.end}`).join(', ');
+            availableDays.push(`  ✅ ${germanName} (${dayName}): ${timeSlots}`);
+          } else {
+            unavailableDays.push(`  ❌ ${germanName} (${dayName}): CLOSED / NOT AVAILABLE`);
+          }
+        });
+        
+        // Add blackout dates information
+        let blackoutInfo = '';
+        if (availabilityConfig.blackoutDates && availabilityConfig.blackoutDates.length > 0) {
+          const blackoutList = availabilityConfig.blackoutDates.map((bd: any) => {
+            const date = bd.date.split('T')[0]; // Normalize to YYYY-MM-DD
+            const reason = bd.reason ? ` - ${bd.reason}` : '';
+            return `  🚫 ${date}${reason}`;
+          }).join('\n');
+          
+          blackoutInfo = `
+
+BLOCKED DATES (BLACKOUT DATES):
+==================================================
+${blackoutList}
+
+IMPORTANT: These specific dates are BLOCKED. You CANNOT book appointments on these dates.
+`;
+        }
+        
+        availabilityInfo = `
+WEEKLY AVAILABILITY SCHEDULE
+==================================================
+${availableDays.join('\n')}
+${unavailableDays.join('\n')}
+${blackoutInfo}
+
+CRITICAL RULES:
+- You can ONLY book appointments on days marked with ✅
+- Days marked with ❌ are CLOSED - you MUST NOT book appointments on these days
+- Days marked with 🚫 are BLOCKED (blackout dates) - you MUST NOT book appointments on these specific dates
+- If a customer requests a day marked as ❌ or 🚫, inform them that you cannot book on that day
+- Appointments must fall within the time slots shown for each available day
+`;
+        
+        console.log('📅 Loaded availability schedule for AI context:', {
+          availableDaysCount: availableDays.length,
+          unavailableDaysCount: unavailableDays.length
+        });
+      } else {
+        console.log('⚠️ No availability config found - AI will use default availability');
+      }
+    } catch (error) {
+      console.error('❌ Failed to load availability config for AI context:', error);
+    }
+    
     console.log('🤖 AI Service: Bot config loaded:', {
       promptType,
       systemPrompt: activeSystemPrompt.substring(0, 50) + '...',
       contentFilterEnabled,
       servicesAvailable: servicesInfo.length > 0,
-      configuredLanguage
+      configuredLanguage,
+      hasAvailabilityInfo: availabilityInfo.length > 0
     });
 
     // Erweitere System Prompt basierend auf Einstellungen
@@ -966,6 +1132,8 @@ IMPORTANT FOR APPOINTMENT BOOKING:
 
     let extendedSystemPrompt = activeSystemPrompt + `
     
+${availabilityInfo}
+
 CURRENT DATE & TIME (Timezone: ${accountTimezone})
 ==================================================
 - Date: ${currentDate} (YYYY-MM-DD Format)

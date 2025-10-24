@@ -67,6 +67,29 @@ router.put('/availability', requireAuth, asyncHandler(async (req: AuthRequest, r
 
   const config = await Database.updateAvailabilityConfig(req.accountId!, weeklySchedule);
 
+  // Update blackout dates if provided
+  if (blackoutDates && Array.isArray(blackoutDates)) {
+    console.log(`📅 Updating blackout dates for account ${req.accountId}:`, blackoutDates);
+    
+    // First, remove all existing blackout dates for this account
+    await db('blackout_dates')
+      .where('account_id', req.accountId)
+      .del();
+    
+    // Then, insert the new blackout dates
+    if (blackoutDates.length > 0) {
+      const blackoutDateRecords = blackoutDates.map(bd => ({
+        account_id: req.accountId,
+        date: bd.date,
+        reason: bd.reason || '',
+        is_recurring: bd.isRecurring || false
+      }));
+      
+      await db('blackout_dates').insert(blackoutDateRecords);
+      console.log(`✅ Inserted ${blackoutDateRecords.length} blackout dates`);
+    }
+  }
+
   return res.json({
     message: 'Availability updated successfully',
     config,
