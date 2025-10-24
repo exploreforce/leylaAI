@@ -788,7 +788,13 @@ const convertMessagesToInputItems = (messages: any[]): any[] => {
   return messages
     .filter(msg => msg.role !== 'system') // System messages go to instructions
     .map(msg => {
-      // Handle tool results
+      // If already in Responses API format (from previous iteration), pass through
+      // With store: false, we need to pass both function_call and function_call_output items
+      if (msg.type === 'function_call' || msg.type === 'function_call_output') {
+        return msg;
+      }
+      
+      // Handle tool results (Chat Completions format)
       if (msg.role === 'tool') {
         return {
           type: 'function_call_output',
@@ -804,15 +810,21 @@ const convertMessagesToInputItems = (messages: any[]): any[] => {
       }
       
       // Handle regular messages
+      // For user messages, use simple string content
+      // For assistant messages, preserve the structure
+      if (msg.role === 'user') {
+        return {
+          type: 'message',
+          role: 'user',
+          content: msg.content || ''
+        };
+      }
+      
+      // For assistant messages
       return {
         type: 'message',
         role: msg.role,
-        content: [
-          {
-            type: 'input_text',
-            text: msg.content || ''
-          }
-        ]
+        content: msg.content || ''
       };
     })
     .filter(item => item !== null);
@@ -825,7 +837,7 @@ const extractFunctionCalls = (output: ResponsesApiOutputItem[]): any[] => {
   return output
     .filter(item => item.type === 'function_call')
     .map(item => ({
-      id: item.id,
+      id: item.call_id || item.id, // Use call_id for function_call_output compatibility
       type: 'function',
       name: item.name,
       arguments: item.arguments
@@ -1267,14 +1279,19 @@ You will automatically get results from each tool call before proceeding to the 
         });
       });
 
-      // Add function calls to conversation history
+      // Add function calls from the API response to conversation history
+      // With store: false, the API doesn't maintain state, so we need to pass the original function_call items
+      const originalFunctionCalls = output.filter(item => item.type === 'function_call');
+      originalFunctionCalls.forEach((functionCall) => {
+        conversationHistory.push(functionCall as any);
+      });
+
+      // Add function call outputs to conversation history
       functionCallItems.forEach((toolCall, i) => {
-        // Add function result as tool message
         conversationHistory.push({
-          tool_call_id: toolCall.id,
-          role: 'tool',
-          name: toolCall.name,
-          content: JSON.stringify(toolResults[i])
+          type: 'function_call_output',
+          call_id: toolCall.id,
+          output: JSON.stringify(toolResults[i])
         } as any);
       });
 
