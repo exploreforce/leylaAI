@@ -106,93 +106,85 @@ const calculateFreeTimeBlocks = (
 const tools: any[] = [
   {
     type: 'function',
-    function: {
-      name: 'checkAvailability',
-      description: 'Checks availability for appointments. Returns free TIME BLOCKS (start-end ranges). CRITICAL: Any requested time that falls WITHIN a block IS AVAILABLE. Example: Block "13:00-17:00" means 13:00, 13:15, 13:30, 14:00, 14:15, 14:30, 15:00, 15:30, 16:00, 16:15, 16:30, 16:45 are ALL AVAILABLE. Always check if customer requested time falls within returned blocks.',
-      parameters: {
-        type: 'object',
-        properties: {
-          date: {
-            type: 'string',
-            description: 'The date to check for availability, in YYYY-MM-DD format.',
-          },
-          duration: {
-            type: 'number',
-            description: 'The duration of the appointment in minutes.',
-          },
+    name: 'checkAvailability',
+    description: 'Checks availability for appointments. Returns free TIME BLOCKS (start-end ranges). CRITICAL: Any requested time that falls WITHIN a block IS AVAILABLE. Example: Block "13:00-17:00" means 13:00, 13:15, 13:30, 14:00, 14:15, 14:30, 15:00, 15:30, 16:00, 16:15, 16:30, 16:45 are ALL AVAILABLE. Always check if customer requested time falls within returned blocks.',
+    parameters: {
+      type: 'object',
+      properties: {
+        date: {
+          type: 'string',
+          description: 'The date to check for availability, in YYYY-MM-DD format.',
         },
-        required: ['date', 'duration'],
+        duration: {
+          type: 'number',
+          description: 'The duration of the appointment in minutes.',
+        },
       },
+      required: ['date', 'duration'],
     },
   },
   {
     type: 'function',
-    function: {
-      name: 'bookAppointment',
-      description: 'Books a new appointment with the customer.',
-      parameters: {
-        type: 'object',
-        properties: {
-          customerName: { type: 'string', description: "The customer's full name." },
-          customerPhone: { type: 'string', description: "The customer's phone number." },
-          customerEmail: { type: 'string', description: "The customer's email address (optional)." },
-          datetime: {
-            type: 'string',
-            description: 'The appointment start time in ISO 8601 format (e.g., 2024-07-25T14:30:00 or 2024-07-25T14:30). IMPORTANT: Always include the full date (YYYY-MM-DD) and time (HH:mm). If user says "tomorrow at 15:00", calculate tomorrow\'s date and format it as YYYY-MM-DDT15:00.',
-          },
-          duration: {
-            type: 'number',
-            description: 'The duration of the appointment in minutes.',
-          },
-          appointmentType: {
-            type: 'string',
-            description: 'The type/service of the appointment (e.g., "consultation", "treatment", etc.).',
-          },
-          notes: {
-            type: 'string',
-            description: 'Any additional notes for the appointment.',
-          },
+    name: 'bookAppointment',
+    description: 'Books a new appointment with the customer.',
+    parameters: {
+      type: 'object',
+      properties: {
+        customerName: { type: 'string', description: "The customer's full name." },
+        customerPhone: { type: 'string', description: "The customer's phone number." },
+        customerEmail: { type: 'string', description: "The customer's email address (optional)." },
+        datetime: {
+          type: 'string',
+          description: 'The appointment start time in ISO 8601 format (e.g., 2024-07-25T14:30:00 or 2024-07-25T14:30). IMPORTANT: Always include the full date (YYYY-MM-DD) and time (HH:mm). If user says "tomorrow at 15:00", calculate tomorrow\'s date and format it as YYYY-MM-DDT15:00.',
         },
-        required: ['customerName', 'customerPhone', 'datetime', 'duration', 'appointmentType'],
+        duration: {
+          type: 'number',
+          description: 'The duration of the appointment in minutes.',
+        },
+        appointmentType: {
+          type: 'string',
+          description: 'The type/service of the appointment (e.g., "consultation", "treatment", etc.).',
+        },
+        notes: {
+          type: 'string',
+          description: 'Any additional notes for the appointment.',
+        },
       },
+      required: ['customerName', 'customerPhone', 'datetime', 'duration', 'appointmentType'],
     },
   },
   {
     type: 'function',
-    function: {
-      name: 'findAppointments',
-      description: 'Finds all existing appointments for a specific customer by their phone number. Use this tool BEFORE cancelling to get the correct appointment UUID. Returns appointments with timezone-converted times: use localDateTime/localDate/localTime fields for displaying to users (in account timezone), datetime field is UTC for internal reference only.',
-      parameters: {
-        type: 'object',
-        properties: {
-          customerPhone: {
-            type: 'string',
-            description: "The customer's phone number to search for appointments.",
-          },
+    name: 'findAppointments',
+    description: 'Finds all existing appointments for a specific customer by their phone number. Use this tool BEFORE cancelling to get the correct appointment UUID. Returns appointments with timezone-converted times: use localDateTime/localDate/localTime fields for displaying to users (in account timezone), datetime field is UTC for internal reference only.',
+    parameters: {
+      type: 'object',
+      properties: {
+        customerPhone: {
+          type: 'string',
+          description: "The customer's phone number to search for appointments.",
         },
-        required: ['customerPhone'],
       },
+      required: ['customerPhone'],
     },
   },
   {
     type: 'function',
-    function: {
-      name: 'cancelAppointment',
-      description: 'Cancels an existing appointment by its UUID. CRITICAL: You MUST call findAppointments first to get the appointment UUID. Never guess the appointmentId - always use the UUID returned by findAppointments. The appointmentId must be a UUID format (e.g., "ba903e6d-0558-447f-a4b9-41037c32d9d3"), not a date/time string.',
-      parameters: {
-        type: 'object',
-        properties: {
-          appointmentId: {
-            type: 'string',
-            description: 'The UUID of the appointment to cancel (obtained from findAppointments).',
-          },
-          reason: {
-            type: 'string',
-            description: 'Optional reason for cancellation.',
-          },
+    name: 'cancelAppointment',
+    description: 'Cancels an existing appointment by its UUID. CRITICAL: You MUST call findAppointments first to get the appointment UUID. Never guess the appointmentId - always use the UUID returned by findAppointments. The appointmentId must be a UUID format (e.g., "ba903e6d-0558-447f-a4b9-41037c32d9d3"), not a date/time string.',
+    parameters: {
+      type: 'object',
+      properties: {
+        appointmentId: {
+          type: 'string',
+          description: 'The UUID of the appointment to cancel (obtained from findAppointments).',
         },
-        required: ['appointmentId'],
+        reason: {
+          type: 'string',
+          description: 'Optional reason for cancellation.',
+        },
       },
+      required: ['appointmentId'],
     },
   },
 ];
@@ -207,7 +199,8 @@ const webSearchTool = {
 };
 
 // Combine web search with custom function tools
-const allTools = [webSearchTool, ...tools];
+// Note: web_search must come AFTER function tools in Responses API
+const allTools = [...tools, webSearchTool];
 
 // --- Tool Implementation ---
 
@@ -218,8 +211,10 @@ const executeTool = async (
   whatsappNumber: string | null = null,
   isFlagged: boolean = false
 ) => {
-  const toolName = toolCall.function.name;
-  const args = JSON.parse(toolCall.function.arguments);
+  // Support both formats: Responses API (name, arguments) and Chat Completions API (function.name, function.arguments)
+  const toolName = toolCall.name || toolCall.function?.name;
+  const argsString = toolCall.arguments || toolCall.function?.arguments;
+  const args = typeof argsString === 'string' ? JSON.parse(argsString) : argsString;
 
   console.log(`\n${'='.repeat(80)}`);
   console.log(`🔧 TOOL CALL START: ${toolName}`);
@@ -832,10 +827,8 @@ const extractFunctionCalls = (output: ResponsesApiOutputItem[]): any[] => {
     .map(item => ({
       id: item.id,
       type: 'function',
-      function: {
-        name: item.name,
-        arguments: JSON.stringify(item.arguments || {})
-      }
+      name: item.name,
+      arguments: item.arguments
     }));
 };
 
@@ -1156,11 +1149,9 @@ You will automatically get results from each tool call before proceeding to the 
         },
         reasoning: {
           effort: 'medium', // Hardcoded
-          summary: true
         },
         tools: allTools,
         tool_choice: 'auto',
-        temperature: 0.7,
         parallel_tool_calls: true,
         store: false,
         include: [
@@ -1245,7 +1236,7 @@ You will automatically get results from each tool call before proceeding to the 
 
       // Execute function calls
       console.log(`🔧 Executing ${functionCallItems.length} function call(s) in iteration ${iterationCount}:`);
-      functionCallItems.forEach(tc => console.log(`   - ${tc.function.name}`));
+      functionCallItems.forEach(tc => console.log(`   - ${tc.name}`));
 
       let isFlagged = false;
       try {
@@ -1269,8 +1260,8 @@ You will automatically get results from each tool call before proceeding to the 
       functionCallItems.forEach((tc, i) => {
         allToolCallsMetadata.push({
           iteration: iterationCount,
-          name: tc.function.name,
-          parameters: JSON.parse(tc.function.arguments),
+          name: tc.name,
+          parameters: tc.arguments,
           result: toolResults[i],
           status: 'completed'
         });
@@ -1282,7 +1273,7 @@ You will automatically get results from each tool call before proceeding to the 
         conversationHistory.push({
           tool_call_id: toolCall.id,
           role: 'tool',
-          name: toolCall.function.name,
+          name: toolCall.name,
           content: JSON.stringify(toolResults[i])
         } as any);
       });
@@ -1311,10 +1302,8 @@ You will automatically get results from each tool call before proceeding to the 
       },
       reasoning: {
         effort: 'medium', // Hardcoded
-        summary: true
       },
       tools: [], // No tools for final response
-      temperature: 0.7,
       parallel_tool_calls: true,
       store: false
     };
