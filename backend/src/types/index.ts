@@ -137,6 +137,14 @@ export interface ChatMessage {
     isFlagged?: boolean; // moderation flag
     userSentiment?: string; // qualitative label
     userInformation?: string; // rolling summary to carry across turns
+    
+    // Multi-step tool call loop metadata
+    iterations?: number; // number of tool call iterations
+    maxIterationsReached?: boolean; // whether max iterations was reached
+    
+    // Responses API metadata
+    webSearchSources?: WebSearchSource[]; // sources from web search tool
+    citations?: UrlCitation[]; // URL citations from response
   };
 }
 
@@ -145,6 +153,45 @@ export interface ToolCall {
   parameters: any;
   result?: any;
   status: 'pending' | 'completed' | 'error';
+  iteration?: number; // which iteration this tool call was executed in
+}
+
+// Responses API Output Types
+export interface ResponsesApiOutputItem {
+  type: 'message' | 'web_search_call' | 'function_call' | 'function_call_output' | 'reasoning';
+  id: string;
+  status?: 'completed' | 'in_progress' | 'failed';
+  role?: 'assistant' | 'user';
+  content?: OutputContent[];
+  name?: string;
+  arguments?: any;
+  output?: string;
+  call_id?: string;
+  action?: WebSearchAction;
+}
+
+export interface OutputContent {
+  type: 'output_text' | 'input_text';
+  text: string;
+  annotations?: UrlCitation[];
+}
+
+export interface UrlCitation {
+  type: 'url_citation';
+  start_index: number;
+  end_index: number;
+  url: string;
+  title: string;
+}
+
+export interface WebSearchAction {
+  sources?: WebSearchSource[];
+}
+
+export interface WebSearchSource {
+  url: string;
+  title?: string;
+  snippet?: string;
 }
 
 export interface DbChatMessage extends Omit<ChatMessage, 'id'> {

@@ -86,3 +86,8 @@ exports.down = async function(knex) {
   console.log('⚠️ [Migration] Down migration skipped - preserving user data');
 };
 
+
+
+
+
+

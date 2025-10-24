@@ -58,3 +58,4 @@ exports.down = async function(knex) {
   console.log('⚠️ [Migration] Down migration skipped - data integrity preserved');
 };
 
+

@@ -1,6 +1,5 @@
 import OpenAI from 'openai';
-import { ChatCompletionTool } from 'openai/resources/chat/completions';
-import { ChatMessage } from '../types';
+import { ChatMessage, ResponsesApiOutputItem, OutputContent, UrlCitation, WebSearchSource } from '../types';
 import { Database, db } from '../models/database';
 import { getBusinessDaySlots, isTimeSlotAvailable } from '../utils';
 import { getViennaDate, getViennaTime, getViennaWeekday, getViennaDateTime, calculateRelativeDate, getAccountDate, getAccountTime, getAccountWeekday, getAccountDateTime, calculateAccountRelativeDate, getWeekdayForDate } from '../utils/timezone';
@@ -104,7 +103,7 @@ const calculateFreeTimeBlocks = (
 
 // --- Tool Definitions for OpenAI Function Calling ---
 
-const tools: ChatCompletionTool[] = [
+const tools: any[] = [
   {
     type: 'function',
     function: {
@@ -198,10 +197,22 @@ const tools: ChatCompletionTool[] = [
   },
 ];
 
+// Web Search Tool (always enabled)
+const webSearchTool = {
+  type: 'web_search' as const,
+  user_location: {
+    type: 'approximate' as const
+  },
+  search_context_size: 'low' as const
+};
+
+// Combine web search with custom function tools
+const allTools = [webSearchTool, ...tools];
+
 // --- Tool Implementation ---
 
 const executeTool = async (
-  toolCall: OpenAI.Chat.Completions.ChatCompletionMessageToolCall,
+  toolCall: any, // Compatible with both Chat Completions and Responses API format
   accountId: string | null = null,
   sessionId: string | null = null,
   whatsappNumber: string | null = null,
@@ -773,6 +784,61 @@ const executeTool = async (
   }
 };
 
+// --- Helper Functions for Responses API ---
+
+/**
+ * Converts Chat Completions message format to Responses API input items format
+ */
+const convertMessagesToInputItems = (messages: any[]): any[] => {
+  return messages
+    .filter(msg => msg.role !== 'system') // System messages go to instructions
+    .map(msg => {
+      // Handle tool results
+      if (msg.role === 'tool') {
+        return {
+          type: 'function_call_output',
+          call_id: msg.tool_call_id,
+          output: msg.content
+        };
+      }
+      
+      // Handle assistant messages with tool calls
+      if (msg.role === 'assistant' && msg.tool_calls) {
+        // Tool calls are handled separately in output
+        return null;
+      }
+      
+      // Handle regular messages
+      return {
+        type: 'message',
+        role: msg.role,
+        content: [
+          {
+            type: 'input_text',
+            text: msg.content || ''
+          }
+        ]
+      };
+    })
+    .filter(item => item !== null);
+};
+
+/**
+ * Extracts function calls from Responses API output
+ */
+const extractFunctionCalls = (output: ResponsesApiOutputItem[]): any[] => {
+  return output
+    .filter(item => item.type === 'function_call')
+    .map(item => ({
+      id: item.id,
+      type: 'function',
+      function: {
+        name: item.name,
+        arguments: JSON.stringify(item.arguments || {})
+      }
+    }));
+};
+
 // --- Main AI Service Logic ---
 
 export class AIService {
@@ -781,6 +847,9 @@ export class AIService {
     sessionId: string,
     preferredLanguage?: string
   ): Promise<ChatMessage> {
+    // Maximum iterations for tool call loop to prevent infinite loops
+    const MAX_TOOL_ITERATIONS = 5;
+    
     // Get session to determine which account this chat belongs to
     const session = await db('test_chat_sessions')
       .where('id', parseInt(sessionId, 10))
@@ -930,55 +999,8 @@ APPOINTMENT CANCELLATION WORKFLOW - CRITICAL INSTRUCTIONS:
 When a customer wants to cancel an appointment, you MUST follow this exact workflow:
 
 STEP 1: FIND THE APPOINTMENT
-- Call findAppointments(customerPhone: "CUSTOMER_PHONE_NUMBER")
-- This returns a list with appointment IDs (UUIDs), dates, times, and details
-- CRITICAL: Use localDateTime/localDate/localTime fields when showing times to customers
-- The 'datetime' field is in UTC for internal use only - NEVER show this to customers
-
 STEP 2: IDENTIFY THE CORRECT APPOINTMENT
-- Look through the returned appointments
-- Match based on localDate, localTime, service type, or customer description
-- If multiple appointments exist, ask the customer which one to cancel
-
-STEP 3: CONFIRM WITH CUSTOMER
-- Show the appointment details to the customer using LOCAL times
-- Example: "I found your appointment on [localDate] at [localTime] for [SERVICE]. Shall I cancel it?"
-- Wait for confirmation if unclear
-
-STEP 4: CANCEL THE APPOINTMENT
-- Call cancelAppointment(appointmentId: "UUID_FROM_STEP_1", reason: "optional")
-- Use the EXACT UUID from findAppointments result
-- NEVER guess or construct an appointmentId
-
-CRITICAL RULES:
-- appointmentId MUST be a UUID (e.g., "ba903e6d-0558-447f-a4b9-41037c32d9d3")
-- NEVER use date/time as appointmentId (e.g., "11:30-22.10.2025" is WRONG)
-- If findAppointments returns no results, inform customer no appointments were found
-- Always use the customer's phone number from the WhatsApp session
-- ALWAYS use localDateTime/localDate/localTime fields when communicating with customers
-- NEVER show UTC times (datetime field) to customers
-
-EXAMPLE WORKFLOW:
-Customer: "Cancel my appointment on October 22nd at 11:30"
-Bot Action 1: findAppointments(customerPhone: "436605610913")
-Bot receives: [
-  {
-    "id": "ba903e6d-0558-447f-a4b9-41037c32d9d3",
-    "customerName": "P Diddy",
-    "datetime": "2025-10-22T09:30:00.000Z",
-    "localDateTime": "22.10.2025, 11:30",
-    "localDate": "2025-10-22",
-    "localTime": "11:30",
-    "appointmentType": "Massage"
-  }
-]
-Bot Response: "I found your Massage appointment on 22.10.2025 at 11:30. Should I cancel it?"
-Customer: "Yes"
-Bot Action 2: cancelAppointment(
-  appointmentId: "ba903e6d-0558-447f-a4b9-41037c32d9d3",
-  reason: "Customer requested cancellation"
-)
-Bot Response: "Your appointment has been cancelled successfully."
+STEP 3: CANCEL THE APPOINTMENT
 
 ${servicesInfo}
 
@@ -987,34 +1009,7 @@ ${customerContext}SESSION MEMORY
 - Last user language: ${previousUserLanguage || 'unknown'}
 - Last safety flag: ${previousIsFlagged ? 'true' : 'false'}
 
-LANGUAGE SETTINGS - CRITICAL INSTRUCTIONS
-========================================
-DEFAULT LANGUAGE: ${configuredLanguage} (${configuredLanguageName})
-${preferredLanguage ? `USER INTERFACE LANGUAGE: ${preferredLanguage} (ONLY used as fallback if user's language is completely unclear)` : ''}
-
-⚠️ ABSOLUTE PRIORITY RULE - NEVER IGNORE THIS:
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-1. **ALWAYS DETECT THE USER'S MESSAGE LANGUAGE FIRST**
-2. **ALWAYS RESPOND IN THE SAME LANGUAGE AS THE USER WRITES**
-3. The UI language (${preferredLanguage || 'not set'}) is ONLY a fallback for completely unclear messages (e.g., "???" or "123")
-4. If user writes in English → ALWAYS respond in English (even if UI is German)
-5. If user writes in Spanish → ALWAYS respond in Spanish (even if UI is German)
-6. If user writes in any detectable language → ALWAYS respond in THAT language
-
-**LANGUAGE PRIORITY (STRICT ORDER):**
-   ${preferredLanguage ? `a) User writes in ANY detectable language → Respond in THAT language (HIGHEST PRIORITY!)
-   b) User's message has NO detectable language (only symbols/numbers) → Use ${preferredLanguage} as fallback
-   c) UI language also unclear → Use ${configuredLanguageName} as final fallback` : `a) User writes in ANY detectable language → Respond in THAT language
-   b) User's language completely unclear → Use ${configuredLanguageName} as fallback`}
-
-SET user_language TO: The actual language code you DETECTED in the user's message (e.g., 'en', 'de', 'es', 'fr', 'ru')
-Your chat_response MUST be in the EXACT SAME LANGUAGE as user_language
-
-**PRIORITY ORDER:**
-- 1️⃣ FIRST PRIORITY: User's message language (detected from their message)
-${preferredLanguage ? `- 2️⃣ SECOND PRIORITY: ${preferredLanguage} (User's UI language)
-- 3️⃣ FALLBACK: ${configuredLanguageName} (only if both unclear)` : `- 2️⃣ FALLBACK: ${configuredLanguageName} (only if user language unclear)`}
-
+Answer in the language the user is writing in.
 **EXAMPLES:**
 - User writes: "Hello, I need an appointment"
   → user_language = 'en'
@@ -1028,13 +1023,27 @@ ${preferredLanguage ? `- 2️⃣ SECOND PRIORITY: ${preferredLanguage} (User's U
   → user_language = 'de'
   → chat_response = "Guten Tag! Gerne helfe ich Ihnen bei der Terminbuchung..." (in German!)
 
-${preferredLanguage ? `- UI language: ${preferredLanguage}, User writes unclear message: "..."
-  → user_language = '${preferredLanguage}' (fallback to UI language)
-  → chat_response in ${preferredLanguage}
+WEB SEARCH CAPABILITY (ALWAYS AVAILABLE):
+==================================================
+You have access to real-time web search to find current information from the internet.
 
-` : ''}- User writes: "123 xyz" (no recognizable language, no UI language set)
-  → user_language = '${configuredLanguage}' (ultimate fallback)
-  → chat_response in ${configuredLanguageName}
+WHEN TO USE WEB SEARCH:
+- User asks about current events, news, or recent developments
+- User asks about prices, availability, or market information that changes frequently
+- User asks "what's new" or "latest" about a topic
+- User asks about weather, traffic, or real-time conditions
+- User needs fact-checking or verification of recent information
+
+HOW TO USE WEB SEARCH:
+- The web search tool is automatically available - just use it when needed
+- Search results will include citations with URLs
+- Always mention when information comes from web search: "According to recent sources..." or "Based on current information..."
+- If search returns no results, inform the user
+
+IMPORTANT:
+- Web search supplements your knowledge, use it when your training data may be outdated
+- Always cite sources when using web search results
+- Don't make up information - if web search doesn't find it, say so
 
 GUIDELINES
 - Always return JSON matching the provided schema (no prose outside JSON)
@@ -1043,7 +1052,6 @@ GUIDELINES
 - user_language is the DETECTED language code of the USER'S message (e.g., 'de', 'en', 'es', 'ru', 'pl')
 - is_flagged true only if content crosses a red line
 - user_sentiment is a short qualitative label
-- Response language priority: User's message language ${preferredLanguage ? `> UI language (${preferredLanguage})` : ''} > Default (${configuredLanguageName})
 
 IMPORTANT: Always check tools before answering questions about availability or appointments.
 
@@ -1069,13 +1077,11 @@ Example 1:
 - Tool returns: "09:00-12:00, 13:00-17:00"
 - Customer asks: "Do you have time at 14:00?"
 - CORRECT answer: "Yes, 14:00 is available! That falls within my 13:00-17:00 time block."
-- WRONG answer: "Sorry, I don't have availability between 14:00 and 17:00" (This is INCORRECT!)
 
 Example 2:
 - Tool returns: "13:00-17:00"
 - Customer asks: "I would like an appointment at 2 PM tomorrow"
 - CORRECT: "Perfect! 2 PM (14:00) is available. Let me book that for you."
-- WRONG: "I don't have appointments available at that time" (14:00 is WITHIN 13:00-17:00!)
 
 Example 3:
 - Tool returns: "09:00-12:00"
@@ -1083,191 +1089,281 @@ Example 3:
 - CORRECT: "Yes! 10:30 is available within my 09:00-12:00 time block."
 
 ONLY say a time is unavailable if it falls OUTSIDE all returned blocks.
+
+MULTI-STEP WORKFLOWS:
+========================================
+You can use tools sequentially to accomplish complex tasks:
+1. findAppointments → get appointment ID
+2. checkAvailability → verify new slot is free
+3. bookAppointment → create new appointment
+4. cancelAppointment → remove old appointment
+
+Example: "Move my Wednesday appointment to Thursday"
+- Step 1: findAppointments(customerPhone) to get Wednesday appointment
+- Step 2: checkAvailability("2025-10-31", duration) to check Thursday
+- Step 3: bookAppointment(...) to book Thursday slot
+- Step 4: cancelAppointment(oldAppointmentId) to cancel Wednesday
+
+You will automatically get results from each tool call before proceeding to the next.
 `;
 
-    const systemMessage: OpenAI.Chat.ChatCompletionMessageParam = {
-      role: 'system',
-      content: extendedSystemPrompt,
-    };
+    // System prompt wird als instructions verwendet (nicht mehr in messages)
+    const instructions = extendedSystemPrompt;
     
-        const conversationHistory = messages.map(msg => ({
+    // Initialize conversation history and iteration variables
+    let conversationHistory = messages.map(msg => ({
       role: msg.role,
       content: msg.content || '',
     })).filter(msg => msg.content.trim().length > 0) as OpenAI.Chat.ChatCompletionMessageParam[];
 
-    console.log('🤖 AI Service: Sending to OpenAI with structured outputs:', {
-      systemMessage: typeof systemMessage.content === 'string' ? systemMessage.content.substring(0, 50) + '...' : 'Complex content',
+    let iterationCount = 0;
+    let allToolCallsMetadata: any[] = [];
+    let allWebSearchSources: WebSearchSource[] = [];
+    let allCitations: UrlCitation[] = [];
+
+    console.log('🤖 AI Service: Sending to OpenAI Responses API:', {
+      model: 'gpt-5',
+      instructions: instructions.substring(0, 50) + '...',
       messageCount: conversationHistory.length,
       conversationHistory: conversationHistory.map(m => `${m.role}: ${typeof m.content === 'string' ? m.content.substring(0, 50) : 'complex'}...`),
       currentDate: currentDate,
       currentDateTime: currentDateTime,
-      structuredOutput: true
+      structuredOutput: true,
+      verbosity: 'low',
+      reasoningEffort: 'medium'
     });
 
-    // OpenAI API Call mit Structured Outputs
-    const apiParams: any = {
-      model: process.env.OPENAI_MODEL || 'gpt-5', // Use GPT-5 as default
-      messages: [systemMessage, ...conversationHistory],
-      tools: tools,
-      tool_choice: 'auto',
-      temperature: 0.3, // Lower temperature for more consistent logical reasoning
-      response_format: {
-        type: "json_schema",
-        json_schema: {
-          name: "chat_response",
-          schema: botResponseSchema,
-          strict: true
+    // Multi-Step Tool Call Loop
+    while (iterationCount < MAX_TOOL_ITERATIONS) {
+      iterationCount++;
+      console.log(`\n🔄 Tool Call Iteration ${iterationCount}/${MAX_TOOL_ITERATIONS}`);
+
+      // Convert messages to Responses API format
+      const inputItems = convertMessagesToInputItems(conversationHistory);
+
+      const apiParams: any = {
+        model: 'gpt-5', // Hardcoded
+        instructions: instructions,
+        input: inputItems,
+        text: {
+          format: {
+            type: "json_schema",
+            name: "botResponseSchema",
+            strict: true,
+            schema: botResponseSchema
+          },
+          verbosity: 'low' // Hardcoded
+        },
+        reasoning: {
+          effort: 'medium', // Hardcoded
+          summary: true
+        },
+        tools: allTools,
+        tool_choice: 'auto',
+        temperature: 0.7,
+        parallel_tool_calls: true,
+        store: false,
+        include: [
+          'reasoning.encrypted_content',
+          'web_search_call.action.sources'
+        ]
+      };
+
+      const response = await openai.responses.create(apiParams);
+      const output = response.output as ResponsesApiOutputItem[];
+
+      // Extract different output types
+      const messageItems = output.filter(item => item.type === 'message');
+      const webSearchItems = output.filter(item => item.type === 'web_search_call');
+      const functionCallItems = extractFunctionCalls(output);
+
+      // Collect web search sources and citations
+      webSearchItems.forEach(item => {
+        if (item.action?.sources) {
+          allWebSearchSources.push(...item.action.sources);
         }
+      });
+
+      // No more function calls - generate final response
+      if (functionCallItems.length === 0) {
+        console.log('✅ No more function calls - generating final response');
+        
+        const assistantMessage = messageItems.find(item => item.role === 'assistant');
+        
+        if (!assistantMessage || !assistantMessage.content) {
+          throw new Error('No assistant message in response output');
+        }
+
+        const textContent = assistantMessage.content.find(c => c.type === 'output_text');
+        
+        if (!textContent) {
+          throw new Error('No text content in assistant message');
+        }
+
+        const annotations = textContent.annotations || [];
+        allCitations.push(...annotations);
+
+        let structuredResponse: BotResponse;
+        try {
+          structuredResponse = JSON.parse(textContent.text || '{}') as BotResponse;
+          console.log('🎯 Final structured response:', {
+            user_language: structuredResponse.user_language,
+            is_flagged: structuredResponse.is_flagged,
+            toolCallsExecuted: allToolCallsMetadata.length,
+            iterations: iterationCount,
+            webSearchSources: allWebSearchSources.length,
+            citations: allCitations.length
+          });
+        } catch (error) {
+          console.error('❌ Failed to parse structured response:', error);
+          structuredResponse = {
+            chat_response: textContent.text || 'Sorry, I encountered an error.',
+            user_language: preferredLanguage || 'en',
+            is_flagged: false,
+            user_sentiment: 'neutral',
+            user_information: previousUserInformation || ''
+          } as BotResponse;
+        }
+
+        return {
+          id: '',
+          role: 'assistant',
+          content: structuredResponse.chat_response,
+          timestamp: new Date(),
+          metadata: {
+            userLanguage: structuredResponse.user_language,
+            isFlagged: structuredResponse.is_flagged,
+            userSentiment: structuredResponse.user_sentiment,
+            userInformation: structuredResponse.user_information,
+            toolCalls: allToolCallsMetadata,
+            iterations: iterationCount,
+            webSearchSources: allWebSearchSources,
+            citations: allCitations
+          }
+        };
       }
-    };
-    
-    // Content Filter Parameter hinzufügen (falls unterstützt vom Model)
-    if (!contentFilterEnabled) {
-      console.log('🔓 Content filtering disabled via environment variable');
-    }
-    
-    const response = await openai.chat.completions.create(apiParams);
 
-    const responseMessage = response.choices[0].message;
-    const toolCalls = responseMessage.tool_calls;
-    
-    // DEBUG: Check if AI generated text before tool call
-    if (toolCalls && responseMessage.content) {
-      console.log('⚠️ WARNING: AI generated text AND tool calls in first response!');
-      console.log('   First response content:', responseMessage.content);
-      console.log('   This content should be IGNORED - waiting for tool results...');
-    }
+      // Execute function calls
+      console.log(`🔧 Executing ${functionCallItems.length} function call(s) in iteration ${iterationCount}:`);
+      functionCallItems.forEach(tc => console.log(`   - ${tc.function.name}`));
 
-    if (toolCalls) {
-      // Parse structured response early to get is_flagged status for review mode
       let isFlagged = false;
       try {
-        const earlyStructuredResponse = JSON.parse(responseMessage.content || '{}') as BotResponse;
-        isFlagged = earlyStructuredResponse.is_flagged || false;
-        console.log(`🚩 Early parsing: is_flagged = ${isFlagged}`);
-      } catch (error) {
-        console.log('⚠️ Could not parse early structured response for flag status, defaulting to false');
-      }
-      
-      // Execute tools and continue conversation (pass accountId, sessionId, whatsappNumber, isFlagged for context)
-      const toolResults = await Promise.all(toolCalls.map(tc => executeTool(tc, accountId, sessionId, whatsappNumber, isFlagged)));
-      
-      const toolResponseMessage: OpenAI.Chat.ChatCompletionMessageParam = {
-        role: 'assistant',
-        tool_calls: toolCalls,
-        content: null
-      };
-
-      const toolFeedbackMessages: OpenAI.Chat.ChatCompletionMessageParam[] = toolCalls.map((toolCall, i) => ({
-        tool_call_id: toolCall.id,
-        role: 'tool',
-        name: toolCall.function.name,
-        content: JSON.stringify(toolResults[i]),
-      }));
-      
-      // Send tool results back to the model with structured outputs
-      const secondApiParams: any = {
-        model: process.env.OPENAI_MODEL || 'gpt-5',
-        messages: [
-          systemMessage,
-          ...conversationHistory,
-          toolResponseMessage,
-          ...toolFeedbackMessages,
-        ],
-        temperature: 0.3, // Lower temperature for more consistent logical reasoning
-        response_format: {
-          type: "json_schema",
-          json_schema: {
-            name: "chat_response",
-            schema: botResponseSchema,
-            strict: true
+        const assistantMsg = messageItems.find(item => item.role === 'assistant');
+        if (assistantMsg?.content) {
+          const textContent = assistantMsg.content.find(c => c.type === 'output_text');
+          if (textContent) {
+            const earlyResponse = JSON.parse(textContent.text || '{}') as BotResponse;
+            isFlagged = earlyResponse.is_flagged || false;
           }
         }
-      };
-      
-      if (!contentFilterEnabled) {
-        console.log('🔓 Content filtering disabled for tool response');
+      } catch (error) {
+        console.log('⚠️ Could not parse early structured response for flag status');
       }
-      
-      const secondResponse = await openai.chat.completions.create(secondApiParams);
 
-      const finalMessage = secondResponse.choices[0].message;
-      
-      // Parse structured response
-      let structuredResponse: BotResponse;
-      try {
-        structuredResponse = JSON.parse(finalMessage.content || '{}') as BotResponse;
-        console.log('🎯 Structured response received:', {
-          user_language: structuredResponse.user_language,
-          is_flagged: structuredResponse.is_flagged,
-          user_sentiment: structuredResponse.user_sentiment,
-          user_information: (structuredResponse.user_information || '').substring(0, 80) + '...'
+      const toolResults = await Promise.all(
+        functionCallItems.map(tc => executeTool(tc, accountId, sessionId, whatsappNumber, isFlagged))
+      );
+
+      // Save tool calls metadata
+      functionCallItems.forEach((tc, i) => {
+        allToolCallsMetadata.push({
+          iteration: iterationCount,
+          name: tc.function.name,
+          parameters: JSON.parse(tc.function.arguments),
+          result: toolResults[i],
+          status: 'completed'
         });
-      } catch (error) {
-        console.error('❌ Failed to parse structured response:', error);
-        // Fallback to raw content
-        structuredResponse = {
-          chat_response: finalMessage.content || 'Sorry, I encountered an error processing your request.',
-          user_language: 'en',
-          is_flagged: false,
-          user_sentiment: 'neutral',
-          user_information: previousUserInformation || ''
-        } as BotResponse;
-      }
-      
-      return {
-        id: '', // Will be set by the database
-        role: 'assistant',
-        content: structuredResponse.chat_response,
-        timestamp: new Date(),
-        metadata: {
-          userLanguage: structuredResponse.user_language,
-          isFlagged: structuredResponse.is_flagged,
-          userSentiment: structuredResponse.user_sentiment,
-          userInformation: structuredResponse.user_information,
-          toolCalls: toolCalls.map((tc, i) => ({
-            name: tc.function.name,
-            parameters: JSON.parse(tc.function.arguments),
-            result: toolResults[i],
-            status: 'completed',
-          }))
-        }
-      };
-    } else {
-      // Standard structured response
-      let structuredResponse: BotResponse;
-      try {
-        structuredResponse = JSON.parse(responseMessage.content || '{}') as BotResponse;
-        console.log('🎯 Structured response received:', {
-          user_language: structuredResponse.user_language,
-          is_flagged: structuredResponse.is_flagged,
-          user_sentiment: structuredResponse.user_sentiment,
-          user_information: (structuredResponse.user_information || '').substring(0, 80) + '...'
-        });
-      } catch (error) {
-        console.error('❌ Failed to parse structured response:', error);
-        // Fallback to raw content
-        structuredResponse = {
-          chat_response: responseMessage.content || 'Sorry, I encountered an error processing your request.',
-          user_language: 'en',
-          is_flagged: false,
-          user_sentiment: 'neutral',
-          user_information: previousUserInformation || ''
-        } as BotResponse;
-      }
-      
-      return {
-        id: '',
-        role: 'assistant',
-        content: structuredResponse.chat_response,
-        timestamp: new Date(),
-        metadata: {
-          userLanguage: structuredResponse.user_language,
-          isFlagged: structuredResponse.is_flagged,
-          userSentiment: structuredResponse.user_sentiment,
-          userInformation: structuredResponse.user_information
-        }
-      };
+      });
+
+      // Add function calls to conversation history
+      functionCallItems.forEach((toolCall, i) => {
+        // Add function result as tool message
+        conversationHistory.push({
+          tool_call_id: toolCall.id,
+          role: 'tool',
+          name: toolCall.function.name,
+          content: JSON.stringify(toolResults[i])
+        } as any);
+      });
+
+      // Loop continues - AI will decide if more tools are needed
     }
+
+    // Maximum iterations reached - force final response
+    console.warn(`⚠️ Maximum tool iterations (${MAX_TOOL_ITERATIONS}) reached!`);
+
+    // Convert messages to Responses API format
+    const finalInputItems = convertMessagesToInputItems(conversationHistory);
+
+    const finalApiParams: any = {
+      model: 'gpt-5', // Hardcoded
+      instructions: instructions + '\n\nIMPORTANT: Maximum tool calls reached. Generate final response WITHOUT using more tools. Summarize what was accomplished.',
+      input: finalInputItems,
+      text: {
+        format: {
+          type: "json_schema",
+          name: "botResponseSchema",
+          strict: true,
+          schema: botResponseSchema
+        },
+        verbosity: 'low' // Hardcoded
+      },
+      reasoning: {
+        effort: 'medium', // Hardcoded
+        summary: true
+      },
+      tools: [], // No tools for final response
+      temperature: 0.7,
+      parallel_tool_calls: true,
+      store: false
+    };
+
+    const finalResponse = await openai.responses.create(finalApiParams);
+    const finalOutput = finalResponse.output as ResponsesApiOutputItem[];
+    
+    const finalMessageItems = finalOutput.filter(item => item.type === 'message');
+    const finalAssistantMessage = finalMessageItems.find(item => item.role === 'assistant');
+
+    let structuredResponse: BotResponse;
+    try {
+      if (!finalAssistantMessage || !finalAssistantMessage.content) {
+        throw new Error('No assistant message in final response');
+      }
+      
+      const finalTextContent = finalAssistantMessage.content.find(c => c.type === 'output_text');
+      if (!finalTextContent) {
+        throw new Error('No text content in final assistant message');
+      }
+
+      structuredResponse = JSON.parse(finalTextContent.text || '{}') as BotResponse;
+    } catch (error) {
+      console.error('❌ Failed to parse final structured response:', error);
+      structuredResponse = {
+        chat_response: 'I apologize, but I encountered an issue processing your request.',
+        user_language: preferredLanguage || 'en',
+        is_flagged: false,
+        user_sentiment: 'neutral',
+        user_information: previousUserInformation || ''
+      } as BotResponse;
+    }
+
+    return {
+      id: '',
+      role: 'assistant',
+      content: structuredResponse.chat_response,
+      timestamp: new Date(),
+      metadata: {
+        userLanguage: structuredResponse.user_language,
+        isFlagged: structuredResponse.is_flagged,
+        userSentiment: structuredResponse.user_sentiment,
+        userInformation: structuredResponse.user_information,
+        toolCalls: allToolCallsMetadata,
+        iterations: iterationCount,
+        maxIterationsReached: true,
+        webSearchSources: allWebSearchSources,
+        citations: allCitations
+      }
+    };
   }
 } 
